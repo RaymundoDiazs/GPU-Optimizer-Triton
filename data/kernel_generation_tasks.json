@@ -1,0 +1,9 @@
+[
+  {
+    "id": "vector_add",
+    "operation": "vector addition",
+    "prompt": "Generate a Triton kernel for vector addition. The kernel should compute Z = X + Y for N elements.",
+    "expected_kernel_name": "vector_add_kernel",
+    "expected_terms": ["@triton.jit", "tl.load", "tl.store", "x + y"]
+  }
+]

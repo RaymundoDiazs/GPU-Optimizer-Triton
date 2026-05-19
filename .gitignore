@@ -1,0 +1,33 @@
+# Python caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local/editor files
+.DS_Store
+.idea/
+.vscode/
+
+# Secrets and local config
+.env
+.env.*
+*.key
+
+# Generated benchmark/evaluation artifacts
+benchmarks/results.csv
+benchmarks/results_summary.png
+evaluation/artifacts/
+
+# Large model/checkpoint outputs
+models/checkpoints/
+*.safetensors
+*.pt
+*.pth
+*.bin

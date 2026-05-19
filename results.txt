@@ -1,0 +1,50 @@
+Input code: C = A + B
+
+Problem type: element_wise
+
+AST representation:
+
+{'Module': {'body': [{'Assign': {'targets': [{'Name': {'id': 'C', 'ctx': {'Store': {}}}}], 'value': {'BinOp': {'left': {'Name': {'id': 'A', 'ctx': {'Load': {}}}}, 'op': {'Add': {}}, 'right': {'Name': {'id': 'B', 'ctx': {'Load': {}}}}}}}}], 'type_ignores': []}}
+
+XGrammar representation:
+
+XGRAMMAR
+Module
+  body:
+    Assign
+      targets:
+        Name
+          id: C
+          ctx:
+            Store
+      value:
+        BinOp
+          left:
+            Name
+              id: A
+              ctx:
+                Load
+          op:
+            Add
+          right:
+            Name
+              id: B
+              ctx:
+                Load
+  type_ignores:
+
+
+Generated Triton kernel:
+
+
+import triton
+import triton.language as tl
+
+@triton.jit
+def elementwise_kernel(X, Y, Z, N):
+    pid = tl.program_id(0)
+    offsets = pid * 1024 + tl.arange(0, 1024)
+    mask = offsets < N
+    x = tl.load(X + offsets, mask=mask)
+    y = tl.load(Y + offsets, mask=mask)
+    tl.store(Z + offsets, x + y, mask=mask)

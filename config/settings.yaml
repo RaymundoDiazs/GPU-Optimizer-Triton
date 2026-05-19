@@ -1,0 +1,10 @@
+model:
+  name: phi-3-mini
+  mode: inference
+
+generation:
+  use_triton: true
+  optimization_level: basic
+
+benchmark:
+  runs: 10

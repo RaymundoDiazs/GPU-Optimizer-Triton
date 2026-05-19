@@ -1,0 +1,25 @@
+experiment:
+  samples_per_model: 3
+  seed: 7
+  task_file: data/kernel_generation_tasks.json
+
+models:
+  - id: small_qwen25_coder_1_5b
+    tier: small
+    display_name: Qwen2.5-Coder-1.5B
+    provider: mock
+    rationale: Small open-weight coder model candidate for low-cost or local/on-prem inference.
+  - id: frontier_openai
+    tier: frontier
+    display_name: Frontier Model A
+    provider: mock
+    rationale: Placeholder for a high-quality API model with strong code generation.
+  - id: frontier_anthropic
+    tier: frontier
+    display_name: Frontier Model B
+    provider: mock
+    rationale: Placeholder for a second frontier API baseline with different provider behavior.
+
+modes:
+  - baseline
+  - constrained

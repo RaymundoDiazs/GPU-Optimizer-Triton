@@ -1,0 +1,10 @@
+[
+  {
+    "code": "C = A + B",
+    "type": "element_wise"
+  },
+  {
+    "code": "sum(A)",
+    "type": "reduction"
+  }
+]

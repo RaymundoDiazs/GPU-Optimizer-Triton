@@ -1,0 +1,12 @@
+torch
+triton
+transformers
+datasets
+peft
+tree_sitter
+networkx
+pandas
+matplotlib
+pyyaml
+numpy
+pytest

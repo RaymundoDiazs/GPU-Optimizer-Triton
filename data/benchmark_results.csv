@@ -1,0 +1,2 @@
+test_case,baseline_time,optimized_time,speedup
+vector_add,1.0,0.6,1.67
