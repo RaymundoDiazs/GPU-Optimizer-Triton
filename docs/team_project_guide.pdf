@@ -1,0 +1,4025 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R 5 0 R 7 0 R 9 0 R 11 0 R 13 0 R 15 0 R 17 0 R 19 0 R 21 0 R 23 0 R 25 0 R 27 0 R 29 0 R 31 0 R 33 0 R 35 0 R 37 0 R 39 0 R 41 0 R 43 0 R 45 0 R 47 0 R 49 0 R 51 0 R 53 0 R 55 0 R 57 0 R] /Count 28 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 4 0 R >>
+endobj
+4 0 obj
+<< /Length 2551 >>
+stream
+BT
+/F1 18 Tf
+1 0 0 1 50 760 Tm
+(GPU Optimizer Triton - Guia para el equipo) Tj
+/F1 10 Tf
+1 0 0 1 50 736 Tm
+() Tj
+/F1 15 Tf
+1 0 0 1 50 720 Tm
+(1. Idea principal del proyecto) Tj
+/F1 10 Tf
+1 0 0 1 50 699 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 683 Tm
+(Este proyecto busca responder una pregunta:) Tj
+/F1 10 Tf
+1 0 0 1 50 667 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 651 Tm
+(Como podemos hacer que un modelo de lenguaje genere kernels GPU mas) Tj
+/F1 10 Tf
+1 0 0 1 50 635 Tm
+(correctos usando una gramatica formal?) Tj
+/F1 10 Tf
+1 0 0 1 50 619 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 603 Tm
+(Un LLM puede escribir codigo, pero no siempre lo hace bien. Cuando) Tj
+/F1 10 Tf
+1 0 0 1 50 587 Tm
+(genera codigo GPU puede cometer errores como:) Tj
+/F1 10 Tf
+1 0 0 1 50 571 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 555 Tm
+(- sintaxis invalida,) Tj
+/F1 10 Tf
+1 0 0 1 50 539 Tm
+(- uso incorrecto de APIs de Triton,) Tj
+/F1 10 Tf
+1 0 0 1 50 523 Tm
+(- errores de memoria,) Tj
+/F1 10 Tf
+1 0 0 1 50 507 Tm
+(- codigo que compila pero calcula mal,) Tj
+/F1 10 Tf
+1 0 0 1 50 491 Tm
+(- codigo funcional pero ineficiente.) Tj
+/F1 10 Tf
+1 0 0 1 50 475 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 459 Tm
+(La idea del proyecto no es confiar ciegamente en el modelo. La idea es) Tj
+/F1 10 Tf
+1 0 0 1 50 443 Tm
+(guiarlo con reglas.) Tj
+/F1 10 Tf
+1 0 0 1 50 427 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 411 Tm
+(El sistema debe comparar dos formas de generar kernels:) Tj
+/F1 10 Tf
+1 0 0 1 50 395 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 379 Tm
+(1. Generacion libre: el modelo genera codigo sin restricciones.) Tj
+/F1 10 Tf
+1 0 0 1 50 363 Tm
+(2. Generacion restringida: el modelo genera codigo siguiendo una) Tj
+/F1 10 Tf
+1 0 0 1 50 347 Tm
+(gramatica formal.) Tj
+/F1 10 Tf
+1 0 0 1 50 331 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 315 Tm
+(Luego se evalua si la gramatica ayuda a generar codigo mas valido y) Tj
+/F1 10 Tf
+1 0 0 1 50 299 Tm
+(correcto.) Tj
+/F1 10 Tf
+1 0 0 1 50 283 Tm
+() Tj
+/F1 15 Tf
+1 0 0 1 50 267 Tm
+(2. Que es un kernel GPU?) Tj
+/F1 10 Tf
+1 0 0 1 50 246 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 230 Tm
+(Un kernel GPU es una funcion que se ejecuta en paralelo sobre muchos) Tj
+/F1 10 Tf
+1 0 0 1 50 214 Tm
+(datos.) Tj
+/F1 10 Tf
+1 0 0 1 50 198 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 182 Tm
+(Ejemplo simple:) Tj
+/F1 10 Tf
+1 0 0 1 50 166 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 150 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 134 Tm
+(C = A + B) Tj
+/F1 10 Tf
+1 0 0 1 50 119 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 103 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 87 Tm
+(En CPU, esto puede verse como una operacion normal. En GPU, queremos que) Tj
+/F1 9 Tf
+1 0 0 1 50 35 Tm
+(GPU Optimizer Triton - Guia del equipo | Pagina 1) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 6 0 R >>
+endobj
+6 0 obj
+<< /Length 2395 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 760 Tm
+(muchos elementos se sumen al mismo tiempo:) Tj
+/F1 10 Tf
+1 0 0 1 50 744 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 728 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 712 Tm
+(C[0] = A[0] + B[0]) Tj
+/F1 9 Tf
+1 0 0 1 50 697 Tm
+(C[1] = A[1] + B[1]) Tj
+/F1 9 Tf
+1 0 0 1 50 682 Tm
+(C[2] = A[2] + B[2]) Tj
+/F1 9 Tf
+1 0 0 1 50 667 Tm
+(...) Tj
+/F1 10 Tf
+1 0 0 1 50 652 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 636 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 620 Tm
+(Triton permite escribir kernels GPU en Python. Un kernel de suma de) Tj
+/F1 10 Tf
+1 0 0 1 50 604 Tm
+(vectores normalmente tiene:) Tj
+/F1 10 Tf
+1 0 0 1 50 588 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 572 Tm
+(- imports de Triton,) Tj
+/F1 10 Tf
+1 0 0 1 50 556 Tm
+(- decorador `@triton.jit`,) Tj
+/F1 10 Tf
+1 0 0 1 50 540 Tm
+(- una funcion kernel,) Tj
+/F1 10 Tf
+1 0 0 1 50 524 Tm
+(- calculo de offsets,) Tj
+/F1 10 Tf
+1 0 0 1 50 508 Tm
+(- mascara para no salir del arreglo,) Tj
+/F1 10 Tf
+1 0 0 1 50 492 Tm
+(- `tl.load` para leer datos,) Tj
+/F1 10 Tf
+1 0 0 1 50 476 Tm
+(- `tl.store` para escribir resultados.) Tj
+/F1 10 Tf
+1 0 0 1 50 460 Tm
+() Tj
+/F1 15 Tf
+1 0 0 1 50 444 Tm
+(3. Que es un LLM en este proyecto?) Tj
+/F1 10 Tf
+1 0 0 1 50 423 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 407 Tm
+(El LLM es el modelo que intenta escribir el kernel.) Tj
+/F1 10 Tf
+1 0 0 1 50 391 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 375 Tm
+(Ejemplo de prompt:) Tj
+/F1 10 Tf
+1 0 0 1 50 359 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 343 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 327 Tm
+(Generate a Triton kernel for vector addition.) Tj
+/F1 9 Tf
+1 0 0 1 50 312 Tm
+(The kernel should compute Z = X + Y for N elements.) Tj
+/F1 10 Tf
+1 0 0 1 50 297 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 281 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 265 Tm
+(El modelo puede responder con codigo. El problema es que puede responder) Tj
+/F1 10 Tf
+1 0 0 1 50 249 Tm
+(bien o mal.) Tj
+/F1 10 Tf
+1 0 0 1 50 233 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 217 Tm
+(Por eso el proyecto no solo pregunta:) Tj
+/F1 10 Tf
+1 0 0 1 50 201 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 185 Tm
+(Puede un modelo generar codigo?) Tj
+/F1 10 Tf
+1 0 0 1 50 169 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 153 Tm
+(Pregunta algo mas especifico:) Tj
+/F1 10 Tf
+1 0 0 1 50 137 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 121 Tm
+(Genera mejor codigo cuando lo restringimos con una gramatica?) Tj
+/F1 10 Tf
+1 0 0 1 50 105 Tm
+() Tj
+/F1 15 Tf
+1 0 0 1 50 89 Tm
+(4. Que es una gramatica formal?) Tj
+/F1 9 Tf
+1 0 0 1 50 35 Tm
+(GPU Optimizer Triton - Guia del equipo | Pagina 2) Tj
+ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 8 0 R >>
+endobj
+8 0 obj
+<< /Length 2475 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 760 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 744 Tm
+(Una gramatica formal es un conjunto de reglas que define que textos son) Tj
+/F1 10 Tf
+1 0 0 1 50 728 Tm
+(validos.) Tj
+/F1 10 Tf
+1 0 0 1 50 712 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 696 Tm
+(En este proyecto, la gramatica debe describir una forma valida de kernel) Tj
+/F1 10 Tf
+1 0 0 1 50 680 Tm
+(Triton.) Tj
+/F1 10 Tf
+1 0 0 1 50 664 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 648 Tm
+(Por ejemplo, una gramatica puede obligar a que el codigo tenga:) Tj
+/F1 10 Tf
+1 0 0 1 50 632 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 616 Tm
+(- `import triton`,) Tj
+/F1 10 Tf
+1 0 0 1 50 600 Tm
+(- `import triton.language as tl`,) Tj
+/F1 10 Tf
+1 0 0 1 50 584 Tm
+(- `@triton.jit`,) Tj
+/F1 10 Tf
+1 0 0 1 50 568 Tm
+(- una funcion con argumentos esperados,) Tj
+/F1 10 Tf
+1 0 0 1 50 552 Tm
+(- `tl.load`,) Tj
+/F1 10 Tf
+1 0 0 1 50 536 Tm
+(- `tl.store`,) Tj
+/F1 10 Tf
+1 0 0 1 50 520 Tm
+(- una mascara `offsets < N`.) Tj
+/F1 10 Tf
+1 0 0 1 50 504 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 488 Tm
+(La gramatica no decide si el codigo es rapido. Su primera funcion es) Tj
+/F1 10 Tf
+1 0 0 1 50 472 Tm
+(limitar la forma del codigo para evitar salidas invalidas.) Tj
+/F1 10 Tf
+1 0 0 1 50 456 Tm
+() Tj
+/F1 15 Tf
+1 0 0 1 50 440 Tm
+(5. Que es constrained decoding?) Tj
+/F1 10 Tf
+1 0 0 1 50 419 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 403 Tm
+(Normalmente, un LLM genera texto token por token.) Tj
+/F1 10 Tf
+1 0 0 1 50 387 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 371 Tm
+(Sin restricciones, el modelo puede elegir cualquier token probable.) Tj
+/F1 10 Tf
+1 0 0 1 50 355 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 339 Tm
+(Con constrained decoding, la gramatica filtra los tokens permitidos en) Tj
+/F1 10 Tf
+1 0 0 1 50 323 Tm
+(cada paso.) Tj
+/F1 10 Tf
+1 0 0 1 50 307 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 291 Tm
+(En simple:) Tj
+/F1 10 Tf
+1 0 0 1 50 275 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 259 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 243 Tm
+(Modelo quiere escribir codigo) Tj
+/F1 9 Tf
+1 0 0 1 50 228 Tm
+(        |) Tj
+/F1 9 Tf
+1 0 0 1 50 213 Tm
+(Gramatica revisa que tokens son validos) Tj
+/F1 9 Tf
+1 0 0 1 50 198 Tm
+(        |) Tj
+/F1 9 Tf
+1 0 0 1 50 183 Tm
+(Solo se permite elegir tokens que siguen las reglas) Tj
+/F1 10 Tf
+1 0 0 1 50 168 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 152 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 136 Tm
+(Esto es mas fuerte que un prompt.) Tj
+/F1 10 Tf
+1 0 0 1 50 120 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 104 Tm
+(Un prompt solo pide:) Tj
+/F1 10 Tf
+1 0 0 1 50 88 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 35 Tm
+(GPU Optimizer Triton - Guia del equipo | Pagina 3) Tj
+ET
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 10 0 R >>
+endobj
+10 0 obj
+<< /Length 2212 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 760 Tm
+(Por favor genera codigo valido.) Tj
+/F1 10 Tf
+1 0 0 1 50 744 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 728 Tm
+(La gramatica impone:) Tj
+/F1 10 Tf
+1 0 0 1 50 712 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 696 Tm
+(Solo puedes generar codigo con esta estructura.) Tj
+/F1 10 Tf
+1 0 0 1 50 680 Tm
+() Tj
+/F1 15 Tf
+1 0 0 1 50 664 Tm
+(6. Flujo esperado del sistema final) Tj
+/F1 10 Tf
+1 0 0 1 50 643 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 627 Tm
+(El flujo ideal del proyecto es:) Tj
+/F1 10 Tf
+1 0 0 1 50 611 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 595 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 579 Tm
+(Prompt de tarea) Tj
+/F1 9 Tf
+1 0 0 1 50 564 Tm
+(        |) Tj
+/F1 9 Tf
+1 0 0 1 50 549 Tm
+(        v) Tj
+/F1 9 Tf
+1 0 0 1 50 534 Tm
+(LLM genera kernel) Tj
+/F1 9 Tf
+1 0 0 1 50 519 Tm
+(        |) Tj
+/F1 9 Tf
+1 0 0 1 50 504 Tm
+(        +-- modo baseline: sin gramatica) Tj
+/F1 9 Tf
+1 0 0 1 50 489 Tm
+(        |) Tj
+/F1 9 Tf
+1 0 0 1 50 474 Tm
+(        +-- modo constrained: con gramatica) Tj
+/F1 9 Tf
+1 0 0 1 50 459 Tm
+(        |) Tj
+/F1 9 Tf
+1 0 0 1 50 444 Tm
+(        v) Tj
+/F1 9 Tf
+1 0 0 1 50 429 Tm
+(Codigo Triton generado) Tj
+/F1 9 Tf
+1 0 0 1 50 414 Tm
+(        |) Tj
+/F1 9 Tf
+1 0 0 1 50 399 Tm
+(        v) Tj
+/F1 9 Tf
+1 0 0 1 50 384 Tm
+(Validacion) Tj
+/F1 9 Tf
+1 0 0 1 50 369 Tm
+(        |) Tj
+/F1 9 Tf
+1 0 0 1 50 354 Tm
+(        +-- compila?) Tj
+/F1 9 Tf
+1 0 0 1 50 339 Tm
+(        +-- corre?) Tj
+/F1 9 Tf
+1 0 0 1 50 324 Tm
+(        +-- da el resultado correcto?) Tj
+/F1 9 Tf
+1 0 0 1 50 309 Tm
+(        |) Tj
+/F1 9 Tf
+1 0 0 1 50 294 Tm
+(        v) Tj
+/F1 9 Tf
+1 0 0 1 50 279 Tm
+(Comparacion de resultados) Tj
+/F1 10 Tf
+1 0 0 1 50 264 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 248 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 232 Tm
+(La comparacion importante es:) Tj
+/F1 10 Tf
+1 0 0 1 50 216 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 200 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 184 Tm
+(LLM sin gramatica vs LLM con gramatica) Tj
+/F1 10 Tf
+1 0 0 1 50 169 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 153 Tm
+() Tj
+/F1 15 Tf
+1 0 0 1 50 137 Tm
+(7. Que tenemos ya en el repo?) Tj
+/F1 10 Tf
+1 0 0 1 50 116 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 100 Tm
+(El repositorio ya tiene una base para trabajar:) Tj
+/F1 10 Tf
+1 0 0 1 50 84 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 35 Tm
+(GPU Optimizer Triton - Guia del equipo | Pagina 4) Tj
+ET
+endstream
+endobj
+11 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 12 0 R >>
+endobj
+12 0 obj
+<< /Length 3297 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 760 Tm
+(- `main.py`: pipeline inicial del prototipo.) Tj
+/F1 10 Tf
+1 0 0 1 50 744 Tm
+(- `models/classifier.py`: clasifica snippets como element-wise,) Tj
+/F1 10 Tf
+1 0 0 1 50 728 Tm
+(reduction o matrix operation.) Tj
+/F1 10 Tf
+1 0 0 1 50 712 Tm
+(- `parsing/ast_parser.py`: convierte codigo a AST.) Tj
+/F1 10 Tf
+1 0 0 1 50 696 Tm
+(- `parsing/xgrammar_converter.py`: crea una representacion estructurada) Tj
+/F1 10 Tf
+1 0 0 1 50 680 Tm
+(tipo XGrammar.) Tj
+/F1 10 Tf
+1 0 0 1 50 664 Tm
+(- `generation/kernel_templates.py`: contiene templates de kernels) Tj
+/F1 10 Tf
+1 0 0 1 50 648 Tm
+(Triton.) Tj
+/F1 10 Tf
+1 0 0 1 50 632 Tm
+(- `generation/triton_generator.py`: selecciona templates segun el tipo) Tj
+/F1 10 Tf
+1 0 0 1 50 616 Tm
+(de problema.) Tj
+/F1 10 Tf
+1 0 0 1 50 600 Tm
+(- `generation/constrained_decoder.py`: primer prototipo de capa de) Tj
+/F1 10 Tf
+1 0 0 1 50 584 Tm
+(restricciones; valida si un kernel generado cumple reglas basicas.) Tj
+/F1 10 Tf
+1 0 0 1 50 568 Tm
+(- `parsing/triton_grammar_rules.py`: reglas simples para revisar) Tj
+/F1 10 Tf
+1 0 0 1 50 552 Tm
+(estructura Triton obligatoria.) Tj
+/F1 10 Tf
+1 0 0 1 50 536 Tm
+(- `benchmarks/`: scripts para medir tiempos y generar graficas.) Tj
+/F1 10 Tf
+1 0 0 1 50 520 Tm
+(- `evaluation/model_evaluation.py`: runner para comparar modelos en modo) Tj
+/F1 10 Tf
+1 0 0 1 50 504 Tm
+(baseline y constrained.) Tj
+/F1 10 Tf
+1 0 0 1 50 488 Tm
+(- `evaluation/collect_real_outputs.py`: recolecta outputs reales desde) Tj
+/F1 10 Tf
+1 0 0 1 50 472 Tm
+(Ollama, OpenAI y Anthropic.) Tj
+/F1 10 Tf
+1 0 0 1 50 456 Tm
+(- `evaluation/real_outputs.jsonl`: outputs reales ya recolectados para) Tj
+/F1 10 Tf
+1 0 0 1 50 440 Tm
+(el segundo video.) Tj
+/F1 10 Tf
+1 0 0 1 50 424 Tm
+(- `evaluation/experiment_log.md`: bitacora del experimento de modelos.) Tj
+/F1 10 Tf
+1 0 0 1 50 408 Tm
+(- `prompts/kernel_generation_prompt.txt`: prompt base para pedir) Tj
+/F1 10 Tf
+1 0 0 1 50 392 Tm
+(kernels.) Tj
+/F1 10 Tf
+1 0 0 1 50 376 Tm
+(- `config/model_eval.yaml`: configuracion de modelos para la evaluacion.) Tj
+/F1 10 Tf
+1 0 0 1 50 360 Tm
+(- `data/kernel_generation_tasks.json`: tareas de generacion, por ahora) Tj
+/F1 10 Tf
+1 0 0 1 50 344 Tm
+(vector addition.) Tj
+/F1 10 Tf
+1 0 0 1 50 328 Tm
+(- `tests/`: pruebas automaticas.) Tj
+/F1 10 Tf
+1 0 0 1 50 312 Tm
+(- `docs/`: documentacion y planes de presentacion.) Tj
+/F1 10 Tf
+1 0 0 1 50 296 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 280 Tm
+(Importante:) Tj
+/F1 10 Tf
+1 0 0 1 50 264 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 248 Tm
+(La carpeta actual ya tiene una base de evaluacion con modelos reales y) Tj
+/F1 10 Tf
+1 0 0 1 50 232 Tm
+(un prototipo de restricciones. Todavia no es el sistema final porque) Tj
+/F1 10 Tf
+1 0 0 1 50 216 Tm
+(falta constrained decoding real token por token con XGrammar.) Tj
+/F1 10 Tf
+1 0 0 1 50 200 Tm
+() Tj
+/F1 15 Tf
+1 0 0 1 50 184 Tm
+(8. Como se conecta la explicacion con el codigo?) Tj
+/F1 10 Tf
+1 0 0 1 50 163 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 147 Tm
+(Esta seccion aterriza la idea en archivos reales del repositorio.) Tj
+/F1 10 Tf
+1 0 0 1 50 131 Tm
+() Tj
+/F1 13 Tf
+1 0 0 1 50 115 Tm
+(Flujo 1: pipeline inicial del prototipo) Tj
+/F1 10 Tf
+1 0 0 1 50 96 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 80 Tm
+(Cuando corren:) Tj
+/F1 9 Tf
+1 0 0 1 50 35 Tm
+(GPU Optimizer Triton - Guia del equipo | Pagina 5) Tj
+ET
+endstream
+endobj
+13 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 14 0 R >>
+endobj
+14 0 obj
+<< /Length 2378 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 760 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 744 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 728 Tm
+(python main.py --code "C = A + B") Tj
+/F1 10 Tf
+1 0 0 1 50 713 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 697 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 681 Tm
+(el flujo real es:) Tj
+/F1 10 Tf
+1 0 0 1 50 665 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 649 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 633 Tm
+(main.py) Tj
+/F1 9 Tf
+1 0 0 1 50 618 Tm
+(  |) Tj
+/F1 9 Tf
+1 0 0 1 50 603 Tm
+(  +-- models/classifier.py) Tj
+/F1 9 Tf
+1 0 0 1 50 588 Tm
+(  |     decide si el codigo es element_wise, reduction, matrix_operation o generic) Tj
+/F1 9 Tf
+1 0 0 1 50 573 Tm
+(  |) Tj
+/F1 9 Tf
+1 0 0 1 50 558 Tm
+(  +-- parsing/ast_parser.py) Tj
+/F1 9 Tf
+1 0 0 1 50 543 Tm
+(  |     convierte el snippet a una estructura AST en forma de diccionario) Tj
+/F1 9 Tf
+1 0 0 1 50 528 Tm
+(  |) Tj
+/F1 9 Tf
+1 0 0 1 50 513 Tm
+(  +-- parsing/xgrammar_converter.py) Tj
+/F1 9 Tf
+1 0 0 1 50 498 Tm
+(  |     convierte esa AST a texto estructurado tipo XGrammar) Tj
+/F1 9 Tf
+1 0 0 1 50 483 Tm
+(  |) Tj
+/F1 9 Tf
+1 0 0 1 50 468 Tm
+(  +-- generation/triton_generator.py) Tj
+/F1 9 Tf
+1 0 0 1 50 453 Tm
+(        escoge un template de kernel) Tj
+/F1 9 Tf
+1 0 0 1 50 438 Tm
+(        |) Tj
+/F1 9 Tf
+1 0 0 1 50 423 Tm
+(        +-- generation/kernel_templates.py) Tj
+/F1 9 Tf
+1 0 0 1 50 408 Tm
+(              contiene el codigo Triton base) Tj
+/F1 10 Tf
+1 0 0 1 50 393 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 377 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 361 Tm
+(Ejemplo:) Tj
+/F1 10 Tf
+1 0 0 1 50 345 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 329 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 313 Tm
+(Entrada:) Tj
+/F1 9 Tf
+1 0 0 1 50 298 Tm
+(C = A + B) Tj
+/F1 9 Tf
+1 0 0 1 50 283 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 268 Tm
+(Salida:) Tj
+/F1 9 Tf
+1 0 0 1 50 253 Tm
+(Problem type: element_wise) Tj
+/F1 9 Tf
+1 0 0 1 50 238 Tm
+(Generated Triton kernel: elementwise_kernel) Tj
+/F1 10 Tf
+1 0 0 1 50 223 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 207 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 191 Tm
+(Este flujo sirve como prototipo y referencia. No es todavia constrained) Tj
+/F1 10 Tf
+1 0 0 1 50 175 Tm
+(decoding real.) Tj
+/F1 10 Tf
+1 0 0 1 50 159 Tm
+() Tj
+/F1 13 Tf
+1 0 0 1 50 143 Tm
+(Flujo 2: evaluacion para el video con datos mock) Tj
+/F1 10 Tf
+1 0 0 1 50 124 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 108 Tm
+(Cuando corren:) Tj
+/F1 10 Tf
+1 0 0 1 50 92 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 76 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 35 Tm
+(GPU Optimizer Triton - Guia del equipo | Pagina 6) Tj
+ET
+endstream
+endobj
+15 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 16 0 R >>
+endobj
+16 0 obj
+<< /Length 2798 >>
+stream
+BT
+/F1 9 Tf
+1 0 0 1 50 760 Tm
+(python evaluation/model_evaluation.py --samples 3) Tj
+/F1 10 Tf
+1 0 0 1 50 745 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 729 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 713 Tm
+(el flujo real es:) Tj
+/F1 10 Tf
+1 0 0 1 50 697 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 681 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 665 Tm
+(evaluation/model_evaluation.py) Tj
+/F1 9 Tf
+1 0 0 1 50 650 Tm
+(  |) Tj
+/F1 9 Tf
+1 0 0 1 50 635 Tm
+(  +-- lee config/model_eval.yaml) Tj
+/F1 9 Tf
+1 0 0 1 50 620 Tm
+(  |     modelos, tiers, provider, modos baseline/constrained) Tj
+/F1 9 Tf
+1 0 0 1 50 605 Tm
+(  |) Tj
+/F1 9 Tf
+1 0 0 1 50 590 Tm
+(  +-- lee data/kernel_generation_tasks.json) Tj
+/F1 9 Tf
+1 0 0 1 50 575 Tm
+(  |     tarea actual: vector_add) Tj
+/F1 9 Tf
+1 0 0 1 50 560 Tm
+(  |) Tj
+/F1 9 Tf
+1 0 0 1 50 545 Tm
+(  +-- lee prompts/kernel_generation_prompt.txt) Tj
+/F1 9 Tf
+1 0 0 1 50 530 Tm
+(  |     prompt base para todos los modelos) Tj
+/F1 9 Tf
+1 0 0 1 50 515 Tm
+(  |) Tj
+/F1 9 Tf
+1 0 0 1 50 500 Tm
+(  +-- genera outputs) Tj
+/F1 9 Tf
+1 0 0 1 50 485 Tm
+(  |     hoy puede usar provider mock) Tj
+/F1 9 Tf
+1 0 0 1 50 470 Tm
+(  |) Tj
+/F1 9 Tf
+1 0 0 1 50 455 Tm
+(  +-- evalua checks simples) Tj
+/F1 9 Tf
+1 0 0 1 50 440 Tm
+(  |     sintaxis valida?) Tj
+/F1 9 Tf
+1 0 0 1 50 425 Tm
+(  |     tiene @triton.jit?) Tj
+/F1 9 Tf
+1 0 0 1 50 410 Tm
+(  |     tiene tl.load y tl.store?) Tj
+/F1 9 Tf
+1 0 0 1 50 395 Tm
+(  |     parece hacer x + y?) Tj
+/F1 9 Tf
+1 0 0 1 50 380 Tm
+(  |) Tj
+/F1 9 Tf
+1 0 0 1 50 365 Tm
+(  +-- escribe resultados) Tj
+/F1 9 Tf
+1 0 0 1 50 350 Tm
+(        evaluation/artifacts/model_eval_results.csv) Tj
+/F1 9 Tf
+1 0 0 1 50 335 Tm
+(        evaluation/artifacts/generated_kernels.jsonl) Tj
+/F1 9 Tf
+1 0 0 1 50 320 Tm
+(        evaluation/artifacts/model_eval_summary.md) Tj
+/F1 10 Tf
+1 0 0 1 50 305 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 289 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 273 Tm
+(Este flujo ayuda para el segundo video. Sirve para practicar la) Tj
+/F1 10 Tf
+1 0 0 1 50 257 Tm
+(comparacion small model vs frontier models, pero los resultados mock no) Tj
+/F1 10 Tf
+1 0 0 1 50 241 Tm
+(se deben presentar como resultados reales.) Tj
+/F1 10 Tf
+1 0 0 1 50 225 Tm
+() Tj
+/F1 13 Tf
+1 0 0 1 50 209 Tm
+(Flujo 2B: evaluacion para el video con outputs reales) Tj
+/F1 10 Tf
+1 0 0 1 50 190 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 174 Tm
+(Dilan agrego un flujo para recolectar outputs reales de modelos:) Tj
+/F1 10 Tf
+1 0 0 1 50 158 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 142 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 126 Tm
+(python evaluation/collect_real_outputs.py --provider ollama) Tj
+/F1 9 Tf
+1 0 0 1 50 111 Tm
+(python evaluation/collect_real_outputs.py --provider openai) Tj
+/F1 9 Tf
+1 0 0 1 50 96 Tm
+(python evaluation/collect_real_outputs.py --provider anthropic) Tj
+/F1 10 Tf
+1 0 0 1 50 81 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 35 Tm
+(GPU Optimizer Triton - Guia del equipo | Pagina 7) Tj
+ET
+endstream
+endobj
+17 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 18 0 R >>
+endobj
+18 0 obj
+<< /Length 2605 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 760 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 744 Tm
+(Esto usa:) Tj
+/F1 10 Tf
+1 0 0 1 50 728 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 712 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 696 Tm
+(config/model_eval.yaml) Tj
+/F1 9 Tf
+1 0 0 1 50 681 Tm
+(prompts/kernel_generation_prompt.txt) Tj
+/F1 9 Tf
+1 0 0 1 50 666 Tm
+(data/kernel_generation_tasks.json) Tj
+/F1 10 Tf
+1 0 0 1 50 651 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 635 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 619 Tm
+(y guarda las respuestas en:) Tj
+/F1 10 Tf
+1 0 0 1 50 603 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 587 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 571 Tm
+(evaluation/real_outputs.jsonl) Tj
+/F1 10 Tf
+1 0 0 1 50 556 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 540 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 524 Tm
+(Despues se evaluan esos outputs reales con:) Tj
+/F1 10 Tf
+1 0 0 1 50 508 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 492 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 476 Tm
+(python evaluation/model_evaluation.py --manual-outputs evaluation/real_outputs.jsonl) Tj
+/F1 10 Tf
+1 0 0 1 50 461 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 445 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 429 Tm
+(Esto genera:) Tj
+/F1 10 Tf
+1 0 0 1 50 413 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 397 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 381 Tm
+(evaluation/artifacts/model_eval_results.csv) Tj
+/F1 9 Tf
+1 0 0 1 50 366 Tm
+(evaluation/artifacts/generated_kernels.jsonl) Tj
+/F1 9 Tf
+1 0 0 1 50 351 Tm
+(evaluation/artifacts/model_eval_summary.md) Tj
+/F1 10 Tf
+1 0 0 1 50 336 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 320 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 304 Tm
+(Resultados actuales del experimento:) Tj
+/F1 10 Tf
+1 0 0 1 50 288 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 272 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 256 Tm
+(Qwen2.5-Coder-1.5B baseline:    syntax 100%, kernel shape 33%, correctness proxy 0%) Tj
+/F1 9 Tf
+1 0 0 1 50 241 Tm
+(Qwen2.5-Coder-1.5B constrained: syntax 100%, kernel shape 100%, correctness proxy 0%) Tj
+/F1 9 Tf
+1 0 0 1 50 226 Tm
+(GPT-4o baseline/constrained:    syntax 100%, kernel shape 100%, correctness proxy 100%) Tj
+/F1 9 Tf
+1 0 0 1 50 211 Tm
+(Claude baseline/constrained:    syntax 100%, kernel shape 100%, correctness proxy 100%) Tj
+/F1 10 Tf
+1 0 0 1 50 196 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 180 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 164 Tm
+(Interpretacion:) Tj
+/F1 10 Tf
+1 0 0 1 50 148 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 132 Tm
+(- Los modelos frontier generan kernels correctos para esta tarea simple.) Tj
+/F1 10 Tf
+1 0 0 1 50 116 Tm
+(- El modelo pequeno mejora en estructura cuando se le agrega el contrato) Tj
+/F1 10 Tf
+1 0 0 1 50 100 Tm
+(constrained.) Tj
+/F1 10 Tf
+1 0 0 1 50 84 Tm
+(- El modelo pequeno todavia falla la metrica de correctness proxy.) Tj
+/F1 9 Tf
+1 0 0 1 50 35 Tm
+(GPU Optimizer Triton - Guia del equipo | Pagina 8) Tj
+ET
+endstream
+endobj
+19 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 20 0 R >>
+endobj
+20 0 obj
+<< /Length 2470 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 760 Tm
+(- Esto sirve para el segundo video porque muestra una decision real: las) Tj
+/F1 10 Tf
+1 0 0 1 50 744 Tm
+(restricciones ayudan en estructura, pero no sustituyen validacion) Tj
+/F1 10 Tf
+1 0 0 1 50 728 Tm
+(funcional ni constrained decoding real.) Tj
+/F1 10 Tf
+1 0 0 1 50 712 Tm
+() Tj
+/F1 13 Tf
+1 0 0 1 50 696 Tm
+(Flujo 2C: prototipo de restricciones) Tj
+/F1 10 Tf
+1 0 0 1 50 677 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 661 Tm
+(Los cambios nuevos de main agregaron:) Tj
+/F1 10 Tf
+1 0 0 1 50 645 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 629 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 613 Tm
+(generation/constrained_decoder.py) Tj
+/F1 9 Tf
+1 0 0 1 50 598 Tm
+(parsing/triton_grammar_rules.py) Tj
+/F1 9 Tf
+1 0 0 1 50 583 Tm
+(tests/test_constrained_decoder.py) Tj
+/F1 10 Tf
+1 0 0 1 50 568 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 552 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 536 Tm
+(El flujo actual es:) Tj
+/F1 10 Tf
+1 0 0 1 50 520 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 504 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 488 Tm
+(codigo generado) Tj
+/F1 9 Tf
+1 0 0 1 50 473 Tm
+(  |) Tj
+/F1 9 Tf
+1 0 0 1 50 458 Tm
+(  v) Tj
+/F1 9 Tf
+1 0 0 1 50 443 Tm
+(generation/constrained_decoder.py) Tj
+/F1 9 Tf
+1 0 0 1 50 428 Tm
+(  |) Tj
+/F1 9 Tf
+1 0 0 1 50 413 Tm
+(  v) Tj
+/F1 9 Tf
+1 0 0 1 50 398 Tm
+(parsing/triton_grammar_rules.py) Tj
+/F1 9 Tf
+1 0 0 1 50 383 Tm
+(  |) Tj
+/F1 9 Tf
+1 0 0 1 50 368 Tm
+(  +-- revisa @triton.jit) Tj
+/F1 9 Tf
+1 0 0 1 50 353 Tm
+(  +-- revisa def kernel\(...\)) Tj
+/F1 9 Tf
+1 0 0 1 50 338 Tm
+(  +-- revisa tl.program_id\(...\)) Tj
+/F1 9 Tf
+1 0 0 1 50 323 Tm
+(  +-- revisa tl.load\(...\)) Tj
+/F1 9 Tf
+1 0 0 1 50 308 Tm
+(  +-- revisa tl.store\(...\)) Tj
+/F1 9 Tf
+1 0 0 1 50 293 Tm
+(  +-- revisa parentesis y brackets balanceados) Tj
+/F1 9 Tf
+1 0 0 1 50 278 Tm
+(  |) Tj
+/F1 9 Tf
+1 0 0 1 50 263 Tm
+(  v) Tj
+/F1 9 Tf
+1 0 0 1 50 248 Tm
+(aceptado o rechazado) Tj
+/F1 10 Tf
+1 0 0 1 50 233 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 217 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 201 Tm
+(Este componente funciona como validador/post-check. Todavia no controla) Tj
+/F1 10 Tf
+1 0 0 1 50 185 Tm
+(al modelo mientras genera tokens. Por eso se debe explicar como) Tj
+/F1 10 Tf
+1 0 0 1 50 169 Tm
+(prototipo hacia constrained decoding, no como XGrammar final.) Tj
+/F1 10 Tf
+1 0 0 1 50 153 Tm
+() Tj
+/F1 13 Tf
+1 0 0 1 50 137 Tm
+(Flujo 3: benchmarks simples) Tj
+/F1 10 Tf
+1 0 0 1 50 118 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 102 Tm
+(Cuando corren:) Tj
+/F1 10 Tf
+1 0 0 1 50 86 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 35 Tm
+(GPU Optimizer Triton - Guia del equipo | Pagina 9) Tj
+ET
+endstream
+endobj
+21 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 22 0 R >>
+endobj
+22 0 obj
+<< /Length 2101 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 760 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 744 Tm
+(python benchmarks/run_benchmarks.py --runs 5) Tj
+/F1 10 Tf
+1 0 0 1 50 729 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 713 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 697 Tm
+(el flujo es:) Tj
+/F1 10 Tf
+1 0 0 1 50 681 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 665 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 649 Tm
+(benchmarks/run_benchmarks.py) Tj
+/F1 9 Tf
+1 0 0 1 50 634 Tm
+(  |) Tj
+/F1 9 Tf
+1 0 0 1 50 619 Tm
+(  +-- lee data/sample_problems.json) Tj
+/F1 9 Tf
+1 0 0 1 50 604 Tm
+(  |) Tj
+/F1 9 Tf
+1 0 0 1 50 589 Tm
+(  +-- llama main.run_pipeline\(code\)) Tj
+/F1 9 Tf
+1 0 0 1 50 574 Tm
+(  |) Tj
+/F1 9 Tf
+1 0 0 1 50 559 Tm
+(  +-- mide tiempo de generacion) Tj
+/F1 9 Tf
+1 0 0 1 50 544 Tm
+(  |) Tj
+/F1 9 Tf
+1 0 0 1 50 529 Tm
+(  +-- guarda benchmarks/results.csv) Tj
+/F1 10 Tf
+1 0 0 1 50 514 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 498 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 482 Tm
+(Luego:) Tj
+/F1 10 Tf
+1 0 0 1 50 466 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 450 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 434 Tm
+(python benchmarks/plot_results.py) Tj
+/F1 10 Tf
+1 0 0 1 50 419 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 403 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 387 Tm
+(genera:) Tj
+/F1 10 Tf
+1 0 0 1 50 371 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 355 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 339 Tm
+(benchmarks/results_summary.png) Tj
+/F1 10 Tf
+1 0 0 1 50 324 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 308 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 292 Tm
+(Esto mide tiempo de generacion del prototipo, no rendimiento real del) Tj
+/F1 10 Tf
+1 0 0 1 50 276 Tm
+(kernel en GPU.) Tj
+/F1 10 Tf
+1 0 0 1 50 260 Tm
+() Tj
+/F1 15 Tf
+1 0 0 1 50 244 Tm
+(9. Mapa de carpetas explicado) Tj
+/F1 10 Tf
+1 0 0 1 50 223 Tm
+() Tj
+/F1 13 Tf
+1 0 0 1 50 207 Tm
+(`prompts/`) Tj
+/F1 10 Tf
+1 0 0 1 50 188 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 172 Tm
+(Aqui viven los prompts que se le dan al modelo.) Tj
+/F1 10 Tf
+1 0 0 1 50 156 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 140 Tm
+(Archivo principal:) Tj
+/F1 10 Tf
+1 0 0 1 50 124 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 108 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 92 Tm
+(prompts/kernel_generation_prompt.txt) Tj
+/F1 10 Tf
+1 0 0 1 50 77 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 35 Tm
+(GPU Optimizer Triton - Guia del equipo | Pagina 10) Tj
+ET
+endstream
+endobj
+23 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 24 0 R >>
+endobj
+24 0 obj
+<< /Length 2194 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 760 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 744 Tm
+(Este prompt dice:) Tj
+/F1 10 Tf
+1 0 0 1 50 728 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 712 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 696 Tm
+(You are generating a Triton GPU kernel.) Tj
+/F1 9 Tf
+1 0 0 1 50 681 Tm
+(Task:) Tj
+/F1 9 Tf
+1 0 0 1 50 666 Tm
+({task_prompt}) Tj
+/F1 9 Tf
+1 0 0 1 50 651 Tm
+(Return only Python code.) Tj
+/F1 10 Tf
+1 0 0 1 50 636 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 620 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 604 Tm
+(El programa reemplaza {task_prompt} con una tarea concreta, por ejemplo:) Tj
+/F1 10 Tf
+1 0 0 1 50 588 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 572 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 556 Tm
+(Generate a Triton kernel for vector addition.) Tj
+/F1 10 Tf
+1 0 0 1 50 541 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 525 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 509 Tm
+(En la practica, esta carpeta la usa la persona encargada de generacion) Tj
+/F1 10 Tf
+1 0 0 1 50 493 Tm
+(con LLM.) Tj
+/F1 10 Tf
+1 0 0 1 50 477 Tm
+() Tj
+/F1 13 Tf
+1 0 0 1 50 461 Tm
+(`config/`) Tj
+/F1 10 Tf
+1 0 0 1 50 442 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 426 Tm
+(Aqui viven configuraciones que no deberian estar hardcodeadas en el) Tj
+/F1 10 Tf
+1 0 0 1 50 410 Tm
+(codigo.) Tj
+/F1 10 Tf
+1 0 0 1 50 394 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 378 Tm
+(Archivo importante:) Tj
+/F1 10 Tf
+1 0 0 1 50 362 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 346 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 330 Tm
+(config/model_eval.yaml) Tj
+/F1 10 Tf
+1 0 0 1 50 315 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 299 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 283 Tm
+(Ese archivo define:) Tj
+/F1 10 Tf
+1 0 0 1 50 267 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 251 Tm
+(- modelos a comparar,) Tj
+/F1 10 Tf
+1 0 0 1 50 235 Tm
+(- si son small o frontier,) Tj
+/F1 10 Tf
+1 0 0 1 50 219 Tm
+(- provider,) Tj
+/F1 10 Tf
+1 0 0 1 50 203 Tm
+(- numero de muestras,) Tj
+/F1 10 Tf
+1 0 0 1 50 187 Tm
+(- modos `baseline` y `constrained`.) Tj
+/F1 10 Tf
+1 0 0 1 50 171 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 155 Tm
+(Ejemplo conceptual:) Tj
+/F1 10 Tf
+1 0 0 1 50 139 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 123 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 107 Tm
+(models:) Tj
+/F1 9 Tf
+1 0 0 1 50 92 Tm
+(  - id: small_qwen25_coder_1_5b) Tj
+/F1 9 Tf
+1 0 0 1 50 77 Tm
+(    tier: small) Tj
+/F1 9 Tf
+1 0 0 1 50 35 Tm
+(GPU Optimizer Triton - Guia del equipo | Pagina 11) Tj
+ET
+endstream
+endobj
+25 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 26 0 R >>
+endobj
+26 0 obj
+<< /Length 2210 >>
+stream
+BT
+/F1 9 Tf
+1 0 0 1 50 760 Tm
+(    provider: ollama) Tj
+/F1 9 Tf
+1 0 0 1 50 745 Tm
+(    model_name: qwen2.5-coder:1.5b) Tj
+/F1 10 Tf
+1 0 0 1 50 730 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 714 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 698 Tm
+(Los providers actuales son:) Tj
+/F1 10 Tf
+1 0 0 1 50 682 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 666 Tm
+(- `ollama`: modelo pequeno local.) Tj
+/F1 10 Tf
+1 0 0 1 50 650 Tm
+(- `openai`: GPT-4o.) Tj
+/F1 10 Tf
+1 0 0 1 50 634 Tm
+(- `anthropic`: Claude Haiku 4.5.) Tj
+/F1 10 Tf
+1 0 0 1 50 618 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 602 Tm
+(Para OpenAI y Anthropic se necesitan API keys en variables de entorno o) Tj
+/F1 10 Tf
+1 0 0 1 50 586 Tm
+(en .env.) Tj
+/F1 10 Tf
+1 0 0 1 50 570 Tm
+() Tj
+/F1 13 Tf
+1 0 0 1 50 554 Tm
+(`data/`) Tj
+/F1 10 Tf
+1 0 0 1 50 535 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 519 Tm
+(Aqui viven entradas del experimento.) Tj
+/F1 10 Tf
+1 0 0 1 50 503 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 487 Tm
+(Archivo importante:) Tj
+/F1 10 Tf
+1 0 0 1 50 471 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 455 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 439 Tm
+(data/kernel_generation_tasks.json) Tj
+/F1 10 Tf
+1 0 0 1 50 424 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 408 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 392 Tm
+(Define la tarea que el modelo debe resolver.) Tj
+/F1 10 Tf
+1 0 0 1 50 376 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 360 Tm
+(Ejemplo:) Tj
+/F1 10 Tf
+1 0 0 1 50 344 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 328 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 312 Tm
+({) Tj
+/F1 9 Tf
+1 0 0 1 50 297 Tm
+(  "id": "vector_add",) Tj
+/F1 9 Tf
+1 0 0 1 50 282 Tm
+(  "operation": "vector addition",) Tj
+/F1 9 Tf
+1 0 0 1 50 267 Tm
+(  "prompt": "Generate a Triton kernel for vector addition.") Tj
+/F1 9 Tf
+1 0 0 1 50 252 Tm
+(}) Tj
+/F1 10 Tf
+1 0 0 1 50 237 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 221 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 205 Tm
+(Si despues agregan otra tarea, por ejemplo multiplicacion elemento a) Tj
+/F1 10 Tf
+1 0 0 1 50 189 Tm
+(elemento, se agregaria aqui.) Tj
+/F1 10 Tf
+1 0 0 1 50 173 Tm
+() Tj
+/F1 13 Tf
+1 0 0 1 50 157 Tm
+(`evaluation/`) Tj
+/F1 10 Tf
+1 0 0 1 50 138 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 122 Tm
+(Aqui vive la comparacion de modelos.) Tj
+/F1 10 Tf
+1 0 0 1 50 106 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 90 Tm
+(Archivo importante:) Tj
+/F1 9 Tf
+1 0 0 1 50 35 Tm
+(GPU Optimizer Triton - Guia del equipo | Pagina 12) Tj
+ET
+endstream
+endobj
+27 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 28 0 R >>
+endobj
+28 0 obj
+<< /Length 2447 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 760 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 744 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 728 Tm
+(evaluation/model_evaluation.py) Tj
+/F1 10 Tf
+1 0 0 1 50 713 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 697 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 681 Tm
+(Este script:) Tj
+/F1 10 Tf
+1 0 0 1 50 665 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 649 Tm
+(- carga modelos desde `config/model_eval.yaml`,) Tj
+/F1 10 Tf
+1 0 0 1 50 633 Tm
+(- carga tareas desde `data/kernel_generation_tasks.json`,) Tj
+/F1 10 Tf
+1 0 0 1 50 617 Tm
+(- arma prompts desde `prompts/kernel_generation_prompt.txt`,) Tj
+/F1 10 Tf
+1 0 0 1 50 601 Tm
+(- genera outputs,) Tj
+/F1 10 Tf
+1 0 0 1 50 585 Tm
+(- evalua checks simples,) Tj
+/F1 10 Tf
+1 0 0 1 50 569 Tm
+(- guarda resultados.) Tj
+/F1 10 Tf
+1 0 0 1 50 553 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 537 Tm
+(Tambien hay:) Tj
+/F1 10 Tf
+1 0 0 1 50 521 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 505 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 489 Tm
+(evaluation/collect_real_outputs.py) Tj
+/F1 9 Tf
+1 0 0 1 50 474 Tm
+(evaluation/real_outputs.jsonl) Tj
+/F1 9 Tf
+1 0 0 1 50 459 Tm
+(evaluation/experiment_log.md) Tj
+/F1 10 Tf
+1 0 0 1 50 444 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 428 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 412 Tm
+(collect_real_outputs.py llama proveedores reales y guarda respuestas.) Tj
+/F1 10 Tf
+1 0 0 1 50 396 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 380 Tm
+(real_outputs.jsonl contiene los outputs ya recolectados.) Tj
+/F1 10 Tf
+1 0 0 1 50 364 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 348 Tm
+(experiment_log.md resume decisiones, resultados y observaciones para el) Tj
+/F1 10 Tf
+1 0 0 1 50 332 Tm
+(segundo video.) Tj
+/F1 10 Tf
+1 0 0 1 50 316 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 300 Tm
+(En la practica, esta carpeta es el punto central para el segundo video.) Tj
+/F1 10 Tf
+1 0 0 1 50 284 Tm
+() Tj
+/F1 13 Tf
+1 0 0 1 50 268 Tm
+(`generation/`) Tj
+/F1 10 Tf
+1 0 0 1 50 249 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 233 Tm
+(Aqui viven los templates de kernels Triton.) Tj
+/F1 10 Tf
+1 0 0 1 50 217 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 201 Tm
+(Archivos:) Tj
+/F1 10 Tf
+1 0 0 1 50 185 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 169 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 153 Tm
+(generation/kernel_templates.py) Tj
+/F1 9 Tf
+1 0 0 1 50 138 Tm
+(generation/triton_generator.py) Tj
+/F1 9 Tf
+1 0 0 1 50 123 Tm
+(generation/constrained_decoder.py) Tj
+/F1 10 Tf
+1 0 0 1 50 108 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 92 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 76 Tm
+(kernel_templates.py contiene codigo base de kernels, por ejemplo) Tj
+/F1 9 Tf
+1 0 0 1 50 35 Tm
+(GPU Optimizer Triton - Guia del equipo | Pagina 13) Tj
+ET
+endstream
+endobj
+29 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 30 0 R >>
+endobj
+30 0 obj
+<< /Length 2492 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 760 Tm
+(elementwise_kernel.) Tj
+/F1 10 Tf
+1 0 0 1 50 744 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 728 Tm
+(triton_generator.py decide que template devolver segun el tipo de) Tj
+/F1 10 Tf
+1 0 0 1 50 712 Tm
+(problema.) Tj
+/F1 10 Tf
+1 0 0 1 50 696 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 680 Tm
+(Esta carpeta no reemplaza al LLM. Sirve como referencia para saber como) Tj
+/F1 10 Tf
+1 0 0 1 50 664 Tm
+(deberia verse un kernel valido.) Tj
+/F1 10 Tf
+1 0 0 1 50 648 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 632 Tm
+(constrained_decoder.py es un primer control layer. Hoy valida outputs ya) Tj
+/F1 10 Tf
+1 0 0 1 50 616 Tm
+(generados. En el futuro debe conectarse a XGrammar para restringir) Tj
+/F1 10 Tf
+1 0 0 1 50 600 Tm
+(tokens durante la generacion.) Tj
+/F1 10 Tf
+1 0 0 1 50 584 Tm
+() Tj
+/F1 13 Tf
+1 0 0 1 50 568 Tm
+(`parsing/`) Tj
+/F1 10 Tf
+1 0 0 1 50 549 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 533 Tm
+(Aqui vive el analisis de codigo.) Tj
+/F1 10 Tf
+1 0 0 1 50 517 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 501 Tm
+(Archivos:) Tj
+/F1 10 Tf
+1 0 0 1 50 485 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 469 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 453 Tm
+(parsing/ast_parser.py) Tj
+/F1 9 Tf
+1 0 0 1 50 438 Tm
+(parsing/xgrammar_converter.py) Tj
+/F1 9 Tf
+1 0 0 1 50 423 Tm
+(parsing/dependency_graph.py) Tj
+/F1 9 Tf
+1 0 0 1 50 408 Tm
+(parsing/triton_grammar_rules.py) Tj
+/F1 10 Tf
+1 0 0 1 50 393 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 377 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 361 Tm
+(ast_parser.py convierte codigo Python a AST.) Tj
+/F1 10 Tf
+1 0 0 1 50 345 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 329 Tm
+(xgrammar_converter.py convierte la AST a texto estructurado. Ojo: esto) Tj
+/F1 10 Tf
+1 0 0 1 50 313 Tm
+(no es constrained decoding real.) Tj
+/F1 10 Tf
+1 0 0 1 50 297 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 281 Tm
+(dependency_graph.py todavia es una base simple para representar) Tj
+/F1 10 Tf
+1 0 0 1 50 265 Tm
+(dependencias.) Tj
+/F1 10 Tf
+1 0 0 1 50 249 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 233 Tm
+(triton_grammar_rules.py contiene reglas practicas para validar kernels) Tj
+/F1 10 Tf
+1 0 0 1 50 217 Tm
+(Triton: decorador, funcion, tl.program_id, tl.load, tl.store y simbolos) Tj
+/F1 10 Tf
+1 0 0 1 50 201 Tm
+(balanceados.) Tj
+/F1 10 Tf
+1 0 0 1 50 185 Tm
+() Tj
+/F1 13 Tf
+1 0 0 1 50 169 Tm
+(`benchmarks/`) Tj
+/F1 10 Tf
+1 0 0 1 50 150 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 134 Tm
+(Aqui viven mediciones simples.) Tj
+/F1 10 Tf
+1 0 0 1 50 118 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 102 Tm
+(Archivos:) Tj
+/F1 10 Tf
+1 0 0 1 50 86 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 35 Tm
+(GPU Optimizer Triton - Guia del equipo | Pagina 14) Tj
+ET
+endstream
+endobj
+31 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 32 0 R >>
+endobj
+32 0 obj
+<< /Length 2209 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 760 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 744 Tm
+(benchmarks/run_benchmarks.py) Tj
+/F1 9 Tf
+1 0 0 1 50 729 Tm
+(benchmarks/plot_results.py) Tj
+/F1 9 Tf
+1 0 0 1 50 714 Tm
+(benchmarks/profiler.py) Tj
+/F1 10 Tf
+1 0 0 1 50 699 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 683 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 667 Tm
+(run_benchmarks.py mide tiempo de generacion.) Tj
+/F1 10 Tf
+1 0 0 1 50 651 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 635 Tm
+(plot_results.py genera una grafica.) Tj
+/F1 10 Tf
+1 0 0 1 50 619 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 603 Tm
+(profiler.py intenta detectar GPU/Triton y correr una prueba minima si el) Tj
+/F1 10 Tf
+1 0 0 1 50 587 Tm
+(entorno lo permite.) Tj
+/F1 10 Tf
+1 0 0 1 50 571 Tm
+() Tj
+/F1 13 Tf
+1 0 0 1 50 555 Tm
+(`tests/`) Tj
+/F1 10 Tf
+1 0 0 1 50 536 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 520 Tm
+(Aqui viven pruebas automaticas.) Tj
+/F1 10 Tf
+1 0 0 1 50 504 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 488 Tm
+(Sirven para que cuando alguien cambie codigo, pueda revisar que no) Tj
+/F1 10 Tf
+1 0 0 1 50 472 Tm
+(rompio lo basico:) Tj
+/F1 10 Tf
+1 0 0 1 50 456 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 440 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 424 Tm
+(python -m pytest -q) Tj
+/F1 10 Tf
+1 0 0 1 50 409 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 393 Tm
+() Tj
+/F1 13 Tf
+1 0 0 1 50 377 Tm
+(`docs/`) Tj
+/F1 10 Tf
+1 0 0 1 50 358 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 342 Tm
+(Aqui vive documentacion:) Tj
+/F1 10 Tf
+1 0 0 1 50 326 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 310 Tm
+(- guia del equipo,) Tj
+/F1 10 Tf
+1 0 0 1 50 294 Tm
+(- plan del segundo video,) Tj
+/F1 10 Tf
+1 0 0 1 50 278 Tm
+(- outline de presentacion.) Tj
+/F1 10 Tf
+1 0 0 1 50 262 Tm
+() Tj
+/F1 15 Tf
+1 0 0 1 50 246 Tm
+(10. Que archivo toca cada integrante?) Tj
+/F1 10 Tf
+1 0 0 1 50 225 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 209 Tm
+(Esta es una guia practica. No es una regla absoluta, pero ayuda a no) Tj
+/F1 10 Tf
+1 0 0 1 50 193 Tm
+(pisarse.) Tj
+/F1 10 Tf
+1 0 0 1 50 177 Tm
+() Tj
+/F1 13 Tf
+1 0 0 1 50 161 Tm
+(Integrante 1: gramatica formal) Tj
+/F1 10 Tf
+1 0 0 1 50 142 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 126 Tm
+(Deberia crear o trabajar en:) Tj
+/F1 10 Tf
+1 0 0 1 50 110 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 94 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 78 Tm
+(grammars/) Tj
+/F1 9 Tf
+1 0 0 1 50 35 Tm
+(GPU Optimizer Triton - Guia del equipo | Pagina 15) Tj
+ET
+endstream
+endobj
+33 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 34 0 R >>
+endobj
+34 0 obj
+<< /Length 2196 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 760 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 744 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 728 Tm
+(Ejemplos de archivos futuros:) Tj
+/F1 10 Tf
+1 0 0 1 50 712 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 696 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 680 Tm
+(grammars/vector_add.ebnf) Tj
+/F1 9 Tf
+1 0 0 1 50 665 Tm
+(grammars/vector_add_xgrammar.py) Tj
+/F1 9 Tf
+1 0 0 1 50 650 Tm
+(docs/grammar_notes.md) Tj
+/F1 10 Tf
+1 0 0 1 50 635 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 619 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 603 Tm
+(Su objetivo practico:) Tj
+/F1 10 Tf
+1 0 0 1 50 587 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 571 Tm
+(- escribir reglas para un kernel `vector_add`,) Tj
+/F1 10 Tf
+1 0 0 1 50 555 Tm
+(- definir que codigo es valido,) Tj
+/F1 10 Tf
+1 0 0 1 50 539 Tm
+(- listar ejemplos validos e invalidos.) Tj
+/F1 10 Tf
+1 0 0 1 50 523 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 507 Tm
+(Ejemplo de lo que podria definir:) Tj
+/F1 10 Tf
+1 0 0 1 50 491 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 475 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 459 Tm
+(Un kernel valido debe tener:) Tj
+/F1 9 Tf
+1 0 0 1 50 444 Tm
+(- import triton) Tj
+/F1 9 Tf
+1 0 0 1 50 429 Tm
+(- import triton.language as tl) Tj
+/F1 9 Tf
+1 0 0 1 50 414 Tm
+(- @triton.jit) Tj
+/F1 9 Tf
+1 0 0 1 50 399 Tm
+(- def vector_add_kernel\(...\)) Tj
+/F1 9 Tf
+1 0 0 1 50 384 Tm
+(- tl.load para X) Tj
+/F1 9 Tf
+1 0 0 1 50 369 Tm
+(- tl.load para Y) Tj
+/F1 9 Tf
+1 0 0 1 50 354 Tm
+(- tl.store para Z) Tj
+/F1 10 Tf
+1 0 0 1 50 339 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 323 Tm
+() Tj
+/F1 13 Tf
+1 0 0 1 50 307 Tm
+(Integrante 2: generacion con LLM) Tj
+/F1 10 Tf
+1 0 0 1 50 288 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 272 Tm
+(Deberia trabajar en:) Tj
+/F1 10 Tf
+1 0 0 1 50 256 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 240 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 224 Tm
+(prompts/) Tj
+/F1 9 Tf
+1 0 0 1 50 209 Tm
+(config/model_eval.yaml) Tj
+/F1 9 Tf
+1 0 0 1 50 194 Tm
+(evaluation/) Tj
+/F1 10 Tf
+1 0 0 1 50 179 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 163 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 147 Tm
+(Su objetivo practico:) Tj
+/F1 10 Tf
+1 0 0 1 50 131 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 115 Tm
+(- elegir modelos reales,) Tj
+/F1 10 Tf
+1 0 0 1 50 99 Tm
+(- correr el mismo prompt en todos,) Tj
+/F1 10 Tf
+1 0 0 1 50 83 Tm
+(- guardar outputs,) Tj
+/F1 9 Tf
+1 0 0 1 50 35 Tm
+(GPU Optimizer Triton - Guia del equipo | Pagina 16) Tj
+ET
+endstream
+endobj
+35 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 36 0 R >>
+endobj
+36 0 obj
+<< /Length 2101 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 760 Tm
+(- documentar errores.) Tj
+/F1 10 Tf
+1 0 0 1 50 744 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 728 Tm
+(Archivos que probablemente toque:) Tj
+/F1 10 Tf
+1 0 0 1 50 712 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 696 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 680 Tm
+(prompts/kernel_generation_prompt.txt) Tj
+/F1 9 Tf
+1 0 0 1 50 665 Tm
+(config/model_eval.yaml) Tj
+/F1 9 Tf
+1 0 0 1 50 650 Tm
+(evaluation/model_evaluation.py) Tj
+/F1 10 Tf
+1 0 0 1 50 635 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 619 Tm
+() Tj
+/F1 13 Tf
+1 0 0 1 50 603 Tm
+(Integrante 3: constrained decoding) Tj
+/F1 10 Tf
+1 0 0 1 50 584 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 568 Tm
+(Deberia crear o trabajar en:) Tj
+/F1 10 Tf
+1 0 0 1 50 552 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 536 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 520 Tm
+(constrained/) Tj
+/F1 10 Tf
+1 0 0 1 50 505 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 489 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 473 Tm
+(Ejemplos de archivos futuros:) Tj
+/F1 10 Tf
+1 0 0 1 50 457 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 441 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 425 Tm
+(constrained/xgrammar_runner.py) Tj
+/F1 9 Tf
+1 0 0 1 50 410 Tm
+(constrained/constrained_generator.py) Tj
+/F1 10 Tf
+1 0 0 1 50 395 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 379 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 363 Tm
+(Su objetivo practico:) Tj
+/F1 10 Tf
+1 0 0 1 50 347 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 331 Tm
+(- cargar la gramatica,) Tj
+/F1 10 Tf
+1 0 0 1 50 315 Tm
+(- conectarla al modelo,) Tj
+/F1 10 Tf
+1 0 0 1 50 299 Tm
+(- generar texto restringido,) Tj
+/F1 10 Tf
+1 0 0 1 50 283 Tm
+(- devolver codigo generado.) Tj
+/F1 10 Tf
+1 0 0 1 50 267 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 251 Tm
+(Aqui se conectan las partes del Integrante 1 y 2.) Tj
+/F1 10 Tf
+1 0 0 1 50 235 Tm
+() Tj
+/F1 13 Tf
+1 0 0 1 50 219 Tm
+(Integrante 4: kernels ejecutables) Tj
+/F1 10 Tf
+1 0 0 1 50 200 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 184 Tm
+(Deberia trabajar en:) Tj
+/F1 10 Tf
+1 0 0 1 50 168 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 152 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 136 Tm
+(benchmarks/) Tj
+/F1 9 Tf
+1 0 0 1 50 121 Tm
+(generation/) Tj
+/F1 9 Tf
+1 0 0 1 50 106 Tm
+(tests/) Tj
+/F1 10 Tf
+1 0 0 1 50 91 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 35 Tm
+(GPU Optimizer Triton - Guia del equipo | Pagina 17) Tj
+ET
+endstream
+endobj
+37 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 38 0 R >>
+endobj
+38 0 obj
+<< /Length 2203 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 760 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 744 Tm
+(Y probablemente crear:) Tj
+/F1 10 Tf
+1 0 0 1 50 728 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 712 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 696 Tm
+(validation/) Tj
+/F1 10 Tf
+1 0 0 1 50 681 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 665 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 649 Tm
+(Ejemplos de archivos futuros:) Tj
+/F1 10 Tf
+1 0 0 1 50 633 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 617 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 601 Tm
+(validation/compile_check.py) Tj
+/F1 9 Tf
+1 0 0 1 50 586 Tm
+(validation/run_triton_kernel.py) Tj
+/F1 9 Tf
+1 0 0 1 50 571 Tm
+(validation/correctness.py) Tj
+/F1 10 Tf
+1 0 0 1 50 556 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 540 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 524 Tm
+(Su objetivo practico:) Tj
+/F1 10 Tf
+1 0 0 1 50 508 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 492 Tm
+(- tomar un kernel generado,) Tj
+/F1 10 Tf
+1 0 0 1 50 476 Tm
+(- compilarlo,) Tj
+/F1 10 Tf
+1 0 0 1 50 460 Tm
+(- correrlo con tensores de prueba,) Tj
+/F1 10 Tf
+1 0 0 1 50 444 Tm
+(- comparar contra PyTorch.) Tj
+/F1 10 Tf
+1 0 0 1 50 428 Tm
+() Tj
+/F1 15 Tf
+1 0 0 1 50 412 Tm
+(11. Como se veria el sistema final en codigo?) Tj
+/F1 10 Tf
+1 0 0 1 50 391 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 375 Tm
+(Una version final simple podria verse asi:) Tj
+/F1 10 Tf
+1 0 0 1 50 359 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 343 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 327 Tm
+(data/kernel_generation_tasks.json) Tj
+/F1 9 Tf
+1 0 0 1 50 312 Tm
+(  |) Tj
+/F1 9 Tf
+1 0 0 1 50 297 Tm
+(  v) Tj
+/F1 9 Tf
+1 0 0 1 50 282 Tm
+(prompts/kernel_generation_prompt.txt) Tj
+/F1 9 Tf
+1 0 0 1 50 267 Tm
+(  |) Tj
+/F1 9 Tf
+1 0 0 1 50 252 Tm
+(  v) Tj
+/F1 9 Tf
+1 0 0 1 50 237 Tm
+(models reales / APIs / local model) Tj
+/F1 9 Tf
+1 0 0 1 50 222 Tm
+(  |) Tj
+/F1 9 Tf
+1 0 0 1 50 207 Tm
+(  +-- baseline_generator.py) Tj
+/F1 9 Tf
+1 0 0 1 50 192 Tm
+(  |     genera codigo libre) Tj
+/F1 9 Tf
+1 0 0 1 50 177 Tm
+(  |) Tj
+/F1 9 Tf
+1 0 0 1 50 162 Tm
+(  +-- constrained_generator.py) Tj
+/F1 9 Tf
+1 0 0 1 50 147 Tm
+(        genera codigo con gramatica) Tj
+/F1 9 Tf
+1 0 0 1 50 132 Tm
+(  |) Tj
+/F1 9 Tf
+1 0 0 1 50 117 Tm
+(  v) Tj
+/F1 9 Tf
+1 0 0 1 50 102 Tm
+(validation/correctness.py) Tj
+/F1 9 Tf
+1 0 0 1 50 87 Tm
+(  compila y prueba) Tj
+/F1 9 Tf
+1 0 0 1 50 35 Tm
+(GPU Optimizer Triton - Guia del equipo | Pagina 18) Tj
+ET
+endstream
+endobj
+39 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 40 0 R >>
+endobj
+40 0 obj
+<< /Length 2263 >>
+stream
+BT
+/F1 9 Tf
+1 0 0 1 50 760 Tm
+(  |) Tj
+/F1 9 Tf
+1 0 0 1 50 745 Tm
+(  v) Tj
+/F1 9 Tf
+1 0 0 1 50 730 Tm
+(evaluation/model_evaluation.py) Tj
+/F1 9 Tf
+1 0 0 1 50 715 Tm
+(  guarda CSV, resumen y metricas) Tj
+/F1 10 Tf
+1 0 0 1 50 700 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 684 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 668 Tm
+(En palabras:) Tj
+/F1 10 Tf
+1 0 0 1 50 652 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 636 Tm
+(1. data/ define que tarea resolver.) Tj
+/F1 10 Tf
+1 0 0 1 50 620 Tm
+(2. prompts/ define como se le pide al modelo.) Tj
+/F1 10 Tf
+1 0 0 1 50 604 Tm
+(3. grammars/ define que codigo esta permitido.) Tj
+/F1 10 Tf
+1 0 0 1 50 588 Tm
+(4. constrained/ aplica la gramatica durante generacion.) Tj
+/F1 10 Tf
+1 0 0 1 50 572 Tm
+(5. validation/ revisa si el codigo funciona.) Tj
+/F1 10 Tf
+1 0 0 1 50 556 Tm
+(6. evaluation/ junta los resultados.) Tj
+/F1 10 Tf
+1 0 0 1 50 540 Tm
+() Tj
+/F1 15 Tf
+1 0 0 1 50 524 Tm
+(12. Ejemplo practico de una corrida) Tj
+/F1 10 Tf
+1 0 0 1 50 503 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 487 Tm
+(Supongamos que la tarea es vector addition.) Tj
+/F1 10 Tf
+1 0 0 1 50 471 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 455 Tm
+(La tarea vive en:) Tj
+/F1 10 Tf
+1 0 0 1 50 439 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 423 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 407 Tm
+(data/kernel_generation_tasks.json) Tj
+/F1 10 Tf
+1 0 0 1 50 392 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 376 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 360 Tm
+(El prompt base vive en:) Tj
+/F1 10 Tf
+1 0 0 1 50 344 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 328 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 312 Tm
+(prompts/kernel_generation_prompt.txt) Tj
+/F1 10 Tf
+1 0 0 1 50 297 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 281 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 265 Tm
+(El runner arma un prompt final:) Tj
+/F1 10 Tf
+1 0 0 1 50 249 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 233 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 217 Tm
+(You are generating a Triton GPU kernel.) Tj
+/F1 9 Tf
+1 0 0 1 50 202 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 187 Tm
+(Task:) Tj
+/F1 9 Tf
+1 0 0 1 50 172 Tm
+(Generate a Triton kernel for vector addition.) Tj
+/F1 9 Tf
+1 0 0 1 50 157 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 142 Tm
+(Return only Python code.) Tj
+/F1 10 Tf
+1 0 0 1 50 127 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 111 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 95 Tm
+(Luego corre dos modos:) Tj
+/F1 10 Tf
+1 0 0 1 50 79 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 35 Tm
+(GPU Optimizer Triton - Guia del equipo | Pagina 19) Tj
+ET
+endstream
+endobj
+41 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 42 0 R >>
+endobj
+42 0 obj
+<< /Length 2109 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 760 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 744 Tm
+(baseline:) Tj
+/F1 9 Tf
+1 0 0 1 50 729 Tm
+(  el modelo genera libremente) Tj
+/F1 9 Tf
+1 0 0 1 50 714 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 699 Tm
+(constrained:) Tj
+/F1 9 Tf
+1 0 0 1 50 684 Tm
+(  el modelo genera usando la gramatica) Tj
+/F1 10 Tf
+1 0 0 1 50 669 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 653 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 637 Tm
+(Cada output se guarda en:) Tj
+/F1 10 Tf
+1 0 0 1 50 621 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 605 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 589 Tm
+(evaluation/artifacts/generated_kernels.jsonl) Tj
+/F1 10 Tf
+1 0 0 1 50 574 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 558 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 542 Tm
+(Cada resultado resumido se guarda en:) Tj
+/F1 10 Tf
+1 0 0 1 50 526 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 510 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 494 Tm
+(evaluation/artifacts/model_eval_results.csv) Tj
+/F1 10 Tf
+1 0 0 1 50 479 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 463 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 447 Tm
+(El CSV puede tener columnas como:) Tj
+/F1 10 Tf
+1 0 0 1 50 431 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 415 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 399 Tm
+(model_id, mode, syntax_valid, kernel_shape_valid, correctness_proxy) Tj
+/F1 10 Tf
+1 0 0 1 50 384 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 368 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 352 Tm
+(Esto permite comparar:) Tj
+/F1 10 Tf
+1 0 0 1 50 336 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 320 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 304 Tm
+(modelo pequeno baseline vs modelo pequeno constrained) Tj
+/F1 9 Tf
+1 0 0 1 50 289 Tm
+(frontier baseline vs frontier constrained) Tj
+/F1 10 Tf
+1 0 0 1 50 274 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 258 Tm
+() Tj
+/F1 15 Tf
+1 0 0 1 50 242 Tm
+(13. Que falta implementar en codigo?) Tj
+/F1 10 Tf
+1 0 0 1 50 221 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 205 Tm
+(Faltan tres bloques principales.) Tj
+/F1 10 Tf
+1 0 0 1 50 189 Tm
+() Tj
+/F1 13 Tf
+1 0 0 1 50 173 Tm
+(Bloque A: gramatica real) Tj
+/F1 10 Tf
+1 0 0 1 50 154 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 138 Tm
+(Crear una carpeta:) Tj
+/F1 10 Tf
+1 0 0 1 50 122 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 106 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 90 Tm
+(grammars/) Tj
+/F1 9 Tf
+1 0 0 1 50 35 Tm
+(GPU Optimizer Triton - Guia del equipo | Pagina 20) Tj
+ET
+endstream
+endobj
+43 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 44 0 R >>
+endobj
+44 0 obj
+<< /Length 2025 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 760 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 744 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 728 Tm
+(Y definir una gramatica para vector_add.) Tj
+/F1 10 Tf
+1 0 0 1 50 712 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 696 Tm
+(Meta:) Tj
+/F1 10 Tf
+1 0 0 1 50 680 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 664 Tm
+(Que la gramatica permita generar solo una forma valida de kernel Triton) Tj
+/F1 10 Tf
+1 0 0 1 50 648 Tm
+(para suma de vectores.) Tj
+/F1 10 Tf
+1 0 0 1 50 632 Tm
+() Tj
+/F1 13 Tf
+1 0 0 1 50 616 Tm
+(Bloque B: constrained decoding real) Tj
+/F1 10 Tf
+1 0 0 1 50 597 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 581 Tm
+(Crear una carpeta:) Tj
+/F1 10 Tf
+1 0 0 1 50 565 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 549 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 533 Tm
+(constrained/) Tj
+/F1 10 Tf
+1 0 0 1 50 518 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 502 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 486 Tm
+(Y conectar:) Tj
+/F1 10 Tf
+1 0 0 1 50 470 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 454 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 438 Tm
+(modelo + tokenizer + gramatica) Tj
+/F1 10 Tf
+1 0 0 1 50 423 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 407 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 391 Tm
+(Meta:) Tj
+/F1 10 Tf
+1 0 0 1 50 375 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 359 Tm
+(Que el modelo no solo reciba instrucciones, sino que realmente este) Tj
+/F1 10 Tf
+1 0 0 1 50 343 Tm
+(limitado por la gramatica.) Tj
+/F1 10 Tf
+1 0 0 1 50 327 Tm
+() Tj
+/F1 13 Tf
+1 0 0 1 50 311 Tm
+(Bloque C: validacion real de kernels) Tj
+/F1 10 Tf
+1 0 0 1 50 292 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 276 Tm
+(Crear una carpeta:) Tj
+/F1 10 Tf
+1 0 0 1 50 260 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 244 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 228 Tm
+(validation/) Tj
+/F1 10 Tf
+1 0 0 1 50 213 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 197 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 181 Tm
+(Y probar:) Tj
+/F1 10 Tf
+1 0 0 1 50 165 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 149 Tm
+(- compila?) Tj
+/F1 10 Tf
+1 0 0 1 50 133 Tm
+(- corre?) Tj
+/F1 10 Tf
+1 0 0 1 50 117 Tm
+(- produce el mismo resultado que PyTorch?) Tj
+/F1 10 Tf
+1 0 0 1 50 101 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 85 Tm
+(Meta:) Tj
+/F1 9 Tf
+1 0 0 1 50 35 Tm
+(GPU Optimizer Triton - Guia del equipo | Pagina 21) Tj
+ET
+endstream
+endobj
+45 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 46 0 R >>
+endobj
+46 0 obj
+<< /Length 2799 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 760 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 744 Tm
+(Convertir outputs de texto en evidencia real de codigo GPU funcional.) Tj
+/F1 10 Tf
+1 0 0 1 50 728 Tm
+() Tj
+/F1 15 Tf
+1 0 0 1 50 712 Tm
+(14. Que parte es solo prototipo?) Tj
+/F1 10 Tf
+1 0 0 1 50 691 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 675 Tm
+(Hay piezas que ayudan, pero no son todavia el requisito central:) Tj
+/F1 10 Tf
+1 0 0 1 50 659 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 643 Tm
+(- El `xgrammar_converter.py` actual no aplica constrained decoding real.) Tj
+/F1 10 Tf
+1 0 0 1 50 627 Tm
+(Solo genera una representacion textual estructurada.) Tj
+/F1 10 Tf
+1 0 0 1 50 611 Tm
+(- `llm_decider.py` tiene heuristicas, no un LLM real.) Tj
+/F1 10 Tf
+1 0 0 1 50 595 Tm
+(- Los resultados de `evaluation/artifacts/` pueden ser mock si se) Tj
+/F1 10 Tf
+1 0 0 1 50 579 Tm
+(generan con `provider: mock`.) Tj
+/F1 10 Tf
+1 0 0 1 50 563 Tm
+(- Los templates de Triton son utiles como referencia, pero no equivalen) Tj
+/F1 10 Tf
+1 0 0 1 50 547 Tm
+(a generacion real por LLM.) Tj
+/F1 10 Tf
+1 0 0 1 50 531 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 515 Tm
+(Esto no esta mal. Solo hay que explicarlo correctamente.) Tj
+/F1 10 Tf
+1 0 0 1 50 499 Tm
+() Tj
+/F1 15 Tf
+1 0 0 1 50 483 Tm
+(15. Que pide el reto?) Tj
+/F1 10 Tf
+1 0 0 1 50 462 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 446 Tm
+(El reto pide como minimo:) Tj
+/F1 10 Tf
+1 0 0 1 50 430 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 414 Tm
+(1. Usar XGrammar o una gramatica formal para constrained decoding.) Tj
+/F1 10 Tf
+1 0 0 1 50 398 Tm
+(2. Integrar la gramatica con un LLM.) Tj
+/F1 10 Tf
+1 0 0 1 50 382 Tm
+(3. Generar codigo GPU funcional.) Tj
+/F1 10 Tf
+1 0 0 1 50 366 Tm
+(4. Comparar contra generacion sin restricciones.) Tj
+/F1 10 Tf
+1 0 0 1 50 350 Tm
+(5. Medir al menos:) Tj
+/F1 10 Tf
+1 0 0 1 50 334 Tm
+(   - tasa de compilacion exitosa,) Tj
+/F1 10 Tf
+1 0 0 1 50 318 Tm
+(   - correccion funcional,) Tj
+/F1 10 Tf
+1 0 0 1 50 302 Tm
+(   - una metrica adicional.) Tj
+/F1 10 Tf
+1 0 0 1 50 286 Tm
+(6. Documentar el trabajo y defenderlo.) Tj
+/F1 10 Tf
+1 0 0 1 50 270 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 254 Tm
+(Para el experimento final, lo minimo razonable seria:) Tj
+/F1 10 Tf
+1 0 0 1 50 238 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 222 Tm
+(- una operacion simple, por ejemplo vector addition,) Tj
+/F1 10 Tf
+1 0 0 1 50 206 Tm
+(- un modelo pequeno,) Tj
+/F1 10 Tf
+1 0 0 1 50 190 Tm
+(- dos modelos frontier como baseline para el video,) Tj
+/F1 10 Tf
+1 0 0 1 50 174 Tm
+(- varias generaciones sin gramatica,) Tj
+/F1 10 Tf
+1 0 0 1 50 158 Tm
+(- varias generaciones con gramatica,) Tj
+/F1 10 Tf
+1 0 0 1 50 142 Tm
+(- tabla comparativa de resultados.) Tj
+/F1 10 Tf
+1 0 0 1 50 126 Tm
+() Tj
+/F1 15 Tf
+1 0 0 1 50 110 Tm
+(16. Division del trabajo entre 4 integrantes) Tj
+/F1 10 Tf
+1 0 0 1 50 89 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 35 Tm
+(GPU Optimizer Triton - Guia del equipo | Pagina 22) Tj
+ET
+endstream
+endobj
+47 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 48 0 R >>
+endobj
+48 0 obj
+<< /Length 2403 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 760 Tm
+(La division recomendada es por partes tecnicas del sistema.) Tj
+/F1 10 Tf
+1 0 0 1 50 744 Tm
+() Tj
+/F1 13 Tf
+1 0 0 1 50 728 Tm
+(Integrante 1: Gramatica formal) Tj
+/F1 10 Tf
+1 0 0 1 50 709 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 693 Tm
+(Hace:) Tj
+/F1 10 Tf
+1 0 0 1 50 677 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 661 Tm
+(- disenar las reglas de kernels validos,) Tj
+/F1 10 Tf
+1 0 0 1 50 645 Tm
+(- definir que estructura de Triton se permite,) Tj
+/F1 10 Tf
+1 0 0 1 50 629 Tm
+(- decidir que errores debe bloquear la gramatica,) Tj
+/F1 10 Tf
+1 0 0 1 50 613 Tm
+(- mantener una version simple y usable.) Tj
+/F1 10 Tf
+1 0 0 1 50 597 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 581 Tm
+(Implementa:) Tj
+/F1 10 Tf
+1 0 0 1 50 565 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 549 Tm
+(- archivos de gramatica,) Tj
+/F1 10 Tf
+1 0 0 1 50 533 Tm
+(- ejemplos validos,) Tj
+/F1 10 Tf
+1 0 0 1 50 517 Tm
+(- ejemplos invalidos,) Tj
+/F1 10 Tf
+1 0 0 1 50 501 Tm
+(- documentacion tecnica de las reglas.) Tj
+/F1 10 Tf
+1 0 0 1 50 485 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 469 Tm
+(Explica en la defensa:) Tj
+/F1 10 Tf
+1 0 0 1 50 453 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 437 Tm
+(Como definimos que codigo es valido y que errores evita nuestra) Tj
+/F1 10 Tf
+1 0 0 1 50 421 Tm
+(gramatica.) Tj
+/F1 10 Tf
+1 0 0 1 50 405 Tm
+() Tj
+/F1 13 Tf
+1 0 0 1 50 389 Tm
+(Integrante 2: Generacion con LLM) Tj
+/F1 10 Tf
+1 0 0 1 50 370 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 354 Tm
+(Hace:) Tj
+/F1 10 Tf
+1 0 0 1 50 338 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 322 Tm
+(- elegir modelos,) Tj
+/F1 10 Tf
+1 0 0 1 50 306 Tm
+(- preparar prompts,) Tj
+/F1 10 Tf
+1 0 0 1 50 290 Tm
+(- correr baseline sin restricciones,) Tj
+/F1 10 Tf
+1 0 0 1 50 274 Tm
+(- guardar outputs generados,) Tj
+/F1 10 Tf
+1 0 0 1 50 258 Tm
+(- mantener condiciones justas entre modelos.) Tj
+/F1 10 Tf
+1 0 0 1 50 242 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 226 Tm
+(Implementa:) Tj
+/F1 10 Tf
+1 0 0 1 50 210 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 194 Tm
+(- scripts o wrappers de generacion,) Tj
+/F1 10 Tf
+1 0 0 1 50 178 Tm
+(- prompts versionados,) Tj
+/F1 10 Tf
+1 0 0 1 50 162 Tm
+(- guardado de respuestas,) Tj
+/F1 10 Tf
+1 0 0 1 50 146 Tm
+(- configuracion de modelos.) Tj
+/F1 10 Tf
+1 0 0 1 50 130 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 114 Tm
+(Explica en la defensa:) Tj
+/F1 10 Tf
+1 0 0 1 50 98 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 82 Tm
+(Como el modelo recibe la tarea y como genera kernels GPU.) Tj
+/F1 9 Tf
+1 0 0 1 50 35 Tm
+(GPU Optimizer Triton - Guia del equipo | Pagina 23) Tj
+ET
+endstream
+endobj
+49 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 50 0 R >>
+endobj
+50 0 obj
+<< /Length 2394 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 760 Tm
+() Tj
+/F1 13 Tf
+1 0 0 1 50 744 Tm
+(Integrante 3: Constrained decoding) Tj
+/F1 10 Tf
+1 0 0 1 50 725 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 709 Tm
+(Hace:) Tj
+/F1 10 Tf
+1 0 0 1 50 693 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 677 Tm
+(- conectar la gramatica con el modelo,) Tj
+/F1 10 Tf
+1 0 0 1 50 661 Tm
+(- aplicar restricciones durante la generacion,) Tj
+/F1 10 Tf
+1 0 0 1 50 645 Tm
+(- resolver problemas entre tokenizer, modelo y gramatica,) Tj
+/F1 10 Tf
+1 0 0 1 50 629 Tm
+(- producir outputs restringidos.) Tj
+/F1 10 Tf
+1 0 0 1 50 613 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 597 Tm
+(Implementa:) Tj
+/F1 10 Tf
+1 0 0 1 50 581 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 565 Tm
+(- integracion con XGrammar o herramienta equivalente,) Tj
+/F1 10 Tf
+1 0 0 1 50 549 Tm
+(- modo constrained,) Tj
+/F1 10 Tf
+1 0 0 1 50 533 Tm
+(- manejo de errores,) Tj
+/F1 10 Tf
+1 0 0 1 50 517 Tm
+(- comparacion basica contra modo libre.) Tj
+/F1 10 Tf
+1 0 0 1 50 501 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 485 Tm
+(Explica en la defensa:) Tj
+/F1 10 Tf
+1 0 0 1 50 469 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 453 Tm
+(Como logramos que la gramatica controle la generacion token por token.) Tj
+/F1 10 Tf
+1 0 0 1 50 437 Tm
+() Tj
+/F1 13 Tf
+1 0 0 1 50 421 Tm
+(Integrante 4: Kernels ejecutables) Tj
+/F1 10 Tf
+1 0 0 1 50 402 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 386 Tm
+(Hace:) Tj
+/F1 10 Tf
+1 0 0 1 50 370 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 354 Tm
+(- tomar codigo generado,) Tj
+/F1 10 Tf
+1 0 0 1 50 338 Tm
+(- preparar wrappers de ejecucion,) Tj
+/F1 10 Tf
+1 0 0 1 50 322 Tm
+(- compilar kernels,) Tj
+/F1 10 Tf
+1 0 0 1 50 306 Tm
+(- crear inputs de prueba,) Tj
+/F1 10 Tf
+1 0 0 1 50 290 Tm
+(- comparar contra PyTorch.) Tj
+/F1 10 Tf
+1 0 0 1 50 274 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 258 Tm
+(Implementa:) Tj
+/F1 10 Tf
+1 0 0 1 50 242 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 226 Tm
+(- validacion de compilacion,) Tj
+/F1 10 Tf
+1 0 0 1 50 210 Tm
+(- ejecucion en GPU o Colab,) Tj
+/F1 10 Tf
+1 0 0 1 50 194 Tm
+(- pruebas funcionales,) Tj
+/F1 10 Tf
+1 0 0 1 50 178 Tm
+(- casos de prueba reproducibles.) Tj
+/F1 10 Tf
+1 0 0 1 50 162 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 146 Tm
+(Explica en la defensa:) Tj
+/F1 10 Tf
+1 0 0 1 50 130 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 114 Tm
+(Como sabemos que el codigo generado no solo se ve bien, sino que corre y) Tj
+/F1 10 Tf
+1 0 0 1 50 98 Tm
+(calcula correctamente.) Tj
+/F1 10 Tf
+1 0 0 1 50 82 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 35 Tm
+(GPU Optimizer Triton - Guia del equipo | Pagina 24) Tj
+ET
+endstream
+endobj
+51 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 52 0 R >>
+endobj
+52 0 obj
+<< /Length 2251 >>
+stream
+BT
+/F1 15 Tf
+1 0 0 1 50 760 Tm
+(17. Trabajo compartido) Tj
+/F1 10 Tf
+1 0 0 1 50 739 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 723 Tm
+(Aunque cada persona tenga una parte tecnica, hay cosas que deben hacer) Tj
+/F1 10 Tf
+1 0 0 1 50 707 Tm
+(entre todos:) Tj
+/F1 10 Tf
+1 0 0 1 50 691 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 675 Tm
+(- definir el alcance final,) Tj
+/F1 10 Tf
+1 0 0 1 50 659 Tm
+(- decidir la operacion principal,) Tj
+/F1 10 Tf
+1 0 0 1 50 643 Tm
+(- revisar resultados,) Tj
+/F1 10 Tf
+1 0 0 1 50 627 Tm
+(- escribir el paper,) Tj
+/F1 10 Tf
+1 0 0 1 50 611 Tm
+(- preparar el video,) Tj
+/F1 10 Tf
+1 0 0 1 50 595 Tm
+(- preparar la defensa oral,) Tj
+/F1 10 Tf
+1 0 0 1 50 579 Tm
+(- asegurarse de que todos entienden el flujo completo.) Tj
+/F1 10 Tf
+1 0 0 1 50 563 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 547 Tm
+(Nadie debe quedar solo con paper o slides. Todos deben poder explicar) Tj
+/F1 10 Tf
+1 0 0 1 50 531 Tm
+(una parte tecnica.) Tj
+/F1 10 Tf
+1 0 0 1 50 515 Tm
+() Tj
+/F1 15 Tf
+1 0 0 1 50 499 Tm
+(18. Como usar el repo) Tj
+/F1 10 Tf
+1 0 0 1 50 478 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 462 Tm
+(Instalacion:) Tj
+/F1 10 Tf
+1 0 0 1 50 446 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 430 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 414 Tm
+(pip install -r requirements.txt) Tj
+/F1 10 Tf
+1 0 0 1 50 399 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 383 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 367 Tm
+(Ejecutar el pipeline inicial:) Tj
+/F1 10 Tf
+1 0 0 1 50 351 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 335 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 319 Tm
+(python main.py --code "C = A + B") Tj
+/F1 10 Tf
+1 0 0 1 50 304 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 288 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 272 Tm
+(Ejecutar benchmarks simples:) Tj
+/F1 10 Tf
+1 0 0 1 50 256 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 240 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 224 Tm
+(python benchmarks/run_benchmarks.py --runs 5) Tj
+/F1 9 Tf
+1 0 0 1 50 209 Tm
+(python benchmarks/plot_results.py) Tj
+/F1 10 Tf
+1 0 0 1 50 194 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 178 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 162 Tm
+(Ejecutar evaluacion mock de modelos:) Tj
+/F1 10 Tf
+1 0 0 1 50 146 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 130 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 114 Tm
+(python evaluation/model_evaluation.py --samples 3) Tj
+/F1 10 Tf
+1 0 0 1 50 99 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 83 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 35 Tm
+(GPU Optimizer Triton - Guia del equipo | Pagina 25) Tj
+ET
+endstream
+endobj
+53 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 54 0 R >>
+endobj
+54 0 obj
+<< /Length 2325 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 760 Tm
+(Correr pruebas:) Tj
+/F1 10 Tf
+1 0 0 1 50 744 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 728 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 712 Tm
+(python -m pytest -q) Tj
+/F1 10 Tf
+1 0 0 1 50 697 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 681 Tm
+() Tj
+/F1 15 Tf
+1 0 0 1 50 665 Tm
+(19. Que significa el prompt actual?) Tj
+/F1 10 Tf
+1 0 0 1 50 644 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 628 Tm
+(El archivo prompts/kernel_generation_prompt.txt contiene el prompt base:) Tj
+/F1 10 Tf
+1 0 0 1 50 612 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 596 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 580 Tm
+(You are generating a Triton GPU kernel.) Tj
+/F1 9 Tf
+1 0 0 1 50 565 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 550 Tm
+(Task:) Tj
+/F1 9 Tf
+1 0 0 1 50 535 Tm
+({task_prompt}) Tj
+/F1 9 Tf
+1 0 0 1 50 520 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 505 Tm
+(Return only Python code. Do not include explanations.) Tj
+/F1 10 Tf
+1 0 0 1 50 490 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 474 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 458 Tm
+(La parte {task_prompt} se reemplaza por una tarea concreta.) Tj
+/F1 10 Tf
+1 0 0 1 50 442 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 426 Tm
+(Por ejemplo:) Tj
+/F1 10 Tf
+1 0 0 1 50 410 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 394 Tm
+() Tj
+/F1 9 Tf
+1 0 0 1 50 378 Tm
+(Generate a Triton kernel for vector addition.) Tj
+/F1 9 Tf
+1 0 0 1 50 363 Tm
+(The kernel should compute Z = X + Y for N elements.) Tj
+/F1 10 Tf
+1 0 0 1 50 348 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 332 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 316 Tm
+(Ese prompt sirve para que todos los modelos reciban la misma) Tj
+/F1 10 Tf
+1 0 0 1 50 300 Tm
+(instruccion.) Tj
+/F1 10 Tf
+1 0 0 1 50 284 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 268 Tm
+(Importante:) Tj
+/F1 10 Tf
+1 0 0 1 50 252 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 236 Tm
+(- El prompt no es la gramatica.) Tj
+/F1 10 Tf
+1 0 0 1 50 220 Tm
+(- El prompt pide comportamiento.) Tj
+/F1 10 Tf
+1 0 0 1 50 204 Tm
+(- La gramatica restringe formalmente la salida.) Tj
+/F1 10 Tf
+1 0 0 1 50 188 Tm
+(- Constrained decoding aplica la gramatica durante la generacion.) Tj
+/F1 10 Tf
+1 0 0 1 50 172 Tm
+() Tj
+/F1 15 Tf
+1 0 0 1 50 156 Tm
+(20. Que deben evitar decir?) Tj
+/F1 10 Tf
+1 0 0 1 50 135 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 119 Tm
+(No conviene decir:) Tj
+/F1 10 Tf
+1 0 0 1 50 103 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 87 Tm
+(Nuestro sistema ya optimiza cualquier kernel GPU automaticamente.) Tj
+/F1 9 Tf
+1 0 0 1 50 35 Tm
+(GPU Optimizer Triton - Guia del equipo | Pagina 26) Tj
+ET
+endstream
+endobj
+55 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 56 0 R >>
+endobj
+56 0 obj
+<< /Length 2461 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 760 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 744 Tm
+(Tampoco:) Tj
+/F1 10 Tf
+1 0 0 1 50 728 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 712 Tm
+(Ya usamos XGrammar real para restringir tokens.) Tj
+/F1 10 Tf
+1 0 0 1 50 696 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 680 Tm
+(Si todavia no esta conectado, hay que decirlo como trabajo en progreso.) Tj
+/F1 10 Tf
+1 0 0 1 50 664 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 648 Tm
+(Una forma honesta de decirlo:) Tj
+/F1 10 Tf
+1 0 0 1 50 632 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 616 Tm
+(Actualmente tenemos una infraestructura inicial para generar, evaluar y) Tj
+/F1 10 Tf
+1 0 0 1 50 600 Tm
+(comparar kernels. El siguiente paso central es conectar una gramatica) Tj
+/F1 10 Tf
+1 0 0 1 50 584 Tm
+(formal con el LLM para constrained decoding real.) Tj
+/F1 10 Tf
+1 0 0 1 50 568 Tm
+() Tj
+/F1 15 Tf
+1 0 0 1 50 552 Tm
+(21. Que deberia estar listo para el segundo video?) Tj
+/F1 10 Tf
+1 0 0 1 50 531 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 515 Tm
+(Para el video del 23 de mayo, el foco no es explicar todo el pipeline.) Tj
+/F1 10 Tf
+1 0 0 1 50 499 Tm
+(El foco es contar decisiones y aprendizajes sobre modelos.) Tj
+/F1 10 Tf
+1 0 0 1 50 483 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 467 Tm
+(Deben tener:) Tj
+/F1 10 Tf
+1 0 0 1 50 451 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 435 Tm
+(- 1 modelo pequeno,) Tj
+/F1 10 Tf
+1 0 0 1 50 419 Tm
+(- 2 modelos frontier,) Tj
+/F1 10 Tf
+1 0 0 1 50 403 Tm
+(- mismo prompt para todos,) Tj
+/F1 10 Tf
+1 0 0 1 50 387 Tm
+(- algunos outputs generados,) Tj
+/F1 10 Tf
+1 0 0 1 50 371 Tm
+(- errores observados,) Tj
+/F1 10 Tf
+1 0 0 1 50 355 Tm
+(- comparacion honesta,) Tj
+/F1 10 Tf
+1 0 0 1 50 339 Tm
+(- que aprendieron y que van a cambiar.) Tj
+/F1 10 Tf
+1 0 0 1 50 323 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 307 Tm
+(El video debe explicar:) Tj
+/F1 10 Tf
+1 0 0 1 50 291 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 275 Tm
+(- por que eligieron esos modelos,) Tj
+/F1 10 Tf
+1 0 0 1 50 259 Tm
+(- que trade-offs hay,) Tj
+/F1 10 Tf
+1 0 0 1 50 243 Tm
+(- que proveedor usaron,) Tj
+/F1 10 Tf
+1 0 0 1 50 227 Tm
+(- que se mantuvo constante,) Tj
+/F1 10 Tf
+1 0 0 1 50 211 Tm
+(- que errores salieron,) Tj
+/F1 10 Tf
+1 0 0 1 50 195 Tm
+(- que sigue.) Tj
+/F1 10 Tf
+1 0 0 1 50 179 Tm
+() Tj
+/F1 15 Tf
+1 0 0 1 50 163 Tm
+(22. Roadmap recomendado) Tj
+/F1 10 Tf
+1 0 0 1 50 142 Tm
+() Tj
+/F1 13 Tf
+1 0 0 1 50 126 Tm
+(Semana actual) Tj
+/F1 10 Tf
+1 0 0 1 50 107 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 91 Tm
+(- Elegir los tres modelos para el video.) Tj
+/F1 9 Tf
+1 0 0 1 50 35 Tm
+(GPU Optimizer Triton - Guia del equipo | Pagina 27) Tj
+ET
+endstream
+endobj
+57 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 58 0 R >>
+endobj
+58 0 obj
+<< /Length 1564 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 760 Tm
+(- Correr el prompt base en los tres modelos.) Tj
+/F1 10 Tf
+1 0 0 1 50 744 Tm
+(- Guardar outputs reales.) Tj
+/F1 10 Tf
+1 0 0 1 50 728 Tm
+(- Preparar narrativa del video.) Tj
+/F1 10 Tf
+1 0 0 1 50 712 Tm
+() Tj
+/F1 13 Tf
+1 0 0 1 50 696 Tm
+(Siguiente etapa) Tj
+/F1 10 Tf
+1 0 0 1 50 677 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 661 Tm
+(- Crear gramatica formal para vector addition.) Tj
+/F1 10 Tf
+1 0 0 1 50 645 Tm
+(- Probar constrained decoding real.) Tj
+/F1 10 Tf
+1 0 0 1 50 629 Tm
+(- Comparar outputs con y sin gramatica.) Tj
+/F1 10 Tf
+1 0 0 1 50 613 Tm
+() Tj
+/F1 13 Tf
+1 0 0 1 50 597 Tm
+(Etapa final) Tj
+/F1 10 Tf
+1 0 0 1 50 578 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 562 Tm
+(- Ejecutar kernels en GPU.) Tj
+/F1 10 Tf
+1 0 0 1 50 546 Tm
+(- Comparar contra PyTorch.) Tj
+/F1 10 Tf
+1 0 0 1 50 530 Tm
+(- Medir compilacion y correccion.) Tj
+/F1 10 Tf
+1 0 0 1 50 514 Tm
+(- Generar tablas y graficas.) Tj
+/F1 10 Tf
+1 0 0 1 50 498 Tm
+(- Escribir paper final.) Tj
+/F1 10 Tf
+1 0 0 1 50 482 Tm
+() Tj
+/F1 15 Tf
+1 0 0 1 50 466 Tm
+(23. Resumen en una frase) Tj
+/F1 10 Tf
+1 0 0 1 50 445 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 429 Tm
+(El proyecto busca demostrar que una gramatica formal puede guiar a un) Tj
+/F1 10 Tf
+1 0 0 1 50 413 Tm
+(LLM para generar kernels GPU mas correctos que con generacion libre.) Tj
+/F1 10 Tf
+1 0 0 1 50 397 Tm
+() Tj
+/F1 10 Tf
+1 0 0 1 50 381 Tm
+(La meta no es que la IA sea perfecta. La meta es controlar y verificar) Tj
+/F1 10 Tf
+1 0 0 1 50 365 Tm
+(lo que genera.) Tj
+/F1 9 Tf
+1 0 0 1 50 35 Tm
+(GPU Optimizer Triton - Guia del equipo | Pagina 28) Tj
+ET
+endstream
+endobj
+xref
+0 59
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000302 00000 n 
+0000000477 00000 n 
+0000003080 00000 n 
+0000003255 00000 n 
+0000005702 00000 n 
+0000005877 00000 n 
+0000008404 00000 n 
+0000008580 00000 n 
+0000010845 00000 n 
+0000011022 00000 n 
+0000014372 00000 n 
+0000014549 00000 n 
+0000016980 00000 n 
+0000017157 00000 n 
+0000020008 00000 n 
+0000020185 00000 n 
+0000022843 00000 n 
+0000023020 00000 n 
+0000025543 00000 n 
+0000025720 00000 n 
+0000027874 00000 n 
+0000028051 00000 n 
+0000030298 00000 n 
+0000030475 00000 n 
+0000032738 00000 n 
+0000032915 00000 n 
+0000035415 00000 n 
+0000035592 00000 n 
+0000038137 00000 n 
+0000038314 00000 n 
+0000040576 00000 n 
+0000040753 00000 n 
+0000043002 00000 n 
+0000043179 00000 n 
+0000045333 00000 n 
+0000045510 00000 n 
+0000047766 00000 n 
+0000047943 00000 n 
+0000050259 00000 n 
+0000050436 00000 n 
+0000052598 00000 n 
+0000052775 00000 n 
+0000054853 00000 n 
+0000055030 00000 n 
+0000057882 00000 n 
+0000058059 00000 n 
+0000060515 00000 n 
+0000060692 00000 n 
+0000063139 00000 n 
+0000063316 00000 n 
+0000065620 00000 n 
+0000065797 00000 n 
+0000068175 00000 n 
+0000068352 00000 n 
+0000070866 00000 n 
+0000071043 00000 n 
+trailer
+<< /Size 59 /Root 1 0 R >>
+startxref
+72660
+%%EOF
