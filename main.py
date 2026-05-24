@@ -1,4 +1,5 @@
 import argparse
+import json
 
 from models.classifier import classify_problem
 from parsing.ast_parser import parse_code
@@ -6,7 +7,7 @@ from parsing.xgrammar_converter import convert_to_xgrammar
 from generation.triton_generator import generate_kernel
 
 
-def run_pipeline(code: str) -> str:
+def run_pipeline(code: str, validate_gpu: bool = False) -> str:
     problem_type = classify_problem(code)
     ast_representation = parse_code(code)
     grammar = convert_to_xgrammar(ast_representation)
@@ -22,6 +23,16 @@ def run_pipeline(code: str) -> str:
         "Generated Triton kernel:",
         optimized_kernel,
     ]
+    if validate_gpu:
+        from validation.gpu_validator import validate_generated_kernel
+
+        validation = validate_generated_kernel(problem_type, optimized_kernel)
+        output.extend(
+            [
+                "GPU validation:",
+                json.dumps(validation, indent=2, sort_keys=True),
+            ]
+        )
     return "\n\n".join(output)
 
 
@@ -44,9 +55,14 @@ def main():
         action="store_true",
         help="Run the benchmark suite after generating the requested kernel.",
     )
+    parser.add_argument(
+        "--validate-gpu",
+        action="store_true",
+        help="Run the generated Triton wrapper on CUDA and compare it with a PyTorch reference.",
+    )
     args = parser.parse_args()
 
-    result = run_pipeline(args.code)
+    result = run_pipeline(args.code, validate_gpu=args.validate_gpu)
 
     # Print to console
     print(result)
