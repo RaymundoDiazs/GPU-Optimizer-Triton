@@ -99,7 +99,7 @@ def run_model_evaluation(
         )
         sys.exit(1)
 
-    config = load_config(config_path)
+    load_config(config_path)
     output_dir.mkdir(parents=True, exist_ok=True)
 
     generated_path = output_dir / "generated_kernels.jsonl"
