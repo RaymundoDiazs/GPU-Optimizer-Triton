@@ -1,0 +1,6 @@
+tema,interpretacion
+tamano_muestra,El n actual por grupo es 3; no debe usarse para conclusiones inferenciales fuertes.
+intervalos_confianza,Los intervalos Wilson son amplios por el n pequeno; esto refleja alta incertidumbre.
+qwen_shape,"Qwen mejora en kernel_shape_valid bajo constrained, pero el resultado es preliminar."
+constructo,correctness_proxy no equivale a ejecucion real PyTorch-vs-Triton.
+proximo_paso,"El reporte final debe reemplazar o complementar proxies con compile_success, equivalence_rate y speedup."

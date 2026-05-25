@@ -1,0 +1,22 @@
+{
+  "git_commit": "96b4dda8ce718b046f298076710bd756e40d99de",
+  "gpu": {
+    "cuda_available": false,
+    "torch_available": true,
+    "torch_cuda_version": null
+  },
+  "machine": "arm64",
+  "packages": {
+    "matplotlib": "3.10.5",
+    "numpy": "2.3.2",
+    "pandas": "2.3.1",
+    "pytest": "9.0.3",
+    "torch": "2.6.0",
+    "transformers": "4.57.1",
+    "triton": "not_installed",
+    "xgrammar": "not_installed"
+  },
+  "platform": "macOS-15.1-arm64-arm-64bit",
+  "processor": "arm",
+  "python": "3.12.0 (v3.12.0:0fb18b02c8, Oct  2 2023, 09:45:56) [Clang 13.0.0 (clang-1300.0.29.30)]"
+}

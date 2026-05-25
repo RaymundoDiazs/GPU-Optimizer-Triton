@@ -1,0 +1,61 @@
+{
+  "project": "GPU Optimizer Triton",
+  "experiment_name": "evaluacion_generacion_kernels_slm_vs_baselines",
+  "task": "vector_add",
+  "task_description": "Generar un kernel Triton para Z = X + Y.",
+  "current_results_source": "evaluation/artifacts/model_eval_results.csv",
+  "planned_samples_per_model_mode": 50,
+  "current_samples_per_model_mode": 3,
+  "models": [
+    {
+      "id": "small_qwen25_coder_1_5b",
+      "display_name": "Qwen2.5-Coder-1.5B",
+      "tier": "small",
+      "provider": "Ollama local"
+    },
+    {
+      "id": "frontier_openai",
+      "display_name": "GPT-4o",
+      "tier": "frontier",
+      "provider": "OpenAI API"
+    },
+    {
+      "id": "frontier_anthropic",
+      "display_name": "Claude Haiku 4.5",
+      "tier": "frontier",
+      "provider": "Anthropic API"
+    }
+  ],
+  "modes": [
+    "baseline",
+    "constrained"
+  ],
+  "controlled_variables": {
+    "prompt": "prompts/kernel_generation_prompt.txt",
+    "task_file": "data/kernel_generation_tasks.json",
+    "temperature": 0.2,
+    "seed": 7,
+    "operation": "vector_add"
+  },
+  "metrics": [
+    "syntax_valid",
+    "kernel_shape_valid",
+    "correctness_proxy",
+    "latency_seconds"
+  ],
+  "planned_metrics_for_final_report": [
+    "compile_success_rate",
+    "execution_success_rate",
+    "pytorch_triton_equivalence_rate",
+    "runtime_latency_seconds",
+    "speedup_vs_pytorch"
+  ],
+  "statistical_plan": {
+    "alpha": 0.05,
+    "confidence_interval": 0.95,
+    "primary_comparison": "small_qwen25_coder_1_5b baseline vs constrained on kernel_shape_valid",
+    "effect_size_for_proportions": "difference in proportions",
+    "notes": "Con n=3 por grupo, los resultados actuales son exploratorios; el experimento final debe aumentar n."
+  }
+}
+
