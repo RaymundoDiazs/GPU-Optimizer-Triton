@@ -13,8 +13,10 @@ REQUIRED_PATTERNS = {
     "triton_jit": r"@triton\.jit",
     "kernel_def": r"def\s+\w+\s*\(",
     "program_id": r"tl\.program_id\s*\(",
+    "arange": r"tl\.arange\s*\(",
     "load": r"tl\.load\s*\(",
     "store": r"tl\.store\s*\(",
+    "mask": r"mask\s*=",
 }
 
 
@@ -51,6 +53,41 @@ def validate_triton_kernel(code: str) -> GrammarCheckResult:
 
     if "tl.arange" not in clean_code:
         warnings.append("Kernel does not use tl.arange; check if block offsets are needed")
+
+    return GrammarCheckResult(
+        valid=len(errors) == 0,
+        errors=errors,
+        warnings=warnings,
+    )
+
+
+def validate_vector_add_kernel(code: str) -> GrammarCheckResult:
+    """
+    Validate the current formal grammar target: a Triton vector-add kernel.
+
+    This is a practical validator for the grammar contract in
+    grammars/vector_add.ebnf. It checks the required structure after
+    generation; token-level constrained decoding is a separate integration.
+    """
+    base_result = validate_triton_kernel(code)
+    errors = list(base_result.errors)
+    warnings = list(base_result.warnings)
+    clean_code = re.sub(r"\s+", " ", code.strip())
+
+    vector_add_patterns = {
+        "vector_add_kernel_name": r"def\s+vector_add_kernel\s*\(",
+        "block_size_constexpr": r"BLOCK_SIZE\s*:\s*tl\.constexpr",
+        "n_constexpr": r"N\s*:\s*tl\.constexpr",
+        "offsets": r"offsets\s*=\s*pid\s*\*\s*BLOCK_SIZE\s*\+\s*tl\.arange\s*\(\s*0\s*,\s*BLOCK_SIZE\s*\)",
+        "bounds_mask": r"mask\s*=\s*offsets\s*<\s*N",
+        "load_x": r"x\s*=\s*tl\.load\s*\(\s*X\s*\+\s*offsets\s*,\s*mask\s*=\s*mask\s*\)",
+        "load_y": r"y\s*=\s*tl\.load\s*\(\s*Y\s*\+\s*offsets\s*,\s*mask\s*=\s*mask\s*\)",
+        "store_add": r"tl\.store\s*\(\s*Z\s*\+\s*offsets\s*,\s*x\s*\+\s*y\s*,\s*mask\s*=\s*mask\s*\)",
+    }
+
+    for rule_name, pattern in vector_add_patterns.items():
+        if not re.search(pattern, clean_code):
+            errors.append(f"Missing vector-add grammar rule: {rule_name}")
 
     return GrammarCheckResult(
         valid=len(errors) == 0,
