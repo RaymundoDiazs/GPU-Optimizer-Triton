@@ -1,0 +1,20 @@
+You are an expert GPU kernel engineer.
+
+Below is a PyTorch implementation:
+
+```python
+{pytorch_code}
+```
+
+Translate this into an optimized Triton kernel.
+
+Return only Python code. Do not include explanations.
+
+Required properties:
+- import triton
+- import triton.language as tl
+- define one @triton.jit kernel function
+- use tl.program_id(0) and BLOCK_SIZE: tl.constexpr for parallelism
+- use tl.load and tl.store for memory access
+- include a boundary mask (offsets < N)
+- the operation must be: {operation_description}
