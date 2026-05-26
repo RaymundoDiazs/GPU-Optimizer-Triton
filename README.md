@@ -86,7 +86,7 @@ Esto escribe `benchmarks/results_summary.png`.
 Para preparar el segundo video de avance, el repo incluye un runner que compara un modelo pequeño contra dos modelos frontier en modo baseline y constrained:
 
 ```bash
-python evaluation/model_evaluation.py --samples 3
+python evaluation/model_evaluation.py --samples 150
 ```
 
 Esto genera:

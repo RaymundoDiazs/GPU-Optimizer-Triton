@@ -159,7 +159,7 @@ def run_model_evaluation(
     tasks = load_tasks(experiment.get("task_file", "data/kernel_generation_tasks.json"))
     models = config.get("models", [])
     modes = config.get("modes", ["baseline", "constrained"])
-    sample_count = samples_per_model or int(experiment.get("samples_per_model", 3))
+    sample_count = samples_per_model or int(experiment.get("samples_per_model", 150))
     output_dir.mkdir(parents=True, exist_ok=True)
 
     generated_path = output_dir / "generated_kernels.jsonl"
