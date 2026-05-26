@@ -8,14 +8,15 @@ Automatizar la optimización de código GPU para tareas comunes:
 - reducciones
 - multiplicación de matrices
 - generación de kernels Triton adaptados al tipo de problema
+- wrappers Python para lanzar kernels Triton sin escribir boilerplate de grid, salida y validación
 
 ## Estructura del proyecto
 - `main.py`: pipeline principal para clasificar, parsear, convertir a XGrammar y generar código Triton.
 - `models/classifier.py`: analiza el código y clasifica el tipo de problema.
 - `parsing/ast_parser.py`: convierte el código en una representación AST estructurada.
 - `parsing/xgrammar_converter.py`: transforma la AST en una representación estilo XGrammar.
-- `generation/triton_generator.py`: selecciona el template Triton adecuado y genera el kernel.
-- `generation/kernel_templates.py`: templates de kernels para operaciones element-wise, reducciones, matriz y genérico.
+- `generation/triton_generator.py`: selecciona el template Triton adecuado y genera kernel + wrapper.
+- `generation/kernel_templates.py`: templates de kernels y wrappers para operaciones element-wise, reducciones, matriz y genérico.
 - `benchmarks/`: utilidades para medir tiempos y perfilado.
 - `docs/presentation_outline.md`: esquema de presentación para explicar el proyecto.
 
@@ -41,15 +42,31 @@ También puedes guardar en otra ruta y lanzar benchmarks después de la generaci
 python main.py --code "C = A + B" --output custom_results.txt --benchmark
 ```
 
+Para validar el wrapper generado en GPU y compararlo contra una referencia PyTorch:
+```bash
+python main.py --code "C = A + B" --validate-gpu
+python main.py --code "output = torch.sum(x)" --validate-gpu
+python main.py --code "C = A @ B" --validate-gpu
+```
+
+Si falta `torch`, `triton` o una GPU CUDA, la validación responde con `status=not_run` en lugar de fallar.
+
 ## Funcionamiento
 1. Clasificación del problema
 2. Transformación del código a AST
 3. Conversión de la AST a XGrammar
 4. Generación de un kernel Triton optimizado según el tipo de problema
+5. Inclusión de un wrapper `launch_*` que valida tensores CUDA, reserva la salida, calcula el grid y ejecuta el kernel
+6. Validación opcional en GPU contra una referencia PyTorch
 
 ## Pruebas
 ```bash
 pytest
+```
+
+Las pruebas funcionales GPU están marcadas como `gpu` y se saltan automáticamente si no hay `torch`, `triton` o CUDA:
+```bash
+pytest -m gpu
 ```
 
 ## Benchmarks
