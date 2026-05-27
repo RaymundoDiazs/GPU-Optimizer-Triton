@@ -11,7 +11,7 @@ def repair_code(code):
     if not code:
         return code
     # 1. Fix missing colons in def statements
-    code = re.sub(r'(def\s+\w+\(.*?\))(?![\s:]|$)', r'\1:', code)
+    code = re.sub(r'^(\s*def\s+\w+\([^\n]*\))\s*$', r'\1:', code, flags=re.MULTILINE)
     # 2. Force function name to add_vectors
     code = re.sub(r'def\s+vector_add_kernel', 'def add_vectors', code)
     # 3. Add default for BLOCK_SIZE if it's in the signature but missing a default
