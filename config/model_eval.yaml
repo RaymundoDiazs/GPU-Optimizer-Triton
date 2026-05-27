@@ -1,5 +1,5 @@
 experiment:
-  samples_per_model: 3
+  samples_per_model: 150
   seed: 7
   translation_examples_file: data/pytorch_examples.json
 
