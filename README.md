@@ -94,6 +94,12 @@ Esto genera:
 - `evaluation/artifacts/model_eval_results.csv`
 - `evaluation/artifacts/model_eval_summary.md`
 
+También se puede reparar los kernels generados y aplicar correcciones sintácticas con:
+
+```bash
+python evaluation/repair_generated_kernels.py
+```
+
 Los modelos por defecto en `config/model_eval.yaml` usan `provider: mock` para que el flujo sea reproducible sin API keys. Antes de presentar resultados reales, reemplaza esos outputs por corridas reales del modelo pequeño y los dos modelos frontier elegidos. El plan del video está en `docs/second_video_plan.md`.
 
 ## Perfilado GPU

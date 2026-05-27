@@ -169,6 +169,27 @@ def run_model_evaluation(
     rows: list[dict[str, Any]] = []
     generated_records: list[dict[str, Any]] = []
 
+    FEW_SHOT_INSTR = """
+Your task is to write a Triton kernel.
+CRITICAL RULES:
+1. The function name MUST be 'add_vectors'.
+2. You MUST use 'BLOCK_SIZE: tl.constexpr' in the signature.
+3. You MUST include colons ':' after function definitions.
+
+Example of correct format:
+import triton
+import triton.language as tl
+
+@triton.jit
+def add_vectors(x_ptr, y_ptr, z_ptr, n_elements, BLOCK_SIZE: tl.constexpr):
+    pid = tl.program_id(axis=0)
+    offsets = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)
+    mask = offsets < n_elements
+    x = tl.load(x_ptr + offsets, mask=mask)
+    y = tl.load(y_ptr + offsets, mask=mask)
+    tl.store(z_ptr + offsets, x + y, mask=mask)
+"""
+
     if manual_outputs:
         candidates = load_manual_outputs(manual_outputs)
     else:
@@ -177,7 +198,7 @@ def run_model_evaluation(
             for task in tasks:
                 for mode in modes:
                     for sample_index in range(1, sample_count + 1):
-                        prompt = build_prompt(task, mode)
+                        prompt = FEW_SHOT_INSTR + "\n" + build_prompt(task, mode)
                         start = time.perf_counter()
                         output = mock_generate(model, task, mode, sample_index)
                         latency = time.perf_counter() - start
