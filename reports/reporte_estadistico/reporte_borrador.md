@@ -237,11 +237,5 @@ Con evidencia de n=100 muestras, validación PyTorch-vs-Triton real y análisis 
 
 > Para un servicio de generación de kernels con modelos pequeños, las restricciones son críticas. Sin ellas, el 88% de los kernels fallan en ejecución. Con ellas, 68% pasan equivalencia PyTorch-vs-Triton y son compilables.
 
-## Trabajo realizado
 
-- ✅ Aumentado a 100 muestras por grupo.
-- ✅ Ejecutada validación PyTorch-vs-Triton con compilación Triton y equivalencia numérica.
-- ✅ Integrado XGrammar end-to-end (token-level constrained decoding + few-shot).
-- ✅ Medido runtime y speedup real de kernels compilados vs PyTorch baseline.
-- ✅ Análisis estadístico repetido con n=100: intervalos Wilson, Cohen's h, Holm-Bonferroni, p-valores.
 
