@@ -2,9 +2,8 @@ import argparse
 import ast
 import csv
 import json
-import random
 import re
-import time
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -15,7 +14,6 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CONFIG = REPO_ROOT / "config" / "model_eval.yaml"
 DEFAULT_OUTPUT_DIR = REPO_ROOT / "evaluation" / "artifacts"
-PROMPT_TEMPLATE = REPO_ROOT / "prompts" / "kernel_generation_prompt.txt"
 
 RESULT_FIELDS = [
     "timestamp",
@@ -38,28 +36,6 @@ def load_config(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
     """Load the model evaluation configuration."""
     with config_path.open("r", encoding="utf-8") as file:
         return yaml.safe_load(file) or {}
-
-
-def load_tasks(task_file: str | Path) -> list[dict[str, Any]]:
-    """Load kernel generation tasks from JSON."""
-    path = Path(task_file)
-    if not path.is_absolute():
-        path = REPO_ROOT / path
-    with path.open("r", encoding="utf-8") as file:
-        return json.load(file)
-
-
-def build_prompt(task: dict[str, Any], mode: str) -> str:
-    """Build a stable prompt for one task and generation mode."""
-    template = PROMPT_TEMPLATE.read_text(encoding="utf-8")
-    prompt = template.format(task_prompt=task["prompt"])
-    if mode == "constrained":
-        prompt += (
-            "\n\nConstrained decoding contract:\n"
-            "Generate only code matching the project grammar for a vector-add Triton kernel.\n"
-            "Allowed kernel body pattern: compute offsets, mask, two tl.load calls, one tl.store call.\n"
-        )
-    return prompt
 
 
 def extract_code(text: str) -> str:
@@ -97,45 +73,6 @@ def evaluate_generated_code(code: str, task: dict[str, Any]) -> dict[str, bool |
     }
 
 
-def _valid_vector_add_kernel(name: str = "vector_add_kernel") -> str:
-    return f"""import triton
-import triton.language as tl
-
-@triton.jit
-def {name}(X, Y, Z, N: tl.constexpr, BLOCK_SIZE: tl.constexpr):
-    pid = tl.program_id(0)
-    offsets = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)
-    mask = offsets < N
-    x = tl.load(X + offsets, mask=mask)
-    y = tl.load(Y + offsets, mask=mask)
-    tl.store(Z + offsets, x + y, mask=mask)
-"""
-
-
-def mock_generate(model: dict[str, Any], task: dict[str, Any], mode: str, sample_index: int) -> str:
-    """Generate deterministic mock outputs for demos and tests."""
-    tier = model.get("tier", "small")
-    if mode == "constrained":
-        return _valid_vector_add_kernel(task.get("expected_kernel_name", "vector_add_kernel"))
-
-    if tier == "small" and sample_index % 3 == 1:
-        return "def vector_add_kernel(X, Y, Z, N)\n    tl.store(Z, X + Y)"
-    if tier == "small" and sample_index % 3 == 2:
-        return """import triton
-import triton.language as tl
-
-@triton.jit
-def vector_add_kernel(X, Y, Z, N):
-    offsets = tl.arange(0, N)
-    tl.store(Z + offsets, X + Y)
-"""
-    if tier == "frontier" and sample_index % 4 == 0:
-        return _valid_vector_add_kernel(task.get("expected_kernel_name", "vector_add_kernel")).replace(
-            "x + y", "x - y"
-        )
-    return _valid_vector_add_kernel(task.get("expected_kernel_name", "vector_add_kernel"))
-
-
 def load_manual_outputs(manual_path: Path) -> list[dict[str, Any]]:
     """Load manually collected model outputs from JSONL."""
     rows = []
@@ -152,14 +89,17 @@ def run_model_evaluation(
     samples_per_model: int | None = None,
     manual_outputs: Path | None = None,
 ) -> list[dict[str, Any]]:
-    """Run small-vs-frontier kernel generation evaluation and write artifacts."""
+    """Process PyTorch→Triton translation outputs and write evaluation artifacts."""
+    if not manual_outputs:
+        print(
+            "ERROR: --manual-outputs is required. "
+            "This script only evaluates real translation outputs collected via "
+            "collect_real_outputs.py. It does not generate mock outputs.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
     config = load_config(config_path)
-    experiment = config.get("experiment", {})
-    random.seed(int(experiment.get("seed", 7)))
-    tasks = load_tasks(experiment.get("task_file", "data/kernel_generation_tasks.json"))
-    models = config.get("models", [])
-    modes = config.get("modes", ["baseline", "constrained"])
-    sample_count = samples_per_model or int(experiment.get("samples_per_model", 150))
     output_dir.mkdir(parents=True, exist_ok=True)
 
     generated_path = output_dir / "generated_kernels.jsonl"
@@ -169,50 +109,7 @@ def run_model_evaluation(
     rows: list[dict[str, Any]] = []
     generated_records: list[dict[str, Any]] = []
 
-    FEW_SHOT_INSTR = """
-Your task is to write a Triton kernel.
-CRITICAL RULES:
-1. The function name MUST be 'add_vectors'.
-2. You MUST use 'BLOCK_SIZE: tl.constexpr' in the signature.
-3. You MUST include colons ':' after function definitions.
-
-Example of correct format:
-import triton
-import triton.language as tl
-
-@triton.jit
-def add_vectors(x_ptr, y_ptr, z_ptr, n_elements, BLOCK_SIZE: tl.constexpr):
-    pid = tl.program_id(axis=0)
-    offsets = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)
-    mask = offsets < n_elements
-    x = tl.load(x_ptr + offsets, mask=mask)
-    y = tl.load(y_ptr + offsets, mask=mask)
-    tl.store(z_ptr + offsets, x + y, mask=mask)
-"""
-
-    if manual_outputs:
-        candidates = load_manual_outputs(manual_outputs)
-    else:
-        candidates = []
-        for model in models:
-            for task in tasks:
-                for mode in modes:
-                    for sample_index in range(1, sample_count + 1):
-                        prompt = FEW_SHOT_INSTR + "\n" + build_prompt(task, mode)
-                        start = time.perf_counter()
-                        output = mock_generate(model, task, mode, sample_index)
-                        latency = time.perf_counter() - start
-                        candidates.append(
-                            {
-                                "model": model,
-                                "task": task,
-                                "mode": mode,
-                                "sample_index": sample_index,
-                                "prompt": prompt,
-                                "output": output,
-                                "latency_seconds": latency,
-                            }
-                        )
+    candidates = load_manual_outputs(manual_outputs)
 
     for candidate in candidates:
         model = candidate["model"]
@@ -272,7 +169,7 @@ def _build_summary(rows: list[dict[str, Any]]) -> str:
         groups.setdefault((row["model_id"], row["mode"]), []).append(row)
 
     lines = [
-        "# Kernel Generation Model Evaluation Summary",
+        "# PyTorch to Triton Translation — Model Evaluation Summary",
         "",
         "| Model | Mode | Samples | Syntax valid | Kernel shape valid | Correctness proxy |",
         "|---|---:|---:|---:|---:|---:|",
@@ -288,16 +185,17 @@ def _build_summary(rows: list[dict[str, Any]]) -> str:
         [
             "",
             "Notes:",
-            "- These are lightweight checks intended for the second progress video.",
-            "- Replace mock rows with manually collected or API-generated outputs before claiming real model results.",
-            "- GPU compilation and functional correctness should be validated in the final experiment harness.",
+            "- These are lightweight heuristic checks (syntax, kernel shape, expected terms).",
+            "- GPU compilation and numerical correctness are validated downstream by TritonBench.",
         ]
     )
     return "\n".join(lines) + "\n"
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Evaluate small vs frontier model kernel generation outputs.")
+    parser = argparse.ArgumentParser(
+        description="Evaluate PyTorch→Triton translation outputs from LLMs (Qwen local, GPT-4o, Claude Haiku)."
+    )
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument("--samples", type=int, default=None)
@@ -305,7 +203,7 @@ def main() -> None:
         "--manual-outputs",
         type=Path,
         default=None,
-        help="Optional JSONL of real model outputs using the internal candidate schema.",
+        help="JSONL of real translation outputs collected via collect_real_outputs.py (required).",
     )
     args = parser.parse_args()
     run_model_evaluation(

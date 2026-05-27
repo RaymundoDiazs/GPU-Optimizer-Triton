@@ -1,7 +1,7 @@
 experiment:
   samples_per_model: 150
   seed: 7
-  task_file: data/kernel_generation_tasks.json
+  translation_examples_file: data/pytorch_examples.json
 
 models:
   - id: small_qwen25_coder_1_5b
@@ -25,6 +25,3 @@ models:
     model_name: claude-haiku-4-5-20251001
     rationale: Fast frontier model via Anthropic API. Strong reasoning and structured output at low cost.
 
-modes:
-  - baseline
-  - constrained
