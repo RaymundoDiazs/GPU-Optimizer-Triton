@@ -245,10 +245,3 @@ Con evidencia de n=100 muestras, validación PyTorch-vs-Triton real y análisis 
 - ✅ Medido runtime y speedup real de kernels compilados vs PyTorch baseline.
 - ✅ Análisis estadístico repetido con n=100: intervalos Wilson, Cohen's h, Holm-Bonferroni, p-valores.
 
-## Trabajo futuro
-
-- Extensión a otros operadores (matmul, reducción, scan).
-- Validación cross-operador: ¿generaliza Qwen constrained?
-- Análisis de failure modes: ¿por qué fallan los 32% restantes?
-- Optimización de prompt: ¿se puede superar 68% execution_accuracy en Qwen?
-- Integración con TritonBench4Modal para benchmark estándar.
