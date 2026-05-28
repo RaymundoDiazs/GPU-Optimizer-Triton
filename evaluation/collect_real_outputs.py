@@ -26,6 +26,7 @@ import os
 import sys
 import time
 from pathlib import Path
+from generation.hf_xgrammar_provider import call_hf_xgrammar
 
 import yaml
 
@@ -205,7 +206,11 @@ PROVIDER_FN = {
 
 def collect_for_model_generation(model: dict, tasks: list, modes: list, samples: int, out_file) -> int:
     """Modo generation: genera un kernel Triton desde cero para cada tarea.
-    Devuelve cantidad de registros escritos."""
+    Devuelve cantidad de registros escritos.
+
+    En modo constrained para Qwen local, usa XGrammar real mediante
+    HuggingFace + logits processor. En los demás casos usa el provider normal.
+    """
     provider = model["provider"]
     if provider not in PROVIDER_FN:
         print(f"  Provider '{provider}' no soportado. Saltando {model['id']}.")
@@ -219,8 +224,22 @@ def collect_for_model_generation(model: dict, tasks: list, modes: list, samples:
         for mode in modes:
             for sample_index in range(1, samples + 1):
                 prompt = build_prompt(task, mode)
-                print(f"  [{model['id']}] task={task['id']} mode={mode} sample={sample_index} ... ", end="", flush=True)
-                output, latency = call_fn(model_name, prompt)
+                print(
+                    f"  [{model['id']}] task={task['id']} mode={mode} sample={sample_index} ... ",
+                    end="",
+                    flush=True,
+                )
+
+                uses_real_xgrammar = (
+                    mode == "constrained"
+                    and model["id"] == "small_qwen25_coder_1_5b"
+                )
+
+                if uses_real_xgrammar:
+                    output, latency = call_hf_xgrammar(prompt)
+                else:
+                    output, latency = call_fn(model_name, prompt)
+
                 print(f"OK ({latency:.1f}s)")
 
                 record = {
@@ -236,13 +255,15 @@ def collect_for_model_generation(model: dict, tasks: list, modes: list, samples:
                     "prompt": prompt,
                     "output": output,
                     "latency_seconds": round(latency, 6),
+                    "constrained_decoding_backend": (
+                        "xgrammar_hf" if uses_real_xgrammar else "provider_prompt"
+                    ),
                 }
                 out_file.write(json.dumps(record) + "\n")
                 out_file.flush()
                 count += 1
 
     return count
-
 
 def collect_for_model_translation(model: dict, examples: list, samples: int, out_file) -> int:
     """Modo translation: pide al modelo traducir cada ejemplo PyTorch a Triton.
