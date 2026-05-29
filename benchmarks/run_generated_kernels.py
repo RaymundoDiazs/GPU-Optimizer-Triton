@@ -12,12 +12,18 @@ import time
 from pathlib import Path
 from typing import Any, Callable
 
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from generation.shape_aware_selector import select_vector_launch_config
+
 
 EXTRA_COLUMNS = ("triton_compiles", "triton_numerically_correct", "triton_speedup")
 DEFAULT_NUM_ELEMENTS = 1_048_576
 DEFAULT_WARMUP = 25
 DEFAULT_REPEATS = 100
-DEFAULT_BLOCK_SIZE = 1024
+DEFAULT_FIXED_BLOCK_SIZE = 1024
 SCALE_ALPHA = 2.5
 
 
@@ -170,11 +176,20 @@ def _call_wrapper(fn: Callable[..., Any], *patterns: tuple[Any, ...]) -> Any:
     raise KernelEvaluationError("no call patterns provided")
 
 
-def _launch_add(namespace: dict[str, Any], x: Any, y: Any, stack: dict[str, Any]) -> Any:
+def _launch_add(
+    namespace: dict[str, Any],
+    x: Any,
+    y: Any,
+    stack: dict[str, Any],
+    *,
+    launch_policy: str,
+    fixed_block_size: int,
+) -> Any:
     torch = stack["torch"]
     triton = stack["triton"]
     n = x.numel()
-    block_size = DEFAULT_BLOCK_SIZE
+    launch_config = select_vector_launch_config(n, launch_policy, fixed_block_size)
+    block_size = launch_config.block_size
 
     add = namespace.get("add")
     if callable(add) and not _is_triton_jit_function(add):
@@ -187,7 +202,7 @@ def _launch_add(namespace: dict[str, Any], x: Any, y: Any, stack: dict[str, Any]
     kernel = namespace.get("add_kernel")
     if _is_triton_jit_function(kernel):
         z = torch.empty_like(x)
-        grid = (triton.cdiv(n, block_size),)
+        grid = launch_config.grid
         kernel[grid](x, y, z, n, BLOCK_SIZE=block_size)
         return z
 
@@ -201,11 +216,19 @@ def _launch_add(namespace: dict[str, Any], x: Any, y: Any, stack: dict[str, Any]
     raise KernelEvaluationError("no supported vector_add wrapper or kernel found")
 
 
-def _launch_relu(namespace: dict[str, Any], x: Any, stack: dict[str, Any]) -> Any:
+def _launch_relu(
+    namespace: dict[str, Any],
+    x: Any,
+    stack: dict[str, Any],
+    *,
+    launch_policy: str,
+    fixed_block_size: int,
+) -> Any:
     torch = stack["torch"]
     triton = stack["triton"]
     n = x.numel()
-    block_size = DEFAULT_BLOCK_SIZE
+    launch_config = select_vector_launch_config(n, launch_policy, fixed_block_size)
+    block_size = launch_config.block_size
 
     for name in ("relu", "relu_triton"):
         wrapper = namespace.get(name)
@@ -215,7 +238,7 @@ def _launch_relu(namespace: dict[str, Any], x: Any, stack: dict[str, Any]) -> An
     kernel = namespace.get("relu_kernel")
     if _is_triton_jit_function(kernel):
         z = torch.empty_like(x)
-        grid = (triton.cdiv(n, block_size),)
+        grid = launch_config.grid
         try:
             kernel[grid](x, z, n, BLOCK_SIZE=block_size)
         except TypeError:
@@ -225,11 +248,19 @@ def _launch_relu(namespace: dict[str, Any], x: Any, stack: dict[str, Any]) -> An
     raise KernelEvaluationError("no supported vector_relu wrapper or kernel found")
 
 
-def _launch_scale(namespace: dict[str, Any], x: Any, stack: dict[str, Any]) -> Any:
+def _launch_scale(
+    namespace: dict[str, Any],
+    x: Any,
+    stack: dict[str, Any],
+    *,
+    launch_policy: str,
+    fixed_block_size: int,
+) -> Any:
     torch = stack["torch"]
     triton = stack["triton"]
     n = x.numel()
-    block_size = DEFAULT_BLOCK_SIZE
+    launch_config = select_vector_launch_config(n, launch_policy, fixed_block_size)
+    block_size = launch_config.block_size
     alpha = SCALE_ALPHA
 
     for name in ("scale", "scalar_multiply"):
@@ -251,7 +282,7 @@ def _launch_scale(namespace: dict[str, Any], x: Any, stack: dict[str, Any]) -> A
         kernel = namespace.get(name)
         if _is_triton_jit_function(kernel):
             z = torch.empty_like(x)
-            grid = (triton.cdiv(n, block_size),)
+            grid = launch_config.grid
             kernel[grid](x, z, alpha, n, BLOCK_SIZE=block_size)
             return z
 
@@ -286,13 +317,40 @@ def _make_inputs(task_id: str, torch: Any, num_elements: int, seed: int) -> tupl
     raise KernelEvaluationError(f"unsupported task_id: {task_id}")
 
 
-def _launch_task(namespace: dict[str, Any], task_id: str, inputs: tuple[Any, ...], stack: dict[str, Any]) -> Any:
+def _launch_task(
+    namespace: dict[str, Any],
+    task_id: str,
+    inputs: tuple[Any, ...],
+    stack: dict[str, Any],
+    *,
+    launch_policy: str,
+    fixed_block_size: int,
+) -> Any:
     if task_id == "vector_add":
-        return _launch_add(namespace, inputs[0], inputs[1], stack)
+        return _launch_add(
+            namespace,
+            inputs[0],
+            inputs[1],
+            stack,
+            launch_policy=launch_policy,
+            fixed_block_size=fixed_block_size,
+        )
     if task_id == "vector_relu":
-        return _launch_relu(namespace, inputs[0], stack)
+        return _launch_relu(
+            namespace,
+            inputs[0],
+            stack,
+            launch_policy=launch_policy,
+            fixed_block_size=fixed_block_size,
+        )
     if task_id == "vector_scale":
-        return _launch_scale(namespace, inputs[0], stack)
+        return _launch_scale(
+            namespace,
+            inputs[0],
+            stack,
+            launch_policy=launch_policy,
+            fixed_block_size=fixed_block_size,
+        )
     raise KernelEvaluationError(f"unsupported task_id: {task_id}")
 
 
@@ -332,6 +390,8 @@ def _evaluate_row(
     num_elements: int,
     warmup: int,
     repeats: int,
+    launch_policy: str,
+    fixed_block_size: int,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     torch = stack["torch"]
     diagnostic: dict[str, Any] = {
@@ -343,13 +403,33 @@ def _evaluate_row(
         "max_abs_error": None,
         "pytorch_ms": None,
         "triton_ms": None,
+        "shape_aware_block_size": None,
+        "shape_aware_grid": None,
+        "shape_aware_reason": None,
+        "launch_policy": launch_policy,
     }
     enriched = dict(row)
 
     try:
         namespace = _exec_extracted_code(str(row["extracted_code"]), stack, row_number)
         inputs, expected = _make_inputs(str(row["task_id"]), torch, num_elements, seed=row_number)
-        actual = _launch_task(namespace, str(row["task_id"]), inputs, stack)
+        if str(row["task_id"]) in {"vector_add", "vector_relu", "vector_scale"}:
+            launch_config = select_vector_launch_config(num_elements, launch_policy, fixed_block_size)
+            diagnostic.update(
+                {
+                    "shape_aware_block_size": launch_config.block_size,
+                    "shape_aware_grid": launch_config.grid[0],
+                    "shape_aware_reason": launch_config.reason,
+                }
+            )
+        actual = _launch_task(
+            namespace,
+            str(row["task_id"]),
+            inputs,
+            stack,
+            launch_policy=launch_policy,
+            fixed_block_size=fixed_block_size,
+        )
         torch.cuda.synchronize()
     except Exception as exc:
         enriched.update(
@@ -383,7 +463,14 @@ def _evaluate_row(
     pytorch_ms: float | None = None
     speedup: float | None = None
     try:
-        triton_fn = lambda: _launch_task(namespace, str(row["task_id"]), inputs, stack)
+        triton_fn = lambda: _launch_task(
+            namespace,
+            str(row["task_id"]),
+            inputs,
+            stack,
+            launch_policy=launch_policy,
+            fixed_block_size=fixed_block_size,
+        )
         torch_fn = _reference_callable(str(row["task_id"]), inputs)
         triton_ms = _median_cuda_ms(triton_fn, torch, warmup, repeats)
         pytorch_ms = _median_cuda_ms(torch_fn, torch, warmup, repeats)
@@ -419,6 +506,8 @@ def evaluate_file(
     num_elements: int,
     warmup: int,
     repeats: int,
+    launch_policy: str = "shape-aware",
+    fixed_block_size: int = DEFAULT_FIXED_BLOCK_SIZE,
 ) -> None:
     rows = _jsonl_load(input_path)
     stack, unavailable_reason = _load_stack()
@@ -434,6 +523,9 @@ def evaluate_file(
             "repeats": repeats,
             "allclose": "torch.allclose(actual, expected, atol=1e-5)",
             "speedup": "median_pytorch_ms / median_triton_ms",
+            "launch_policy": launch_policy,
+            "fixed_block_size": fixed_block_size,
+            "shape_aware_policy": "generation.shape_aware_selector.select_vector_launch_config",
         }
     )
 
@@ -466,6 +558,8 @@ def evaluate_file(
                 num_elements=num_elements,
                 warmup=warmup,
                 repeats=repeats,
+                launch_policy=launch_policy,
+                fixed_block_size=fixed_block_size,
             )
             enriched_rows.append(enriched)
             diagnostics.append(diagnostic)
@@ -490,6 +584,8 @@ def main() -> None:
     parser.add_argument("--num-elements", type=int, default=DEFAULT_NUM_ELEMENTS)
     parser.add_argument("--warmup", type=int, default=DEFAULT_WARMUP)
     parser.add_argument("--repeats", type=int, default=DEFAULT_REPEATS)
+    parser.add_argument("--launch-policy", choices=("shape-aware", "fixed"), default="shape-aware")
+    parser.add_argument("--fixed-block-size", type=int, default=DEFAULT_FIXED_BLOCK_SIZE)
     args = parser.parse_args()
 
     evaluate_file(
@@ -500,6 +596,8 @@ def main() -> None:
         num_elements=args.num_elements,
         warmup=args.warmup,
         repeats=args.repeats,
+        launch_policy=args.launch_policy,
+        fixed_block_size=args.fixed_block_size,
     )
     print(f"Wrote evaluated JSONL to {args.output}")
     print(f"Wrote reproducibility metadata to {args.metadata}")

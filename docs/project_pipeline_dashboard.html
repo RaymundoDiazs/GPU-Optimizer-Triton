@@ -344,6 +344,34 @@
       accent-color: var(--blue);
     }
 
+    .policy-table {
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fbfcfd;
+    }
+
+    .policy-row {
+      display: grid;
+      grid-template-columns: 150px 115px minmax(0, 1fr);
+      gap: 10px;
+      padding: 9px 11px;
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+      align-items: center;
+    }
+
+    .policy-row:last-child {
+      border-bottom: 0;
+    }
+
+    .policy-row.active {
+      background: #e8f6f8;
+      color: var(--blue);
+      font-weight: 750;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
@@ -732,7 +760,7 @@
 
     <section class="panel">
       <h2>Walk Through The Current Process</h2>
-      <p class="small">Use this guided view to see what the project is doing from zero: which PyTorch example is used, what prompt is sent to the LLM, what Triton candidate comes back, how grammar/XGrammar fits in, and how the benchmark interprets the result.</p>
+        <p class="small">Use this guided view to see what the project is doing from zero: where the TritonBench-T examples come from, how five examples are selected from the 166-example dataset, what prompt is sent to the LLM, what Triton candidate comes back, how grammar/XGrammar fits in, and how the benchmark interprets the result.</p>
       <div class="walkthrough">
         <div class="step-nav" id="walkNav"></div>
         <div class="walk-content">
@@ -762,6 +790,11 @@
             <option value="missingStore">invalid_missing_store.py</option>
             <option value="wrongOperation">invalid_wrong_operation.py</option>
             <option value="noMask">invalid_no_mask.py</option>
+            <option value="tbDiv">TritonBench-T 002: div</option>
+            <option value="tbConv">TritonBench-T 003: sigmoid_conv2d</option>
+            <option value="tbTanh">TritonBench-T 005: tanh</option>
+            <option value="tbLuFallback">TritonBench-T 004: solve_multiple_lu</option>
+            <option value="tbFusedSketch">TritonBench-T 001: fused operation sketch</option>
           </select>
           <button class="primary" id="validateBtn">Run Grammar Check</button>
           <button id="repairBtn">Load Valid Template</button>
@@ -782,7 +815,7 @@
     <section class="grid-2">
       <div class="panel">
         <h2>Formal Grammar Contract</h2>
-        <p class="small">This is the narrow EBNF target for <code>vector_add</code>. It is intentionally not a universal Python grammar; it defines the shape of one valid Triton kernel family.</p>
+        <p class="small" id="grammarDescription">This is the narrow EBNF target for <code>vector_add</code>. Change the selector above to inspect the new TritonBench-T subset contracts.</p>
         <pre class="ebnf" id="ebnfBlock"></pre>
       </div>
 
@@ -812,7 +845,29 @@
             <span id="gridValue" class="value">4,096</span>
           </div>
         </div>
+        <div class="metric">
+          <span class="label">Machine policy reason</span>
+          <span id="shapeReason" class="small">medium vector: balanced block size for elementwise work</span>
+        </div>
+        <div class="policy-table" aria-label="Shape-aware launch policy">
+          <div class="policy-row" id="policySmall">
+            <span>N <= 4,096</span>
+            <code>BLOCK_SIZE=128</code>
+            <span>Small vector: avoid excess inactive lanes.</span>
+          </div>
+          <div class="policy-row" id="policyMedium">
+            <span>N <= 1,048,576</span>
+            <code>BLOCK_SIZE=256</code>
+            <span>Medium vector: balanced elementwise work.</span>
+          </div>
+          <div class="policy-row" id="policyLarge">
+            <span>N > 1,048,576</span>
+            <code>BLOCK_SIZE=512</code>
+            <span>Large vector: reduce the launch grid size.</span>
+          </div>
+        </div>
         <p class="small"><code>grid = ceil(N / BLOCK_SIZE)</code>. This is why shapes belong in the generation strategy, not only in runtime tests.</p>
+        <p class="small">Implemented in <code>generation/shape_aware_selector.py</code> and used by <code>benchmarks/run_generated_kernels.py</code>.</p>
       </div>
 
       <div class="panel">
@@ -909,6 +964,104 @@ def vector_add_kernel(X, Y, Z, N: tl.constexpr, BLOCK_SIZE: tl.constexpr):
     x = tl.load(X + offsets)
     y = tl.load(Y + offsets)
     tl.store(Z + offsets, x + y)
+`,
+      tbDiv: `import torch
+import triton
+import triton.language as tl
+
+
+@triton.jit
+def div_kernel(X, Y, Z, N: tl.constexpr, BLOCK_SIZE: tl.constexpr):
+    pid = tl.program_id(0)
+    offsets = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)
+    mask = offsets < N
+    x = tl.load(X + offsets, mask=mask)
+    y = tl.load(Y + offsets, mask=mask)
+    z = x / y
+    tl.store(Z + offsets, z, mask=mask)
+
+
+def div(input, other, *, rounding_mode=None, out=None):
+    # wrapper expected by TritonBench-T
+    return out
+`,
+      tbConv: `import torch
+import triton
+import triton.language as tl
+
+
+@triton.jit
+def sigmoid_conv2d_kernel(INPUT, WEIGHT, BIAS, OUT, N: tl.constexpr, BLOCK_SIZE: tl.constexpr):
+    pid = tl.program_id(0)
+    offsets = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)
+    mask = offsets < N
+    x = tl.load(INPUT + offsets, mask=mask)
+    w = tl.load(WEIGHT + offsets, mask=mask)
+    b = tl.load(BIAS + offsets, mask=mask)
+    conv_value = x * w + b
+    y = 1.0 / (1.0 + tl.exp(-conv_value))
+    tl.store(OUT + offsets, y, mask=mask)
+
+
+def sigmoid_conv2d(input, weight, bias=None, stride=1, padding=0, dilation=1, groups=1, out=None):
+    # wrapper expected by TritonBench-T
+    return out
+`,
+      tbTanh: `import torch
+import triton
+import triton.language as tl
+
+
+@triton.jit
+def tanh_kernel(X, Z, N: tl.constexpr, BLOCK_SIZE: tl.constexpr):
+    pid = tl.program_id(0)
+    offsets = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)
+    mask = offsets < N
+    x = tl.load(X + offsets, mask=mask)
+    z = tl.tanh(x)
+    tl.store(Z + offsets, z, mask=mask)
+
+
+def tanh(input, *, out=None):
+    # wrapper expected by TritonBench-T
+    return out
+`,
+      tbLuFallback: `import torch
+import triton
+import triton.language as tl
+
+
+def solve_multiple_lu(A, Bs, *, pivot=True, out=None):
+    # This contract allows a documented torch.linalg fallback for this complex task.
+    result = torch.linalg.solve(A, Bs)
+    if out is not None:
+        out.copy_(result)
+        return out
+    return result
+`,
+      tbFusedSketch: `import torch
+import triton
+import triton.language as tl
+
+
+@triton.jit
+def fused_bmm_rmsnorm_gelu_dropout_sub_kernel(X, Y, OTHER, OUT, N: tl.constexpr, BLOCK_SIZE: tl.constexpr):
+    pid = tl.program_id(0)
+    offsets = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)
+    mask = offsets < N
+    x = tl.load(X + offsets, mask=mask)
+    y = tl.load(Y + offsets, mask=mask)
+    other = tl.load(OTHER + offsets, mask=mask)
+    dot = x * y
+    rms = dot * tl.rsqrt(dot * dot + 1.0e-5)
+    gelu = 0.5 * rms * (1.0 + tl.tanh(0.79788456 * (rms + 0.044715 * rms * rms * rms)))
+    dropout = gelu
+    tl.store(OUT + offsets, dropout - other, mask=mask)
+
+
+def fused_bmm_rmsnorm_gelu_dropout_sub(input1, input2, other, normalized_shape, dropout_p=0.5, training=True, approximate='none', eps=1e-5, *, out=None):
+    # wrapper expected by TritonBench-T
+    return out
 `
     };
 
@@ -935,18 +1088,130 @@ block = indent, "pid = tl.program_id(0)", newline,
         indent, "y = tl.load(Y + offsets, mask=mask)", newline,
         indent, "tl.store(Z + offsets, x + y, mask=mask)", newline ;`;
 
-    const rules = [
-      ["triton_jit", /@triton\.jit/, "Uses the Triton JIT decorator."],
-      ["kernel_name", /def\s+vector_add_kernel\s*\(/, "Defines the expected vector_add_kernel entry point."],
-      ["N constexpr", /N\s*:\s*tl\.constexpr/, "Declares N as a compile-time Triton parameter."],
-      ["BLOCK_SIZE constexpr", /BLOCK_SIZE\s*:\s*tl\.constexpr/, "Declares BLOCK_SIZE as a compile-time Triton parameter."],
-      ["program_id", /tl\.program_id\s*\(\s*0\s*\)/, "Maps each program instance to a block of work."],
-      ["offsets", /offsets\s*=\s*pid\s*\*\s*BLOCK_SIZE\s*\+\s*tl\.arange\s*\(\s*0\s*,\s*BLOCK_SIZE\s*\)/, "Computes vector offsets for the block."],
-      ["bounds mask", /mask\s*=\s*offsets\s*<\s*N/, "Prevents out-of-bounds memory access."],
-      ["load X", /x\s*=\s*tl\.load\s*\(\s*X\s*\+\s*offsets\s*,\s*mask\s*=\s*mask\s*\)/, "Loads X with the mask."],
-      ["load Y", /y\s*=\s*tl\.load\s*\(\s*Y\s*\+\s*offsets\s*,\s*mask\s*=\s*mask\s*\)/, "Loads Y with the mask."],
-      ["store X+Y", /tl\.store\s*\(\s*Z\s*\+\s*offsets\s*,\s*x\s*\+\s*y\s*,\s*mask\s*=\s*mask\s*\)/, "Stores the expected addition result."],
-    ];
+    const grammarContracts = {
+      vectorAdd: {
+        label: "vector_add grammar contract",
+        description: "Narrow vector_add contract: one masked elementwise addition kernel.",
+        ebnf,
+        rules: [
+          ["triton_jit", /@triton\.jit/, "Uses the Triton JIT decorator."],
+          ["kernel_name", /def\s+vector_add_kernel\s*\(/, "Defines the expected vector_add_kernel entry point."],
+          ["N constexpr", /N\s*:\s*tl\.constexpr/, "Declares N as a compile-time Triton parameter."],
+          ["BLOCK_SIZE constexpr", /BLOCK_SIZE\s*:\s*tl\.constexpr/, "Declares BLOCK_SIZE as a compile-time Triton parameter."],
+          ["program_id", /tl\.program_id\s*\(\s*0\s*\)/, "Maps each program instance to a block of work."],
+          ["offsets", /offsets\s*=\s*pid\s*\*\s*BLOCK_SIZE\s*\+\s*tl\.arange\s*\(\s*0\s*,\s*BLOCK_SIZE\s*\)/, "Computes vector offsets for the block."],
+          ["bounds mask", /mask\s*=\s*offsets\s*<\s*N/, "Prevents out-of-bounds memory access."],
+          ["load X", /x\s*=\s*tl\.load\s*\(\s*X\s*\+\s*offsets\s*,\s*mask\s*=\s*mask\s*\)/, "Loads X with the mask."],
+          ["load Y", /y\s*=\s*tl\.load\s*\(\s*Y\s*\+\s*offsets\s*,\s*mask\s*=\s*mask\s*\)/, "Loads Y with the mask."],
+          ["store X+Y", /tl\.store\s*\(\s*Z\s*\+\s*offsets\s*,\s*x\s*\+\s*y\s*,\s*mask\s*=\s*mask\s*\)/, "Stores the expected addition result."],
+        ],
+      },
+      tbDiv: {
+        label: "TritonBench-T 002 div contract",
+        description: "Elementwise division contract: wrapper name, masked loads/stores, and divide operation.",
+        ebnf: `module = imports, kernel, wrapper ;
+
+kernel = "@triton.jit", kernel_def, elementwise_body ;
+elementwise_body = offsets, mask, load_input, load_other, divide, store ;
+wrapper = "def div(input, other, *, rounding_mode=None, out=None)" ;`,
+        rules: [
+          ["wrapper div", /def\s+div\s*\(/, "Defines the wrapper expected by TritonBench-T."],
+          ["triton_jit", /@triton\.jit/, "Defines a Triton kernel."],
+          ["program_id", /tl\.program_id\s*\(/, "Maps GPU programs to work blocks."],
+          ["arange", /tl\.arange\s*\(/, "Builds per-program offsets."],
+          ["mask", /mask\s*=|mask\s*=/, "Uses a bounds mask."],
+          ["loads", /tl\.load[\s\S]*tl\.load/, "Loads input and other values."],
+          ["division", /\//, "Performs division."],
+          ["store", /tl\.store\s*\(/, "Stores the result."],
+        ],
+      },
+      tbConv: {
+        label: "TritonBench-T 003 sigmoid_conv2d contract",
+        description: "Convolution + sigmoid contract: wrapper, kernel, memory operations, convolution evidence, and sigmoid evidence.",
+        ebnf: `module = imports, one_or_more_kernels, wrapper ;
+
+wrapper = "def sigmoid_conv2d(input, weight, bias=None, stride=1, padding=0, dilation=1, groups=1, out=None)" ;
+required_semantics = "loads input and weight", "optional bias", "sigmoid activation", "stores output" ;`,
+        rules: [
+          ["wrapper sigmoid_conv2d", /def\s+sigmoid_conv2d\s*\(/, "Defines the wrapper expected by TritonBench-T."],
+          ["triton_jit", /@triton\.jit/, "Defines a Triton kernel."],
+          ["load", /tl\.load\s*\(/, "Loads input/weight/bias data."],
+          ["store", /tl\.store\s*\(/, "Stores output data."],
+          ["weight", /weight|WEIGHT/, "Uses convolution weights."],
+          ["stride parameter", /stride/, "Keeps the convolution stride parameter visible."],
+          ["padding parameter", /padding|pad/, "Keeps padding behavior visible."],
+          ["sigmoid evidence", /sigmoid|tl\.exp|exp\s*\(/, "Implements sigmoid or its exp-based formula."],
+        ],
+      },
+      tbLuFallback: {
+        label: "TritonBench-T 004 solve_multiple_lu contract",
+        description: "LU solve is complex; this subset contract accepts a documented torch.linalg fallback or LU/solve evidence.",
+        ebnf: `module = imports, implementation, wrapper ;
+
+implementation = one_or_more_kernels | documented_fallback ;
+documented_fallback = statement_with("torch.linalg") ;
+wrapper = "def solve_multiple_lu(A, Bs, *, pivot=True, out=None)" ;`,
+        rules: [
+          ["wrapper solve_multiple_lu", /def\s+solve_multiple_lu\s*\(/, "Defines the wrapper expected by TritonBench-T."],
+          ["torch import", /import\s+torch/, "Imports PyTorch for fallback or reference behavior."],
+          ["linear solve evidence", /torch\.linalg|lu|solve|triangular/i, "Shows LU/solve semantics."],
+          ["A argument", /\bA\b/, "Uses the coefficient matrix A."],
+          ["Bs argument", /\bBs\b|\bB\b/, "Uses the right-hand side tensor(s)."],
+          ["pivot", /pivot/, "Keeps pivoting behavior visible."],
+          ["output handling", /out|return/, "Returns or writes the solution."],
+        ],
+      },
+      tbTanh: {
+        label: "TritonBench-T 005 tanh contract",
+        description: "Elementwise tanh contract: wrapper name, masked loads/stores, and tanh operation.",
+        ebnf: `module = imports, kernel, wrapper ;
+
+kernel = "@triton.jit", kernel_def, elementwise_body ;
+elementwise_body = offsets, mask, load_input, tanh_operation, store ;
+wrapper = "def tanh(input, *, out=None)" ;`,
+        rules: [
+          ["wrapper tanh", /def\s+tanh\s*\(/, "Defines the wrapper expected by TritonBench-T."],
+          ["triton_jit", /@triton\.jit/, "Defines a Triton kernel."],
+          ["program_id", /tl\.program_id\s*\(/, "Maps GPU programs to work blocks."],
+          ["arange", /tl\.arange\s*\(/, "Builds per-program offsets."],
+          ["mask", /mask\s*=|mask\s*=/, "Uses a bounds mask."],
+          ["load", /tl\.load\s*\(/, "Loads input values."],
+          ["tanh operation", /tl\.tanh|tanh\s*\(/, "Computes tanh."],
+          ["store", /tl\.store\s*\(/, "Stores the result."],
+        ],
+      },
+      tbFusedSketch: {
+        label: "TritonBench-T 001 fused operation contract",
+        description: "Complex fused-operation contract: wrapper, Triton kernel, memory ops, and semantic evidence for bmm/RMS/GELU/dropout/subtraction.",
+        ebnf: `module = imports, one_or_more_kernels, wrapper ;
+
+wrapper = "def fused_bmm_rmsnorm_gelu_dropout_sub(...)" ;
+required_semantics = "bmm/dot", "rms normalization", "gelu", "dropout", "subtract other" ;`,
+        rules: [
+          ["wrapper fused", /def\s+fused_bmm_rmsnorm_gelu_dropout_sub\s*\(/, "Defines the wrapper expected by TritonBench-T."],
+          ["triton_jit", /@triton\.jit/, "Defines a Triton kernel."],
+          ["load", /tl\.load\s*\(/, "Loads input tensors."],
+          ["store", /tl\.store\s*\(/, "Stores output tensor."],
+          ["bmm/dot evidence", /tl\.dot|bmm|matmul|dot\s*=/i, "Shows matrix multiplication evidence."],
+          ["rms evidence", /rms|rsqrt|sqrt/i, "Shows RMS normalization evidence."],
+          ["gelu evidence", /gelu|0\.044715|0\.79788456/i, "Shows GELU activation evidence."],
+          ["dropout evidence", /dropout/i, "Keeps dropout behavior visible."],
+          ["subtract other", /other|sub|-/, "Subtracts the other tensor."],
+        ],
+      },
+    };
+
+    const exampleContracts = {
+      valid: "vectorAdd",
+      missingStore: "vectorAdd",
+      wrongOperation: "vectorAdd",
+      noMask: "vectorAdd",
+      tbDiv: "tbDiv",
+      tbConv: "tbConv",
+      tbTanh: "tbTanh",
+      tbLuFallback: "tbLuFallback",
+      tbFusedSketch: "tbFusedSketch",
+    };
 
     const tokenRows = [
       ["START", "@triton.jit"],
@@ -985,6 +1250,45 @@ block = indent, "pid = tl.program_id(0)", newline,
         expected_kernel_name: "scale_kernel",
       },
     ];
+
+    const tritonBenchSubset = [
+      {
+        id: "tritonbench_t_001",
+        sourceIndex: 1,
+        description: "Fused batch matrix multiplication, RMS normalization, GELU activation, dropout, and subtraction.",
+        wrapper: "fused_bmm_rmsnorm_gelu_dropout_sub(input1, input2, other, normalized_shape, dropout_p=0.5, training=True, approximate='none', eps=1e-5, *, out=None) -> Tensor",
+      },
+      {
+        id: "tritonbench_t_002",
+        sourceIndex: 2,
+        description: "Elementwise division with broadcasting, type promotion, and optional rounding mode.",
+        wrapper: "div(input, other, *, rounding_mode=None, out=None) -> Tensor",
+      },
+      {
+        id: "tritonbench_t_003",
+        sourceIndex: 3,
+        description: "2D convolution followed by sigmoid activation.",
+        wrapper: "sigmoid_conv2d(input, weight, bias=None, stride=1, padding=0, dilation=1, groups=1, out=None) -> Tensor",
+      },
+      {
+        id: "tritonbench_t_004",
+        sourceIndex: 4,
+        description: "Solves multiple linear systems using LU decomposition.",
+        wrapper: "solve_multiple_lu(A, Bs, *, pivot=True, out=None) -> Tensor",
+      },
+      {
+        id: "tritonbench_t_005",
+        sourceIndex: 5,
+        description: "Elementwise hyperbolic tangent.",
+        wrapper: "tanh(input, *, out=None) -> Tensor",
+      },
+    ];
+
+    const tritonBenchSubsetText = tritonBenchSubset
+      .map((item) => `${item.id} | source item ${item.sourceIndex}/166
+description: ${item.description}
+wrapper: ${item.wrapper}`)
+      .join("\n\n");
 
     const translationPrompt = `You are an expert GPU kernel engineer.
 
@@ -1087,31 +1391,55 @@ def add_vectors(X, Y, Z, N):
 
     const walkSteps = [
       {
-        title: "1. PyTorch Input",
-        status: "INPUT",
-        summary: "The source task comes from data/pytorch_examples.json. This is what the LLM is asked to translate.",
+        title: "1. TritonBench-T Source",
+        status: "DATASET",
+        summary: "The real benchmark source is external/TritonBench/data/TritonBench_T_simp_alpac_v1.json with 166 examples.",
         cards: [
-          ["data/pytorch_examples.json", JSON.stringify(pytorchExamples, null, 2)],
-          ["Selected example", `id: vector_add
-pytorch_code: z = x + y
-operation: element-wise addition of two vectors
-expected kernel: vector_add_kernel`],
+          ["Full source dataset", `external/TritonBench/data/TritonBench_T_simp_alpac_v1.json
+total examples: 166
+format: instruction + input + output
+
+This is the dataset used to move beyond the three local development examples.`],
+          ["Current smoke subset", `data/tritonbench_t_simp_subset5.json
+selected examples: first 5 of 166
+purpose: validate prompt construction and generation flow before spending API/GPU budget on all 166.`],
         ],
       },
       {
-        title: "2. Prompt Construction",
+        title: "2. Five-Example Subset",
+        status: "SUBSET",
+        summary: "The current local subset contains five TritonBench-T tasks copied from the 166-example simple dataset.",
+        cards: [
+          ["Subset examples", tritonBenchSubsetText],
+          ["What has been verified locally", `Loaded: yes
+Counted: 5 examples from the 166-example source
+Prompt construction: yes
+LLM/API generation: not run in this dashboard
+GPU benchmark: not run in this dashboard`],
+        ],
+      },
+      {
+        title: "3. Prompt Construction",
         status: "PROMPT",
-        summary: "evaluation/collect_real_outputs.py inserts the PyTorch code into prompts/pytorch_to_triton_prompt.txt.",
+        summary: "evaluation/collect_real_outputs.py now supports both local PyTorch examples and TritonBench-T instruction examples.",
         cards: [
-          ["Prompt sent to model", translationPrompt],
-          ["What stays constant", `Same task format
-Same required Triton properties
-Same operation description
-Same model comparison setup`],
+          ["TritonBench-T prompt source", `For TritonBench-T, the prompt is mostly the dataset instruction itself.
+
+Example source fields:
+- instruction
+- input
+- output
+
+The script sends instruction + input to the model.`],
+          ["Command for the five-example run", `python evaluation/collect_real_outputs.py \\
+  --provider openai \\
+  --task-type translation \\
+  --examples-file data/tritonbench_t_simp_subset5.json \\
+  --samples 1`],
         ],
       },
       {
-        title: "3. LLM Candidate",
+        title: "4. LLM Candidate",
         status: "CANDIDATE",
         summary: "The model output is not trusted as final code. It is only a candidate kernel.",
         cards: [
@@ -1123,7 +1451,7 @@ It may look like code, but it is not a valid Triton kernel pattern.`],
         ],
       },
       {
-        title: "4. Grammar Filter",
+        title: "5. Grammar Filter",
         status: "FILTER",
         summary: "The grammar contract checks required Triton structure before deeper validation.",
         cards: [
@@ -1145,13 +1473,13 @@ tl.store(..., x + y, mask=mask)`],
         ],
       },
       {
-        title: "5. XGrammar Role",
+        title: "6. XGrammar Role",
         status: "XGRAMMAR",
         summary: "Current checks mostly happen after generation. XGrammar is the planned mechanism to apply grammar during token generation.",
         xgrammar: true,
       },
       {
-        title: "6. GPU Benchmark",
+        title: "7. GPU Benchmark",
         status: "RESULT",
         summary: "Candidates that survive structure checks should be compiled, compared against PyTorch, and benchmarked.",
         cards: [
@@ -1171,14 +1499,21 @@ Median speedups remain below 1x, so correct does not mean faster.`],
     const exampleSelect = document.getElementById("exampleSelect");
     const verdict = document.getElementById("verdict");
     const rulesBox = document.getElementById("rules");
+    const ebnfBlock = document.getElementById("ebnfBlock");
+    const grammarDescription = document.getElementById("grammarDescription");
 
     function normalize(code) {
       return code.trim().replace(/\s+/g, " ");
     }
 
+    function selectedContract() {
+      return grammarContracts[exampleContracts[exampleSelect.value] || "vectorAdd"];
+    }
+
     function validate() {
       const normalized = normalize(codeInput.value);
-      const results = rules.map(([name, regex, description]) => ({
+      const contract = selectedContract();
+      const results = contract.rules.map(([name, regex, description]) => ({
         name,
         description,
         pass: regex.test(normalized),
@@ -1190,8 +1525,11 @@ Median speedups remain below 1x, so correct does not mean faster.`],
       verdict.className = `verdict ${accepted ? "pass" : "fail"}`;
       verdict.querySelector(".badge").textContent = accepted ? "PASS" : "FAIL";
       verdict.querySelector("p").textContent = accepted
-        ? `Accepted by the vector_add grammar contract (${passed}/${total} rules passed).`
-        : `Rejected by the vector_add grammar contract (${passed}/${total} rules passed).`;
+        ? `Accepted by the ${contract.label} (${passed}/${total} rules passed).`
+        : `Rejected by the ${contract.label} (${passed}/${total} rules passed).`;
+
+      ebnfBlock.textContent = contract.ebnf;
+      grammarDescription.innerHTML = `${contract.description} <span class="pill ok">${contract.label}</span>`;
 
       rulesBox.innerHTML = "";
       for (const result of results) {
@@ -1210,16 +1548,32 @@ Median speedups remain below 1x, so correct does not mean faster.`],
 
     function loadExample(name) {
       codeInput.value = examples[name];
+      exampleSelect.value = name;
       validate();
     }
 
     function updateShape() {
       const n = Number(document.getElementById("nRange").value);
-      const block = n < 65536 ? 128 : 256;
+      let block = 256;
+      let reason = "medium vector: balanced block size for elementwise work";
+      let active = "policyMedium";
+      if (n <= 4096) {
+        block = 128;
+        reason = "small vector: lower block size avoids excess inactive lanes";
+        active = "policySmall";
+      } else if (n > 1048576) {
+        block = 512;
+        reason = "large vector: larger block size reduces launch grid size";
+        active = "policyLarge";
+      }
       const grid = Math.ceil(n / block);
       document.getElementById("nValue").textContent = n.toLocaleString();
       document.getElementById("blockValue").textContent = block.toLocaleString();
       document.getElementById("gridValue").textContent = grid.toLocaleString();
+      document.getElementById("shapeReason").textContent = reason;
+      for (const id of ["policySmall", "policyMedium", "policyLarge"]) {
+        document.getElementById(id).classList.toggle("active", id === active);
+      }
     }
 
     function initTokenRows() {
@@ -1397,7 +1751,7 @@ Median speedups remain below 1x, so correct does not mean faster.`],
       }
     }
 
-    document.getElementById("ebnfBlock").textContent = ebnf;
+    ebnfBlock.textContent = grammarContracts.vectorAdd.ebnf;
     document.getElementById("validateBtn").addEventListener("click", validate);
     document.getElementById("repairBtn").addEventListener("click", () => loadExample("valid"));
     exampleSelect.addEventListener("change", (event) => loadExample(event.target.value));

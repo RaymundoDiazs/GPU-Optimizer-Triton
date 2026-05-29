@@ -1,0 +1,30 @@
+(* Contract for TritonBench-T example 007.
+   Target wrapper: sqrt(input, *, out=None) -> Tensor. *)
+
+module = imports, kernel, wrapper ;
+
+imports = "import torch", newline,
+          "import triton", newline,
+          "import triton.language as tl", newline ;
+
+kernel = "@triton.jit", newline,
+         "def", identifier, "(", parameters, ")", ":", newline,
+         elementwise_body ;
+
+elementwise_body = offsets, mask, load_input, sqrt_operation, store ;
+
+offsets = statement_with("tl.program_id"), statement_with("tl.arange") ;
+mask = statement_with("mask"), statement_with("<") ;
+load_input = statement_with("tl.load") ;
+sqrt_operation = statement_with("tl.sqrt") | statement_with("sqrt") ;
+store = statement_with("tl.store") ;
+
+wrapper = "def sqrt", "(", wrapper_parameters, ")", ":", newline,
+          { statement } ;
+
+identifier = letter, { letter | digit | "_" } ;
+parameters = { character } ;
+wrapper_parameters = { character } ;
+statement = { character }, newline ;
+statement_with(token) = { character }, token, { character }, newline ;
+newline = "\n" ;

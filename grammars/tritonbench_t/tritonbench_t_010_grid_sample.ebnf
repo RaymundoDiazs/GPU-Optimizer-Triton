@@ -1,0 +1,34 @@
+(* Contract for TritonBench-T example 010.
+   Target wrapper: grid_sample(input, grid, mode='bilinear',
+   padding_mode='zeros', align_corners=False) -> Tensor. *)
+
+module = imports, implementation, wrapper ;
+
+imports = "import torch", newline,
+          "import triton", newline,
+          "import triton.language as tl", newline ;
+
+implementation = indexing_kernel | documented_fallback ;
+
+indexing_kernel = "@triton.jit", newline,
+                  "def", identifier, "(", parameters, ")", ":", newline,
+                  indexing_body ;
+
+indexing_body = coordinate_mapping, boundary_handling, interpolation, store ;
+
+coordinate_mapping = statement_with("grid") ;
+boundary_handling = statement_with("padding_mode") | statement_with("align_corners") ;
+interpolation = statement_with("bilinear") | statement_with("nearest") | statement_with("mode") ;
+store = statement_with("tl.store") ;
+
+documented_fallback = statement_with("torch.nn.functional.grid_sample") ;
+
+wrapper = "def grid_sample", "(", wrapper_parameters, ")", ":", newline,
+          { statement } ;
+
+identifier = letter, { letter | digit | "_" } ;
+parameters = { character } ;
+wrapper_parameters = { character } ;
+statement = { character }, newline ;
+statement_with(token) = { character }, token, { character }, newline ;
+newline = "\n" ;

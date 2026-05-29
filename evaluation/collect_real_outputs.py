@@ -80,12 +80,45 @@ def build_prompt(task: dict, mode: str) -> str:
 
 
 def build_translation_prompt(example: dict) -> str:
-    """Construye el prompt de traducción PyTorch→Triton (pytorch_to_triton_prompt.txt)."""
+    """Construye el prompt de traducción PyTorch→Triton.
+
+    Soporta dos formatos:
+    - ejemplos locales con pytorch_code/operation_description;
+    - ejemplos TritonBench-T Alpaca con instruction/input/output.
+    """
+    if "instruction" in example:
+        instruction = example["instruction"].strip()
+        extra_input = (example.get("input") or "").strip()
+        if extra_input:
+            return f"{instruction}\n\n{extra_input}"
+        return instruction
+
     template = TRANSLATION_PROMPT.read_text(encoding="utf-8")
     return template.format(
         pytorch_code=example["pytorch_code"],
         operation_description=example["operation_description"],
     )
+
+
+def normalize_translation_task(example: dict, index: int) -> dict:
+    """Normaliza metadatos de ejemplos locales y TritonBench-T para el jsonl."""
+    if "instruction" in example:
+        return {
+            "id": example.get("id", f"tritonbench_t_{index:03d}"),
+            "benchmark": "tritonbench_t",
+            "instruction": example["instruction"],
+            "input": example.get("input", ""),
+            "expected_output": example.get("output", ""),
+        }
+
+    return {
+        "id": example["id"],
+        "benchmark": "local",
+        "pytorch_code": example["pytorch_code"],
+        "operation_description": example["operation_description"],
+        "expected_kernel_name": example.get("expected_kernel_name", ""),
+        "expected_terms": example.get("expected_terms", []),
+    }
 
 
 def get_env(key: str) -> str:
@@ -278,10 +311,11 @@ def collect_for_model_translation(model: dict, examples: list, samples: int, out
     model_name = model.get("model_name", model["id"])
     count = 0
 
-    for example in examples:
+    for example_index, example in enumerate(examples, start=1):
         for sample_index in range(1, samples + 1):
             prompt = build_translation_prompt(example)
-            print(f"  [{model['id']}] example={example['id']} sample={sample_index} ... ", end="", flush=True)
+            task = normalize_translation_task(example, example_index)
+            print(f"  [{model['id']}] example={task['id']} sample={sample_index} ... ", end="", flush=True)
             output, latency = call_fn(model_name, prompt)
             print(f"OK ({latency:.1f}s)")
 
@@ -292,13 +326,7 @@ def collect_for_model_translation(model: dict, examples: list, samples: int, out
                     "tier": model.get("tier", "unknown"),
                     "provider": provider,
                 },
-                "task": {
-                    "id": example["id"],
-                    "pytorch_code": example["pytorch_code"],
-                    "operation_description": example["operation_description"],
-                    "expected_kernel_name": example.get("expected_kernel_name", ""),
-                    "expected_terms": example.get("expected_terms", []),
-                },
+                "task": task,
                 "mode": "translation",
                 "sample_index": sample_index,
                 "prompt": prompt,
@@ -312,12 +340,17 @@ def collect_for_model_translation(model: dict, examples: list, samples: int, out
     return count
 
 
-def run(providers_filter: list[str] | None = None, task_type: str = "generation") -> None:
+def run(
+    providers_filter: list[str] | None = None,
+    task_type: str = "generation",
+    examples_file_override: str | None = None,
+    samples_override: int | None = None,
+) -> None:
     config = load_config()
     experiment = config.get("experiment", {})
     models = config.get("models", [])
     modes = config.get("modes", ["baseline", "constrained"])
-    samples = int(experiment.get("samples_per_model", 3))
+    samples = int(samples_override or experiment.get("samples_per_model", 3))
 
     if providers_filter:
         models = [m for m in models if m.get("provider") in providers_filter]
@@ -328,7 +361,7 @@ def run(providers_filter: list[str] | None = None, task_type: str = "generation"
 
     if task_type == "translation":
         # Prefiere translation_examples_file del yaml si existe, si no usa la constante por defecto
-        examples_file = experiment.get("translation_examples_file")
+        examples_file = examples_file_override or experiment.get("translation_examples_file")
         if examples_file:
             from pathlib import Path as _P
             _ep = _P(examples_file)
@@ -410,10 +443,24 @@ def main() -> None:
             "'translation': pide al modelo traducir código PyTorch a Triton."
         ),
     )
+    parser.add_argument(
+        "--examples-file",
+        help="Archivo JSON de ejemplos para --task-type translation. Ejemplo: data/tritonbench_t_simp_subset5.json",
+    )
+    parser.add_argument(
+        "--samples",
+        type=int,
+        help="Sobrescribe samples_per_model del YAML para pruebas pequeñas.",
+    )
 
     args = parser.parse_args()
     providers = None if args.all else [args.provider]
-    run(providers_filter=providers, task_type=args.task_type)
+    run(
+        providers_filter=providers,
+        task_type=args.task_type,
+        examples_file_override=args.examples_file,
+        samples_override=args.samples,
+    )
 
 
 if __name__ == "__main__":

@@ -1,0 +1,74 @@
+(* General TritonBench-T family grammar.
+   Purpose: choose a reusable grammar by operation family instead of writing
+   one grammar per benchmark example.
+
+   This file is intentionally higher-level than the individual contracts. It
+   describes the structure that XGrammar/constrained decoding should select
+   after classifying the task family. *)
+
+module = imports, implementation, wrapper ;
+
+imports = torch_import, triton_imports ;
+torch_import = "import torch", newline ;
+triton_imports = "import triton", newline,
+                 "import triton.language as tl", newline ;
+
+implementation = elementwise_kernel
+               | reduction_kernel
+               | convolution_kernel
+               | matmul_or_fusion_kernel
+               | complex_fallback ;
+
+elementwise_kernel = decorator, kernel_def, elementwise_body ;
+elementwise_body = program_id, offsets, mask, one_or_more_loads, elementwise_expr, store ;
+
+reduction_kernel = decorator, kernel_def, reduction_body ;
+reduction_body = program_id, offsets, mask, one_or_more_loads, reduction_expr, store ;
+
+convolution_kernel = decorator, kernel_def, convolution_body ;
+convolution_body = program_id, index_mapping, input_weight_loads, convolution_expr, optional_bias, activation, store ;
+
+matmul_or_fusion_kernel = decorator, kernel_def, fusion_body ;
+fusion_body = program_id, tiled_offsets, matrix_loads, dot_or_multiply, optional_normalization, optional_activation, optional_dropout, store ;
+
+complex_fallback = wrapper_using_torch_reference ;
+
+wrapper = "def", function_name, "(", wrapper_parameters, ")", ":", newline, wrapper_body ;
+
+decorator = "@triton.jit", newline ;
+kernel_def = "def", kernel_name, "(", kernel_parameters, ")", ":", newline ;
+program_id = statement_with("tl.program_id") ;
+offsets = statement_with("tl.arange") ;
+mask = statement_with("mask") ;
+one_or_more_loads = statement_with("tl.load"), { statement_with("tl.load") } ;
+store = statement_with("tl.store") ;
+
+elementwise_expr = statement_with("tl.tanh")
+                 | statement_with("/")
+                 | statement_with("+")
+                 | statement_with("-")
+                 | statement_with("*")
+                 | statement_with("tl.exp")
+                 | statement_with("sqrt") ;
+
+reduction_expr = statement_with("tl.sum")
+               | statement_with("tl.max")
+               | statement_with("tl.min")
+               | statement_with("argmax") ;
+
+activation = statement_with("sigmoid")
+           | statement_with("tl.exp")
+           | statement_with("gelu")
+           | statement_with("relu")
+           | empty ;
+
+function_name = identifier ;
+kernel_name = identifier ;
+wrapper_parameters = { character } ;
+kernel_parameters = { character } ;
+wrapper_body = { statement } ;
+statement = { character }, newline ;
+statement_with(token) = { character }, token, { character }, newline ;
+identifier = letter, { letter | digit | "_" } ;
+newline = "\n" ;
+empty = "" ;

@@ -291,6 +291,40 @@
       margin: 12px 0 0;
     }
 
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--blue);
+      margin-top: 8px;
+    }
+
+    .policy-list {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-top: 14px;
+      background: #fbfcfd;
+    }
+
+    .policy-row {
+      display: grid;
+      grid-template-columns: 145px 120px minmax(0, 1fr);
+      gap: 10px;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+      align-items: center;
+    }
+
+    .policy-row:last-child {
+      border-bottom: 0;
+    }
+
+    .policy-row.active {
+      background: #e8f6f8;
+      color: var(--blue);
+      font-weight: 750;
+    }
+
     .takeaway {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -394,21 +428,41 @@
       <div class="panel">
         <h2>Shape-Aware Example</h2>
         <p class="note">For vector addition, the tensor length controls how many Triton programs are launched. Poor choices can underuse the GPU or create unnecessary overhead.</p>
+        <input id="shapeSlider" type="range" min="1024" max="4194304" step="1024" value="1048576" aria-label="Input vector length">
         <div class="shape-box">
           <div class="shape-item">
             <span class="label">Input N</span>
-            <span class="value">1,048,576</span>
+            <span class="value" id="shapeN">1,048,576</span>
           </div>
           <div class="shape-item">
             <span class="label">Block size</span>
-            <span class="value">256</span>
+            <span class="value" id="shapeBlock">256</span>
           </div>
           <div class="shape-item">
             <span class="label">Grid</span>
-            <span class="value">4,096</span>
+            <span class="value" id="shapeGrid">4,096</span>
+          </div>
+        </div>
+        <p class="note"><strong id="shapeReason">Medium vector:</strong> <span id="shapeReasonText">balanced block size for elementwise work.</span></p>
+        <div class="policy-list" aria-label="Implemented shape-aware policy">
+          <div class="policy-row" id="shapePolicySmall">
+            <span>N <= 4,096</span>
+            <code>BLOCK_SIZE=128</code>
+            <span>Avoid excess inactive lanes.</span>
+          </div>
+          <div class="policy-row" id="shapePolicyMedium">
+            <span>N <= 1,048,576</span>
+            <code>BLOCK_SIZE=256</code>
+            <span>Balanced elementwise work.</span>
+          </div>
+          <div class="policy-row" id="shapePolicyLarge">
+            <span>N > 1,048,576</span>
+            <code>BLOCK_SIZE=512</code>
+            <span>Reduce launch grid size.</span>
           </div>
         </div>
         <p class="note"><code>grid = ceil(N / BLOCK_SIZE)</code>. The shape is not just input data; it becomes part of the kernel strategy.</p>
+        <p class="note">This is implemented in <code>generation/shape_aware_selector.py</code> and recorded by <code>benchmarks/run_generated_kernels.py</code>.</p>
       </div>
 
       <div class="panel">
@@ -494,5 +548,48 @@
       </div>
     </section>
   </main>
+  <script>
+    function chooseShapeConfig(n) {
+      if (n <= 4096) {
+        return {
+          block: 128,
+          active: "shapePolicySmall",
+          label: "Small vector:",
+          reason: "lower block size avoids excess inactive lanes.",
+        };
+      }
+      if (n > 1048576) {
+        return {
+          block: 512,
+          active: "shapePolicyLarge",
+          label: "Large vector:",
+          reason: "larger block size reduces launch grid size.",
+        };
+      }
+      return {
+        block: 256,
+        active: "shapePolicyMedium",
+        label: "Medium vector:",
+        reason: "balanced block size for elementwise work.",
+      };
+    }
+
+    function updateShapeDemo() {
+      const n = Number(document.getElementById("shapeSlider").value);
+      const config = chooseShapeConfig(n);
+      const grid = Math.ceil(n / config.block);
+      document.getElementById("shapeN").textContent = n.toLocaleString();
+      document.getElementById("shapeBlock").textContent = config.block.toLocaleString();
+      document.getElementById("shapeGrid").textContent = grid.toLocaleString();
+      document.getElementById("shapeReason").textContent = config.label;
+      document.getElementById("shapeReasonText").textContent = config.reason;
+      for (const id of ["shapePolicySmall", "shapePolicyMedium", "shapePolicyLarge"]) {
+        document.getElementById(id).classList.toggle("active", id === config.active);
+      }
+    }
+
+    document.getElementById("shapeSlider").addEventListener("input", updateShapeDemo);
+    updateShapeDemo();
+  </script>
 </body>
 </html>

@@ -1,0 +1,303 @@
+{
+  "tritonbench_t_001": {
+    "name": "fused_bmm_rmsnorm_gelu_dropout_sub",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_001_fused_bmm_rmsnorm_gelu_dropout_sub.ebnf",
+    "wrapper_regex": "def\\s+fused_bmm_rmsnorm_gelu_dropout_sub\\s*\\(",
+    "required_terms": [
+      "import torch",
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit",
+      "tl.load",
+      "tl.store"
+    ],
+    "semantic_terms_any": [
+      [
+        "tl.dot",
+        "bmm",
+        "matmul"
+      ],
+      [
+        "rms",
+        "rsqrt",
+        "sqrt"
+      ],
+      [
+        "gelu"
+      ],
+      [
+        "dropout"
+      ],
+      [
+        "other",
+        "sub",
+        "-"
+      ]
+    ],
+    "family": "fusion_matmul"
+  },
+  "tritonbench_t_002": {
+    "name": "div",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_002_div.ebnf",
+    "wrapper_regex": "def\\s+div\\s*\\(",
+    "required_terms": [
+      "import torch",
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit",
+      "tl.program_id",
+      "tl.arange",
+      "mask",
+      "tl.load",
+      "tl.store",
+      "/"
+    ],
+    "semantic_terms_any": [
+      [
+        "rounding_mode",
+        "trunc",
+        "floor",
+        "None"
+      ],
+      [
+        "out"
+      ]
+    ],
+    "family": "elementwise"
+  },
+  "tritonbench_t_003": {
+    "name": "sigmoid_conv2d",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_003_sigmoid_conv2d.ebnf",
+    "wrapper_regex": "def\\s+sigmoid_conv2d\\s*\\(",
+    "required_terms": [
+      "import torch",
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit",
+      "tl.load",
+      "tl.store"
+    ],
+    "semantic_terms_any": [
+      [
+        "sigmoid",
+        "exp"
+      ],
+      [
+        "stride"
+      ],
+      [
+        "padding",
+        "pad"
+      ],
+      [
+        "weight"
+      ],
+      [
+        "bias"
+      ]
+    ],
+    "family": "convolution_fusion"
+  },
+  "tritonbench_t_004": {
+    "name": "solve_multiple_lu",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_004_solve_multiple_lu.ebnf",
+    "wrapper_regex": "def\\s+solve_multiple_lu\\s*\\(",
+    "required_terms": [
+      "import torch"
+    ],
+    "semantic_terms_any": [
+      [
+        "torch.linalg",
+        "lu",
+        "solve",
+        "triangular"
+      ],
+      [
+        "A"
+      ],
+      [
+        "Bs",
+        "B"
+      ],
+      [
+        "pivot"
+      ],
+      [
+        "out"
+      ]
+    ],
+    "family": "complex_fallback"
+  },
+  "tritonbench_t_005": {
+    "name": "tanh",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_005_tanh.ebnf",
+    "wrapper_regex": "def\\s+tanh\\s*\\(",
+    "required_terms": [
+      "import torch",
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit",
+      "tl.program_id",
+      "tl.arange",
+      "mask",
+      "tl.load",
+      "tl.store"
+    ],
+    "semantic_terms_any": [
+      [
+        "tl.tanh",
+        "tanh"
+      ],
+      [
+        "out"
+      ]
+    ],
+    "family": "elementwise"
+  },
+  "tritonbench_t_006": {
+    "name": "relu_sqrt",
+    "family": "elementwise_fusion",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_006_relu_sqrt.ebnf",
+    "wrapper_regex": "def\\s+relu_sqrt\\s*\\(",
+    "required_terms": [
+      "import torch",
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit",
+      "tl.program_id",
+      "tl.arange",
+      "mask",
+      "tl.load",
+      "tl.store"
+    ],
+    "semantic_terms_any": [
+      [
+        "tl.maximum",
+        "relu",
+        "maximum"
+      ],
+      [
+        "tl.sqrt",
+        "sqrt"
+      ],
+      [
+        "inplace"
+      ],
+      [
+        "out"
+      ]
+    ]
+  },
+  "tritonbench_t_007": {
+    "name": "sqrt",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_007_sqrt.ebnf",
+    "wrapper_regex": "def\\s+sqrt\\s*\\(",
+    "required_terms": [
+      "import torch",
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit",
+      "tl.program_id",
+      "tl.arange",
+      "mask",
+      "tl.load",
+      "tl.store"
+    ],
+    "semantic_terms_any": [
+      [
+        "tl.sqrt",
+        "sqrt"
+      ],
+      [
+        "out"
+      ]
+    ]
+  },
+  "tritonbench_t_008": {
+    "name": "sigmoid_argmax",
+    "family": "reduction",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_008_sigmoid_argmax.ebnf",
+    "wrapper_regex": "def\\s+sigmoid_argmax\\s*\\(",
+    "required_terms": [
+      "import torch",
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit",
+      "tl.load",
+      "tl.store"
+    ],
+    "semantic_terms_any": [
+      [
+        "sigmoid",
+        "tl.exp",
+        "exp"
+      ],
+      [
+        "argmax",
+        "max"
+      ],
+      [
+        "dim"
+      ],
+      [
+        "keepdim"
+      ]
+    ]
+  },
+  "tritonbench_t_009": {
+    "name": "sub",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_009_sub.ebnf",
+    "wrapper_regex": "def\\s+sub\\s*\\(",
+    "required_terms": [
+      "import torch",
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit",
+      "tl.program_id",
+      "tl.arange",
+      "mask",
+      "tl.load",
+      "tl.store",
+      "-"
+    ],
+    "semantic_terms_any": [
+      [
+        "alpha",
+        "ALPHA"
+      ],
+      [
+        "out"
+      ]
+    ]
+  },
+  "tritonbench_t_010": {
+    "name": "grid_sample",
+    "family": "indexing_interpolation",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_010_grid_sample.ebnf",
+    "wrapper_regex": "def\\s+grid_sample\\s*\\(",
+    "required_terms": [
+      "import torch"
+    ],
+    "semantic_terms_any": [
+      [
+        "grid"
+      ],
+      [
+        "bilinear",
+        "nearest",
+        "mode"
+      ],
+      [
+        "padding_mode",
+        "align_corners"
+      ],
+      [
+        "torch.nn.functional.grid_sample",
+        "@triton.jit",
+        "tl.load"
+      ]
+    ]
+  }
+}
