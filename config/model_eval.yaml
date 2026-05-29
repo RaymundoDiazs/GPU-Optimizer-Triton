@@ -1,7 +1,10 @@
 experiment:
-  samples_per_model: 3
-  seed: 7
-  translation_examples_file: data/pytorch_examples.json
+  samples_per_operator: 1
+  seed: 42
+  temperature: 0.15
+  top_p: 0.95
+  max_tokens: 8192
+  dataset: data/TritonBench_T_simp_alpac_v1.json
 
 models:
   - id: small_qwen25_coder_1_5b

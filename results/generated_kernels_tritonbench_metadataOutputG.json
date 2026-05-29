@@ -1,0 +1,31 @@
+{
+  "allclose": "torch.allclose(actual, expected, atol=1e-5)",
+  "created_at_utc": "2026-05-26T02:31:36Z",
+  "cuda_version": "12.8",
+  "diagnostics_path": "artifacts/generated_kernels_tritonbench_diagnosticsG.jsonl",
+  "gpu_capability": "7.5",
+  "gpu_index": 0,
+  "gpu_name": "Tesla T4",
+  "gpu_used": "Tesla T4",
+  "host_gpus_detected": [
+    "Tesla T4"
+  ],
+  "input_path": "/content/generated_kernels_tritonbench.jsonl",
+  "num_elements": 1048576,
+  "num_records": 27,
+  "output_path": "artifacts/generated_kernels_tritonbenchG.jsonl",
+  "platform": "Linux-6.6.122+-x86_64-with-glibc2.35",
+  "python": "3.12.13",
+  "repeats": 100,
+  "speedup": "median_pytorch_ms / median_triton_ms",
+  "status": "ok",
+  "summary": {
+    "compiled": 16,
+    "correct": 16,
+    "speedups_recorded": 16
+  },
+  "torch_version": "2.10.0+cu128",
+  "triton_version": "3.6.0",
+  "unavailable_reason": null,
+  "warmup": 25
+}

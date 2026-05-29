@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -m pytest tests/ -v)",
+      "Bash(python evaluation/collect_real_outputs.py --all --task-type translation)",
+      "Bash(python3:*)",
+      "Bash(python -c \"import pptx; print\\('ok'\\)\")",
+      "Bash(pip install:*)",
+      "Bash(python create_slides.py)",
+      "Bash(rm \"C:/Users/Polou/OneDrive/Desktop/Projects/GPU-Optimizer-Triton/parsing/dependency_graph.py\")",
+      "Bash(rm \"C:/Users/Polou/OneDrive/Desktop/Projects/GPU-Optimizer-Triton/scripts/make_team_guide_pdf.py\")",
+      "Bash(rm \"C:/Users/Polou/OneDrive/Desktop/Projects/GPU-Optimizer-Triton/benchmarks/plot_results.py\")",
+      "Bash(rm \"C:/Users/Polou/OneDrive/Desktop/Projects/GPU-Optimizer-Triton/create_slides.py\")",
+      "Bash(rm \"C:/Users/Polou/OneDrive/Desktop/Projects/GPU-Optimizer-Triton/grammars/examples/invalid_missing_store.py\")",
+      "WebFetch(domain:openai.com)",
+      "WebFetch(domain:dottxt-ai.github.io)"
+    ]
+  }
+}

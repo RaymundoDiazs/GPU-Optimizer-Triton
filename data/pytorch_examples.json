@@ -19,5 +19,26 @@
     "operation_description": "scalar multiplication of a vector Z = X * alpha",
     "expected_kernel_name": "scale_kernel",
     "expected_terms": ["@triton.jit", "tl.load", "tl.store", "tl.program_id"]
+  },
+  {
+    "id": "vector_dot",
+    "pytorch_code": "result = torch.dot(x, y)",
+    "operation_description": "dot product of two vectors: result = sum(X[i] * Y[i]) for all i",
+    "expected_kernel_name": "dot_kernel",
+    "expected_terms": ["@triton.jit", "tl.load", "tl.sum", "tl.program_id"]
+  },
+  {
+    "id": "softmax_row",
+    "pytorch_code": "z = torch.softmax(x, dim=-1)",
+    "operation_description": "row-wise softmax: for each row, subtract max for numerical stability, exponentiate, then divide by row sum",
+    "expected_kernel_name": "softmax_kernel",
+    "expected_terms": ["@triton.jit", "tl.load", "tl.store", "tl.exp", "tl.sum"]
+  },
+  {
+    "id": "layer_norm",
+    "pytorch_code": "z = torch.nn.functional.layer_norm(x, normalized_shape=x.shape[-1:], weight=weight, bias=bias)",
+    "operation_description": "layer normalization over the last dimension: compute mean and variance per row, normalize x, then apply learnable affine transform with weight and bias",
+    "expected_kernel_name": "layer_norm_kernel",
+    "expected_terms": ["@triton.jit", "tl.load", "tl.store", "tl.sum", "tl.sqrt"]
   }
 ]
