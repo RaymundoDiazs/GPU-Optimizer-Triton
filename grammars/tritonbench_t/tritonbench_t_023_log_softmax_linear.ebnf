@@ -1,0 +1,41 @@
+(* Contract for TritonBench-T example 023.
+   Target wrapper: log_softmax_linear(input, weight, bias=None, dim=-1,
+   dtype=None) -> Tensor. *)
+
+module = imports, kernel, wrapper ;
+
+imports = "import torch", newline,
+          "import triton", newline,
+          "import triton.language as tl", newline ;
+
+kernel = "@triton.jit", newline,
+         "def", identifier, "(", parameters, ")", ":", newline,
+         fusion_body ;
+
+fusion_body = offsets, masks, load_input, load_weight, linear_operation,
+              optional_bias, logsoftmax_operation, store ;
+
+offsets = statement_with("tl.program_id"), statement_with("tl.arange") ;
+masks = statement_with("mask") ;
+load_input = statement_with("tl.load") ;
+load_weight = statement_with("tl.load") ;
+linear_operation = statement_with("tl.dot")
+                 | statement_with("tl.sum")
+                 | statement_with("*") ;
+optional_bias = statement_with("bias") | empty ;
+logsoftmax_operation = statement_with("log_softmax")
+                     | statement_with("tl.log")
+                     | statement_with("tl.exp")
+                     | statement_with("tl.max") ;
+store = statement_with("tl.store") ;
+
+wrapper = "def log_softmax_linear", "(", wrapper_parameters, ")", ":", newline,
+          { statement } ;
+
+identifier = letter, { letter | digit | "_" } ;
+parameters = { character } ;
+wrapper_parameters = { character } ;
+statement = { character }, newline ;
+statement_with(token) = { character }, token, { character }, newline ;
+newline = "\n" ;
+empty = "" ;

@@ -1,0 +1,37 @@
+(* Contract for TritonBench-T example 019.
+   Target wrapper: argmax(input, dim, keepdim=False) -> LongTensor. *)
+
+module = imports, implementation, wrapper ;
+
+imports = "import torch", newline,
+          "import triton", newline,
+          "import triton.language as tl", newline ;
+
+implementation = kernel | documented_fallback ;
+
+kernel = "@triton.jit", newline,
+         "def", identifier, "(", parameters, ")", ":", newline,
+         reduction_body ;
+
+reduction_body = offsets, mask, load_input, max_operation, index_operation, store ;
+
+offsets = statement_with("tl.program_id"), statement_with("tl.arange") ;
+mask = statement_with("mask") ;
+load_input = statement_with("tl.load") ;
+max_operation = statement_with("tl.max") | statement_with("max") ;
+index_operation = statement_with("argmax")
+                | statement_with("tl.max")
+                | statement_with("indices") ;
+store = statement_with("tl.store") ;
+
+documented_fallback = statement_with("torch.argmax") ;
+
+wrapper = "def argmax", "(", wrapper_parameters, ")", ":", newline,
+          { statement } ;
+
+identifier = letter, { letter | digit | "_" } ;
+parameters = { character } ;
+wrapper_parameters = { character } ;
+statement = { character }, newline ;
+statement_with(token) = { character }, token, { character }, newline ;
+newline = "\n" ;
