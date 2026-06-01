@@ -1,0 +1,26 @@
+/* Auto-generated TritonBench-T contract for tritonbench_t_070: fused_layer_norm_relu_linear.
+   This is a structural grammar contract for constrained decoding and
+   post-generation validation. TritonBench remains the source of functional
+   correctness and speedup evidence.
+*/
+
+root ::= module
+
+module ::= imports implementation wrapper
+imports ::= "import torch" "import triton" "import triton.language as tl"
+implementation ::= triton_kernel | torch_fallback
+triton_kernel ::= "@triton.jit" kernel_def kernel_body
+kernel_def ::= "def" identifier "(" parameters ")" ":"
+kernel_body ::= program_id offsets optional_mask memory_ops operation store
+program_id ::= "tl.program_id"
+offsets ::= "tl.arange"
+optional_mask ::= "mask" | ""
+memory_ops ::= "tl.load" memory_ops | "tl.load"
+operation ::= "convolution_fusion" "fused_layer_norm_relu_linear, relu/layer_norm/linear/lu, conv2d/weight/tl.load/torch.nn.functional"
+store ::= "tl.store"
+torch_fallback ::= "import torch" wrapper_body
+wrapper ::= "def fused_layer_norm_relu_linear(input: Tensor, weight: Tensor, bias=None, normalized_shape=None, eps=1e-5, elementwise_affine=True)"
+wrapper_body ::= statement+
+identifier ::= /[a-zA-Z_][a-zA-Z0-9_]*/
+parameters ::= /[^)]*/
+statement ::= /[^\n]+/

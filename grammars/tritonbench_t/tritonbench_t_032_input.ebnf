@@ -1,0 +1,26 @@
+/* Auto-generated TritonBench-T contract for tritonbench_t_032: input.
+   This is a structural grammar contract for constrained decoding and
+   post-generation validation. TritonBench remains the source of functional
+   correctness and speedup evidence.
+*/
+
+root ::= module
+
+module ::= imports implementation wrapper
+imports ::= "import torch" "import triton" "import triton.language as tl"
+implementation ::= triton_kernel | torch_fallback
+triton_kernel ::= "@triton.jit" kernel_def kernel_body
+kernel_def ::= "def" identifier "(" parameters ")" ":"
+kernel_body ::= program_id offsets optional_mask memory_ops operation store
+program_id ::= "tl.program_id"
+offsets ::= "tl.arange"
+optional_mask ::= "mask" | ""
+memory_ops ::= "tl.load" memory_ops | "tl.load"
+operation ::= "reduction" "input, mean/lu, tl.sum/tl.max/tl.min/argmax/argmin/torch."
+store ::= "tl.store"
+torch_fallback ::= "import torch" wrapper_body
+wrapper ::= "def input (Tensor): the input tensor. dim (int or tuple of ints): the dimension or dimensions to reduce. keepdim (bool): whether the output tensor has dim retained or not. dtype (torch.dtype, optional): the desired data type of returned tensor. If specified, the input tensor is casted to dtype before the operation is performed. This is useful for preventing data type overflows. Default: None. out (Tensor, optional): the output tensor. After generation, verify if the Triton wrapper aligns with the provided func_inputs. If not, regenerate."
+wrapper_body ::= statement+
+identifier ::= /[a-zA-Z_][a-zA-Z0-9_]*/
+parameters ::= /[^)]*/
+statement ::= /[^\n]+/

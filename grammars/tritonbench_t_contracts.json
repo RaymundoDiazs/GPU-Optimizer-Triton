@@ -1,303 +1,4836 @@
 {
   "tritonbench_t_001": {
     "name": "fused_bmm_rmsnorm_gelu_dropout_sub",
+    "family": "fusion_matmul",
     "ebnf": "grammars/tritonbench_t/tritonbench_t_001_fused_bmm_rmsnorm_gelu_dropout_sub.ebnf",
+    "wrapper": "fused_bmm_rmsnorm_gelu_dropout_sub(input1, input2, other, normalized_shape, dropout_p=0.5, training=True, approximate='none', eps=1e-5, *, out=None)",
+    "description": "Performs a fused operation combining batch matrix multiplication, RMS normalization, GELU activation, dropout, and subtraction. The function takes three input tensors, performs batch matrix multiplication on the first two, applies RMS normalization, GELU activation, and dropout, and finally subtracts the third tensor from the result.",
     "wrapper_regex": "def\\s+fused_bmm_rmsnorm_gelu_dropout_sub\\s*\\(",
     "required_terms": [
-      "import torch",
       "import triton",
       "import triton.language as tl",
-      "@triton.jit",
-      "tl.load",
-      "tl.store"
+      "@triton.jit"
     ],
     "semantic_terms_any": [
       [
-        "tl.dot",
-        "bmm",
-        "matmul"
+        "fused_bmm_rmsnorm_gelu_dropout_sub"
       ],
       [
-        "rms",
-        "rsqrt",
-        "sqrt"
-      ],
-      [
-        "gelu"
-      ],
-      [
+        "gelu",
         "dropout"
       ],
       [
-        "other",
-        "sub",
-        "-"
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
       ]
     ],
-    "family": "fusion_matmul"
+    "source_index": 1
   },
   "tritonbench_t_002": {
     "name": "div",
+    "family": "elementwise",
     "ebnf": "grammars/tritonbench_t/tritonbench_t_002_div.ebnf",
+    "wrapper": "div(input, other, *, rounding_mode=None, out=None)",
+    "description": "Divides each element of the input tensor by the corresponding element of the other tensor, supporting broadcasting, type promotion, and handling integer, float, and complex inputs. Rounding behavior can be controlled with the rounding_mode parameter.",
     "wrapper_regex": "def\\s+div\\s*\\(",
     "required_terms": [
-      "import torch",
       "import triton",
       "import triton.language as tl",
-      "@triton.jit",
-      "tl.program_id",
-      "tl.arange",
-      "mask",
-      "tl.load",
-      "tl.store",
-      "/"
+      "@triton.jit"
     ],
     "semantic_terms_any": [
       [
-        "rounding_mode",
-        "trunc",
-        "floor",
-        "None"
+        "div"
       ],
       [
-        "out"
+        "div"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
       ]
     ],
-    "family": "elementwise"
+    "source_index": 2
   },
   "tritonbench_t_003": {
     "name": "sigmoid_conv2d",
+    "family": "convolution_fusion",
     "ebnf": "grammars/tritonbench_t/tritonbench_t_003_sigmoid_conv2d.ebnf",
+    "wrapper": "sigmoid_conv2d(input, weight, bias=None, stride=1, padding=0, dilation=1, groups=1, out=None)",
+    "description": "Applies a 2D convolution over an input tensor with specified filters, followed by applying the sigmoid activation function element-wise to the result. This ensures that the convolutional output values are scaled between 0 and 1.",
     "wrapper_regex": "def\\s+sigmoid_conv2d\\s*\\(",
     "required_terms": [
-      "import torch",
       "import triton",
       "import triton.language as tl",
-      "@triton.jit",
-      "tl.load",
-      "tl.store"
+      "@triton.jit"
     ],
     "semantic_terms_any": [
       [
+        "sigmoid_conv2d"
+      ],
+      [
         "sigmoid",
-        "exp"
+        "conv2d"
       ],
       [
-        "stride"
-      ],
-      [
-        "padding",
-        "pad"
-      ],
-      [
-        "weight"
-      ],
-      [
-        "bias"
+        "conv2d",
+        "weight",
+        "tl.load",
+        "torch.nn.functional"
       ]
     ],
-    "family": "convolution_fusion"
+    "source_index": 3
   },
   "tritonbench_t_004": {
     "name": "solve_multiple_lu",
+    "family": "fusion_matmul",
     "ebnf": "grammars/tritonbench_t/tritonbench_t_004_solve_multiple_lu.ebnf",
+    "wrapper": "solve_multiple_lu(A, Bs, *, pivot=True, out=None)",
+    "description": "Solves multiple linear systems with the same coefficient matrix using LU decomposition. Given a square matrix A and multiple right-hand side vectors B, this function computes the solutions X to the linear systems A X = B by performing the LU decomposition of A and reusing it to solve for multiple right-hand sides efficiently. Supports batch dimensions.",
     "wrapper_regex": "def\\s+solve_multiple_lu\\s*\\(",
     "required_terms": [
-      "import torch"
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
     ],
     "semantic_terms_any": [
       [
-        "torch.linalg",
-        "lu",
+        "solve_multiple_lu"
+      ],
+      [
+        "linear",
         "solve",
-        "triangular"
+        "lu"
       ],
       [
-        "A"
-      ],
-      [
-        "Bs",
-        "B"
-      ],
-      [
-        "pivot"
-      ],
-      [
-        "out"
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
       ]
     ],
-    "family": "complex_fallback"
+    "source_index": 4
   },
   "tritonbench_t_005": {
     "name": "tanh",
+    "family": "elementwise",
     "ebnf": "grammars/tritonbench_t/tritonbench_t_005_tanh.ebnf",
+    "wrapper": "tanh(input, *, out=None)",
+    "description": "Returns a new tensor with the hyperbolic tangent of the elements of the input tensor.",
     "wrapper_regex": "def\\s+tanh\\s*\\(",
     "required_terms": [
-      "import torch",
       "import triton",
       "import triton.language as tl",
-      "@triton.jit",
-      "tl.program_id",
-      "tl.arange",
-      "mask",
-      "tl.load",
-      "tl.store"
+      "@triton.jit"
     ],
     "semantic_terms_any": [
       [
-        "tl.tanh",
         "tanh"
       ],
       [
-        "out"
+        "tanh"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
       ]
     ],
-    "family": "elementwise"
+    "source_index": 5
   },
   "tritonbench_t_006": {
     "name": "relu_sqrt",
-    "family": "elementwise_fusion",
+    "family": "fusion_matmul",
     "ebnf": "grammars/tritonbench_t/tritonbench_t_006_relu_sqrt.ebnf",
+    "wrapper": "relu_sqrt(input, inplace=False, out=None)",
+    "description": "Applies the rectified linear unit (ReLU) function to each element in input, and then computes the square root of the result. This function ensures all negative values in input are set to zero before applying the square root.",
     "wrapper_regex": "def\\s+relu_sqrt\\s*\\(",
     "required_terms": [
-      "import torch",
       "import triton",
       "import triton.language as tl",
-      "@triton.jit",
-      "tl.program_id",
-      "tl.arange",
-      "mask",
-      "tl.load",
-      "tl.store"
+      "@triton.jit"
     ],
     "semantic_terms_any": [
       [
-        "tl.maximum",
+        "relu_sqrt"
+      ],
+      [
+        "sqrt",
         "relu",
-        "maximum"
+        "linear"
       ],
       [
-        "tl.sqrt",
-        "sqrt"
-      ],
-      [
-        "inplace"
-      ],
-      [
-        "out"
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
       ]
-    ]
+    ],
+    "source_index": 6
   },
   "tritonbench_t_007": {
     "name": "sqrt",
     "family": "elementwise",
     "ebnf": "grammars/tritonbench_t/tritonbench_t_007_sqrt.ebnf",
+    "wrapper": "sqrt(input, *, out=None)",
+    "description": "Returns a new tensor with the square-root of the elements of the input tensor. It computes the square root element-wise.",
     "wrapper_regex": "def\\s+sqrt\\s*\\(",
     "required_terms": [
-      "import torch",
       "import triton",
       "import triton.language as tl",
-      "@triton.jit",
-      "tl.program_id",
-      "tl.arange",
-      "mask",
-      "tl.load",
-      "tl.store"
+      "@triton.jit"
     ],
     "semantic_terms_any": [
       [
-        "tl.sqrt",
         "sqrt"
       ],
       [
-        "out"
+        "sqrt"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
       ]
-    ]
+    ],
+    "source_index": 7
   },
   "tritonbench_t_008": {
     "name": "sigmoid_argmax",
     "family": "reduction",
     "ebnf": "grammars/tritonbench_t/tritonbench_t_008_sigmoid_argmax.ebnf",
+    "wrapper": "sigmoid_argmax(input, dim=None, keepdim=False)",
+    "description": "Applies the sigmoid (logistic) function to each element in the input and then computes the indices of the maximum values along the specified dimension or over all elements if no dimension is specified. If dim is not specified, it returns the index of the maximum value in the flattened tensor.",
     "wrapper_regex": "def\\s+sigmoid_argmax\\s*\\(",
     "required_terms": [
-      "import torch",
       "import triton",
       "import triton.language as tl",
-      "@triton.jit",
-      "tl.load",
-      "tl.store"
+      "@triton.jit"
     ],
     "semantic_terms_any": [
       [
+        "sigmoid_argmax"
+      ],
+      [
         "sigmoid",
-        "tl.exp",
-        "exp"
-      ],
-      [
         "argmax",
-        "max"
+        "index"
       ],
       [
-        "dim"
-      ],
-      [
-        "keepdim"
+        "tl.sum",
+        "tl.max",
+        "tl.min",
+        "argmax",
+        "argmin",
+        "torch."
       ]
-    ]
+    ],
+    "source_index": 8
   },
   "tritonbench_t_009": {
     "name": "sub",
     "family": "elementwise",
     "ebnf": "grammars/tritonbench_t/tritonbench_t_009_sub.ebnf",
+    "wrapper": "sub(input, other, *, alpha=1, out=None)",
+    "description": "Subtracts :attr:`other`, scaled by :attr:`alpha`, from :attr:`input`. The operation is defined as: out_i = input_i - alpha * other_i. Supports broadcasting to a common shape, type promotion, and works with integer, float, and complex inputs.",
     "wrapper_regex": "def\\s+sub\\s*\\(",
     "required_terms": [
-      "import torch",
       "import triton",
       "import triton.language as tl",
-      "@triton.jit",
-      "tl.program_id",
-      "tl.arange",
-      "mask",
-      "tl.load",
-      "tl.store",
-      "-"
+      "@triton.jit"
     ],
     "semantic_terms_any": [
       [
-        "alpha",
-        "ALPHA"
+        "sub"
       ],
       [
-        "out"
+        "sub"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
       ]
-    ]
+    ],
+    "source_index": 9
   },
   "tritonbench_t_010": {
     "name": "grid_sample",
-    "family": "indexing_interpolation",
+    "family": "fusion_matmul",
     "ebnf": "grammars/tritonbench_t/tritonbench_t_010_grid_sample.ebnf",
+    "wrapper": "grid_sample(input, grid, mode='bilinear', padding_mode='zeros', align_corners=False)",
+    "description": "Computes output using input values and pixel locations from grid, supporting spatial (4-D) and volumetric (5-D) input. Interpolates output value at specified grid positions using nearest or bilinear interpolation. Grid values are normalized within [-1, 1] range, and values outside are handled by padding_mode. Often used with affine_grid to build Spatial Transformer Networks.",
     "wrapper_regex": "def\\s+grid_sample\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "grid_sample"
+      ],
+      [
+        "linear",
+        "grid"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 10
+  },
+  "tritonbench_t_011": {
+    "name": "svd",
+    "family": "complex_fallback",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_011_svd.ebnf",
+    "wrapper": "linalg.svd(A, full_matrices=True, *, driver=None, out=None)",
+    "description": "Computes the singular value decomposition (SVD) of a matrix. Supports input of float, double, cfloat and cdouble dtypes. Also supports batches of matrices, and if A is a batch of matrices then the output has the same batch dimensions. The returned decomposition is a named tuple (U, S, Vh) which corresponds to U, S, V^{H} above. The singular values are returned in descending order. The parameter full_matrices chooses between the full (default) and reduced SVD. The driver kwarg may be used in CUDA with a cuSOLVER backend to choose the algorithm used to compute the SVD. The choice of a driver is a trade-off between accuracy and speed.",
+    "wrapper_regex": "def\\s+svd\\s*\\(",
     "required_terms": [
       "import torch"
     ],
     "semantic_terms_any": [
       [
+        "svd"
+      ],
+      [
+        "solve",
+        "svd"
+      ],
+      [
+        "torch.linalg",
+        "solve",
+        "svd",
+        "qr",
+        "lu",
+        "return"
+      ]
+    ],
+    "source_index": 11
+  },
+  "tritonbench_t_012": {
+    "name": "i0",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_012_i0.ebnf",
+    "wrapper": "i0(input, *, out=None)",
+    "description": "Computes the zeroth order modified Bessel function of the first kind for each element of the input tensor.",
+    "wrapper_regex": "def\\s+i0\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "i0"
+      ],
+      [
+        "i0"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 12
+  },
+  "tritonbench_t_013": {
+    "name": "rsqrt",
+    "family": "elementwise_fusion",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_013_rsqrt.ebnf",
+    "wrapper": "rsqrt(input, *, out=None)",
+    "description": "Returns a new tensor with the reciprocal of the square-root of each of the elements of the input tensor.",
+    "wrapper_regex": "def\\s+rsqrt\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "rsqrt"
+      ],
+      [
+        "sqrt",
+        "rsqrt"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 13
+  },
+  "tritonbench_t_014": {
+    "name": "dropout_relu_batch_norm_conv2d",
+    "family": "convolution_fusion",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_014_dropout_relu_batch_norm_conv2d.ebnf",
+    "wrapper": "dropout_relu_batch_norm_conv2d(input: torch.Tensor, weight: torch.Tensor, bias=None, stride=1, padding=0, dilation=1, groups=1, p=0.5, training=True, inplace=False)",
+    "description": "Applies a 2D convolution followed by batch normalization, ReLU activation, and dropout. Sequentially applies conv2d, batch normalization for stabilizing training and reducing internal covariate shift, ReLU activation function, and dropout where some elements of the tensor are randomly zeroed with probability `p`.",
+    "wrapper_regex": "def\\s+dropout_relu_batch_norm_conv2d\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "dropout_relu_batch_norm_conv2d"
+      ],
+      [
+        "relu",
+        "conv2d",
+        "dropout",
+        "batch_norm"
+      ],
+      [
+        "conv2d",
+        "weight",
+        "tl.load",
+        "torch.nn.functional"
+      ]
+    ],
+    "source_index": 14
+  },
+  "tritonbench_t_015": {
+    "name": "fused_mv_logsoftmax_dropout",
+    "family": "reduction",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_015_fused_mv_logsoftmax_dropout.ebnf",
+    "wrapper": "fused_mv_logsoftmax_dropout(input, vec, p=0.5, training=True, inplace=False, dim=0, *, out=None)",
+    "description": "Performs a fused operation combining matrix-vector multiplication, log-softmax activation, and dropout. The function first performs matrix-vector multiplication on the input matrix and vector. The result is then passed through a log-softmax activation function along the specified dimension. Finally, dropout is applied to the output of the log-softmax operation.",
+    "wrapper_regex": "def\\s+fused_mv_logsoftmax_dropout\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "fused_mv_logsoftmax_dropout"
+      ],
+      [
+        "log",
+        "softmax",
+        "dropout"
+      ],
+      [
+        "tl.sum",
+        "tl.max",
+        "tl.min",
+        "argmax",
+        "argmin",
+        "torch."
+      ]
+    ],
+    "source_index": 15
+  },
+  "tritonbench_t_016": {
+    "name": "add",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_016_add.ebnf",
+    "wrapper": "add(input, other, *, alpha=1, out=None)",
+    "description": "Adds the tensor or number 'other', scaled by 'alpha', to the 'input' tensor. Supports broadcasting to a common shape, type promotion, and accepts integer, float, and complex inputs.",
+    "wrapper_regex": "def\\s+add\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "add"
+      ],
+      [
+        "add"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 16
+  },
+  "tritonbench_t_017": {
+    "name": "fused_silu_layer_norm_conv2d",
+    "family": "convolution_fusion",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_017_fused_silu_layer_norm_conv2d.ebnf",
+    "wrapper": "fused_silu_layer_norm_conv2d(x: torch.Tensor, weight: torch.Tensor, conv_weight: torch.Tensor, conv_bias: torch.Tensor = None, conv_stride: int = 1, conv_padding: int = 0, conv_dilation: int = 1, conv_groups: int = 1, ln_eps: float = 1e-5)",
+    "description": "Applies 2D Convolution, followed by Layer Normalization and SiLU activation to the input tensor `x`. Sequentially performs convolution on `x`, then applies layer normalization on the convolution output, followed by SiLU activation applied element-wise.",
+    "wrapper_regex": "def\\s+fused_silu_layer_norm_conv2d\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "fused_silu_layer_norm_conv2d"
+      ],
+      [
+        "silu",
+        "conv2d",
+        "layer_norm"
+      ],
+      [
+        "conv2d",
+        "weight",
+        "tl.load",
+        "torch.nn.functional"
+      ]
+    ],
+    "source_index": 17
+  },
+  "tritonbench_t_018": {
+    "name": "fused_index_select_eq",
+    "family": "indexing_interpolation",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_018_fused_index_select_eq.ebnf",
+    "wrapper": "fused_index_select_eq(input, dim, index, other, *, out=None)",
+    "description": "Performs a fused operation combining index selection and element-wise equality comparison. It selects elements from the input tensor along a specified dimension using provided indices and then performs an element-wise equality comparison between the selected elements and another tensor or scalar. The result is a boolean tensor of the same shape as the selected elements, indicating where the comparisons are true.",
+    "wrapper_regex": "def\\s+fused_index_select_eq\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "fused_index_select_eq"
+      ],
+      [
+        "index"
+      ],
+      [
+        "index",
+        "grid",
+        "gather",
+        "scatter",
+        "tl.load",
+        "torch."
+      ]
+    ],
+    "source_index": 18
+  },
+  "tritonbench_t_019": {
+    "name": "argmax",
+    "family": "reduction",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_019_argmax.ebnf",
+    "wrapper": "argmax(input, dim, keepdim=False)",
+    "description": "Returns the indices of the maximum values of a tensor across a specified dimension. If the dimension is None, it returns the index of the maximum value in the flattened input tensor. The output tensor can retain the reduced dimension if keepdim is set to True.",
+    "wrapper_regex": "def\\s+argmax\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "argmax"
+      ],
+      [
+        "argmax",
+        "index"
+      ],
+      [
+        "tl.sum",
+        "tl.max",
+        "tl.min",
+        "argmax",
+        "argmin",
+        "torch."
+      ]
+    ],
+    "source_index": 19
+  },
+  "tritonbench_t_020": {
+    "name": "fused_lu_solve",
+    "family": "indexing_interpolation",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_020_fused_lu_solve.ebnf",
+    "wrapper": "fused_lu_solve(A: Tensor, b: Tensor)",
+    "description": "Computes the solution `x` to the equation `Ax = b` using LU decomposition. Given matrix `A`, this function performs LU decomposition and then solves for `x` in `L @ U @ x = b`, where `P`, `L`, and `U` are derived from the LU decomposition.",
+    "wrapper_regex": "def\\s+fused_lu_solve\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "fused_lu_solve"
+      ],
+      [
+        "solve",
+        "lu"
+      ],
+      [
+        "index",
+        "grid",
+        "gather",
+        "scatter",
+        "tl.load",
+        "torch."
+      ]
+    ],
+    "source_index": 20
+  },
+  "tritonbench_t_021": {
+    "name": "normalize_pairwise_distance",
+    "family": "reduction",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_021_normalize_pairwise_distance.ebnf",
+    "wrapper": "normalize_pairwise_distance(x1, x2, p_distance=2.0, eps_distance=1e-6, keepdim=False, p_norm=2, dim_norm=1, eps_norm=1e-12)",
+    "description": "Computes the pairwise distance between `x1` and `x2` using the specified norm, then normalizes the resulting distances along the specified dimension. This combined operation is useful for obtaining normalized distance values between two sets of vectors.",
+    "wrapper_regex": "def\\s+normalize_pairwise_distance\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "normalize_pairwise_distance"
+      ],
+      [
+        "normalize_pairwise_distance"
+      ],
+      [
+        "tl.sum",
+        "tl.max",
+        "tl.min",
+        "argmax",
+        "argmin",
+        "torch."
+      ]
+    ],
+    "source_index": 21
+  },
+  "tritonbench_t_022": {
+    "name": "max",
+    "family": "reduction",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_022_max.ebnf",
+    "wrapper": "max(input, dim, keepdim=False, *, out=None)",
+    "description": "Returns a namedtuple (values, indices) where values is the maximum value of each row of the input tensor in the given dimension dim. Indices is the index location of each maximum value found (argmax). If keepdim is True, the output tensors are of the same size as input except in the dimension dim where they are of size 1. Otherwise, dim is squeezed, resulting in the output tensors having 1 fewer dimension than input. If there are multiple maximal values in a reduced row, the indices of the first maximal value are returned.",
+    "wrapper_regex": "def\\s+max\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "max"
+      ],
+      [
+        "argmax",
+        "max",
+        "index"
+      ],
+      [
+        "tl.sum",
+        "tl.max",
+        "tl.min",
+        "argmax",
+        "argmin",
+        "torch."
+      ]
+    ],
+    "source_index": 22
+  },
+  "tritonbench_t_023": {
+    "name": "log_softmax_linear",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_023_log_softmax_linear.ebnf",
+    "wrapper": "log_softmax_linear(input, weight, bias=None, dim=-1, dtype=None)",
+    "description": "Applies a linear transformation to the input tensor followed by the log_softmax activation function. This combined operation is optimized to be numerically stable and efficient, applying both a linear transformation and log-softmax in one step.",
+    "wrapper_regex": "def\\s+log_softmax_linear\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "log_softmax_linear"
+      ],
+      [
+        "log",
+        "softmax",
+        "log_softmax",
+        "linear"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 23
+  },
+  "tritonbench_t_024": {
+    "name": "relu",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_024_relu.ebnf",
+    "wrapper": "relu(input, inplace=False)",
+    "description": "Applies the rectified linear unit function element-wise. This operation compares each element in the input tensor to zero and returns the element itself if it is greater than zero or zero otherwise. The operation can be performed in-place, modifying the input tensor directly if inplace=True.",
+    "wrapper_regex": "def\\s+relu\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "relu"
+      ],
+      [
+        "relu",
+        "linear"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 24
+  },
+  "tritonbench_t_025": {
+    "name": "least_squares_qr",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_025_least_squares_qr.ebnf",
+    "wrapper": "least_squares_qr(A, b, *, mode='reduced', out=None)",
+    "description": "Solves the least squares problem for an overdetermined system of linear equations using QR decomposition. It computes the least squares solution x that minimizes the Euclidean 2-norm |Ax - b|_2, where A is the coefficient matrix and b is the right-hand side vector or matrix.",
+    "wrapper_regex": "def\\s+least_squares_qr\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "least_squares_qr"
+      ],
+      [
+        "linear",
+        "solve",
+        "qr"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 25
+  },
+  "tritonbench_t_026": {
+    "name": "determinant_via_qr",
+    "family": "indexing_interpolation",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_026_determinant_via_qr.ebnf",
+    "wrapper": "determinant_via_qr(A, *, mode='reduced', out=None)",
+    "description": "Computes the determinant of a square matrix using QR decomposition. It performs QR decomposition of a square matrix A in \\mathbb{K}^{n imes n} (where \\mathbb{K} is either \\mathbb{R} or \\mathbb{C}) and computes the determinant by taking the product of the diagonal elements of R.",
+    "wrapper_regex": "def\\s+determinant_via_qr\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "determinant_via_qr"
+      ],
+      [
+        "qr"
+      ],
+      [
+        "index",
+        "grid",
+        "gather",
+        "scatter",
+        "tl.load",
+        "torch."
+      ]
+    ],
+    "source_index": 26
+  },
+  "tritonbench_t_027": {
+    "name": "fused_tile_exp",
+    "family": "indexing_interpolation",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_027_fused_tile_exp.ebnf",
+    "wrapper": "fused_tile_exp(input, dims, *, out=None)",
+    "description": "Performs a fused operation combining tiling (repeating elements) and the exponential function. The input tensor is first repeated along each dimension according to the specified `dims` using the tiling operation, then the exponential function is applied element-wise to the resulting tensor.",
+    "wrapper_regex": "def\\s+fused_tile_exp\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "fused_tile_exp"
+      ],
+      [
+        "fused_tile_exp"
+      ],
+      [
+        "index",
+        "grid",
+        "gather",
+        "scatter",
+        "tl.load",
+        "torch."
+      ]
+    ],
+    "source_index": 27
+  },
+  "tritonbench_t_028": {
+    "name": "sqrt_tanh",
+    "family": "indexing_interpolation",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_028_sqrt_tanh.ebnf",
+    "wrapper": "sqrt_tanh(input, out=None)",
+    "description": "Computes the square root of each element in the input tensor, and then applies the hyperbolic tangent (tanh) function to the square-rooted values. The function returns a tensor where each element is the result of applying sqrt followed by tanh to each element of the input.",
+    "wrapper_regex": "def\\s+sqrt_tanh\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "sqrt_tanh"
+      ],
+      [
+        "sqrt",
+        "tanh"
+      ],
+      [
+        "index",
+        "grid",
+        "gather",
+        "scatter",
+        "tl.load",
+        "torch."
+      ]
+    ],
+    "source_index": 28
+  },
+  "tritonbench_t_029": {
+    "name": "silu_batch_norm",
+    "family": "convolution_fusion",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_029_silu_batch_norm.ebnf",
+    "wrapper": "silu_batch_norm(input, running_mean, running_var, weight=None, bias=None, training=False, momentum=0.1, eps=1e-5)",
+    "description": "Applies Batch Normalization over an input tensor across channels, followed by the Sigmoid Linear Unit (SiLU) activation function applied element-wise. This combined operation normalizes the input tensor and then applies a non-linear SiLU activation.",
+    "wrapper_regex": "def\\s+silu_batch_norm\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "silu_batch_norm"
+      ],
+      [
+        "silu",
+        "sigmoid",
+        "batch_norm",
+        "linear"
+      ],
+      [
+        "conv2d",
+        "weight",
+        "tl.load",
+        "torch.nn.functional"
+      ]
+    ],
+    "source_index": 29
+  },
+  "tritonbench_t_030": {
+    "name": "index_fill_",
+    "family": "indexing_interpolation",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_030_index_fill_.ebnf",
+    "wrapper": "index_fill_(dim, index, value)",
+    "description": "Fills the elements of the self tensor with a specified value by selecting the indices in the order given in the index tensor. The operation is performed along a specified dimension.",
+    "wrapper_regex": "def\\s+index_fill_\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "index_fill_"
+      ],
+      [
+        "index",
+        "fill"
+      ],
+      [
+        "index",
+        "grid",
+        "gather",
+        "scatter",
+        "tl.load",
+        "torch."
+      ]
+    ],
+    "source_index": 30
+  },
+  "tritonbench_t_031": {
+    "name": "fused_cross_entropy_softmax_layernorm",
+    "family": "convolution_fusion",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_031_fused_cross_entropy_softmax_layernorm.ebnf",
+    "wrapper": "fused_cross_entropy_softmax_layernorm(logits, targets, normalized_shape, weight=None, ignore_index=-100, reduction='mean', label_smoothing=0.0, eps=1e-5, *, out=None)",
+    "description": "Performs a fused operation combining cross-entropy loss computation, softmax activation, and layer normalization. It computes the cross-entropy loss for given logits and targets, applies softmax activation to the logits, and then applies layer normalization to the resulting probabilities.",
+    "wrapper_regex": "def\\s+fused_cross_entropy_softmax_layernorm\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "fused_cross_entropy_softmax_layernorm"
+      ],
+      [
+        "softmax"
+      ],
+      [
+        "conv2d",
+        "weight",
+        "tl.load",
+        "torch.nn.functional"
+      ]
+    ],
+    "source_index": 31
+  },
+  "tritonbench_t_032": {
+    "name": "input",
+    "family": "reduction",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_032_input.ebnf",
+    "wrapper": "input (Tensor): the input tensor. dim (int or tuple of ints): the dimension or dimensions to reduce. keepdim (bool): whether the output tensor has dim retained or not. dtype (torch.dtype, optional): the desired data type of returned tensor. If specified, the input tensor is casted to dtype before the operation is performed. This is useful for preventing data type overflows. Default: None. out (Tensor, optional): the output tensor. After generation, verify if the Triton wrapper aligns with the provided func_inputs. If not, regenerate.",
+    "description": "Returns the mean value of each row of the input tensor in the given dimension dim. If dim is a list of dimensions, reduce over all of them. If keepdim is True, the output tensor is of the same size as input except in the dimension(s) dim where it is of size 1. Otherwise, dim is squeezed, resulting in the output tensor having 1 (or len(dim)) fewer dimension(s).",
+    "wrapper_regex": "def\\s+input\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "input"
+      ],
+      [
+        "mean"
+      ],
+      [
+        "tl.sum",
+        "tl.max",
+        "tl.min",
+        "argmax",
+        "argmin",
+        "torch."
+      ]
+    ],
+    "source_index": 32
+  },
+  "tritonbench_t_033": {
+    "name": "eig",
+    "family": "reduction",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_033_eig.ebnf",
+    "wrapper": "linalg.eig(A, *, out=None)",
+    "description": "Computes the eigenvalue decomposition of a square matrix if it exists. Supports input of float, double, cfloat and cdouble dtypes. Also supports batches of matrices, and if A is a batch of matrices then the output has the same batch dimensions. The returned eigenvalues are not guaranteed to be in any specific order. The eigenvalues and eigenvectors of a real matrix may be complex. When inputs are on a CUDA device, this function synchronizes that device with the CPU. Assumes that A is diagonalizable. The returned eigenvectors are normalized to have norm 1. The eigenvectors of a matrix are not unique, nor are they continuous with respect to A. Gradients computed using the eigenvectors tensor will only be finite when A has distinct eigenvalues.",
+    "wrapper_regex": "def\\s+eig\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "eig"
+      ],
+      [
+        "eig"
+      ],
+      [
+        "tl.sum",
+        "tl.max",
+        "tl.min",
+        "argmax",
+        "argmin",
+        "torch."
+      ]
+    ],
+    "source_index": 33
+  },
+  "tritonbench_t_034": {
+    "name": "logsumexp",
+    "family": "reduction",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_034_logsumexp.ebnf",
+    "wrapper": "logsumexp(input, dim, keepdim=False, *, out=None)",
+    "description": "This function computes the logarithm of the sum of exponentials of input elements along the specified dimension. It is useful for numerical stability when computing log probabilities.",
+    "wrapper_regex": "def\\s+logsumexp\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "logsumexp"
+      ],
+      [
+        "log",
+        "sum"
+      ],
+      [
+        "tl.sum",
+        "tl.max",
+        "tl.min",
+        "argmax",
+        "argmin",
+        "torch."
+      ]
+    ],
+    "source_index": 34
+  },
+  "tritonbench_t_035": {
+    "name": "fused_embedding_add_tanh",
+    "family": "reduction",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_035_fused_embedding_add_tanh.ebnf",
+    "wrapper": "fused_embedding_add_tanh(input_indices, weight, other, *, padding_idx=None, max_norm=None, norm_type=2.0, scale_grad_by_freq=False, sparse=False, out=None)",
+    "description": "Performs a fused operation combining embedding lookup, element-wise addition, and tanh activation. The function retrieves embeddings from an embedding matrix using input indices, adds another tensor to these embeddings, and applies a tanh activation function to the result. It supports options for padding indices, max norm for embeddings, scaling gradients by frequency, and sparse gradients.",
+    "wrapper_regex": "def\\s+fused_embedding_add_tanh\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "fused_embedding_add_tanh"
+      ],
+      [
+        "tanh",
+        "max"
+      ],
+      [
+        "tl.sum",
+        "tl.max",
+        "tl.min",
+        "argmax",
+        "argmin",
+        "torch."
+      ]
+    ],
+    "source_index": 35
+  },
+  "tritonbench_t_036": {
+    "name": "fused_mv_sigmoid_sub",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_036_fused_mv_sigmoid_sub.ebnf",
+    "wrapper": "fused_mv_sigmoid_sub(input, vec, other, alpha=1, *, out=None)",
+    "description": "Performs a fused operation combining matrix-vector multiplication, sigmoid activation, and subtraction.",
+    "wrapper_regex": "def\\s+fused_mv_sigmoid_sub\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "fused_mv_sigmoid_sub"
+      ],
+      [
+        "sigmoid"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 36
+  },
+  "tritonbench_t_037": {
+    "name": "add_gelu",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_037_add_gelu.ebnf",
+    "wrapper": "add_gelu(input, other, alpha=1, approximate='none', out=None)",
+    "description": "Adds the tensor or number `other`, scaled by the multiplier `alpha`, to the input tensor `input`, and then applies the Gaussian Error Linear Units (GELU) activation function to the result.",
+    "wrapper_regex": "def\\s+add_gelu\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "add_gelu"
+      ],
+      [
+        "gelu",
+        "linear"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 37
+  },
+  "tritonbench_t_038": {
+    "name": "fused_cosine_embedding_loss_with_normalization",
+    "family": "reduction",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_038_fused_cosine_embedding_loss_with_normalization.ebnf",
+    "wrapper": "fused_cosine_embedding_loss_with_normalization(input1: torch.Tensor, input2: torch.Tensor, target: torch.Tensor, margin: float = 0, reduction: str = 'mean')",
+    "description": "Computes cosine embedding loss between two normalized tensors. This function first normalizes the inputs along the specified dimension using L2 normalization and then calculates the cosine embedding loss. The loss encourages similarity when the target is 1 and dissimilarity when the target is -1. It accepts optional parameters margin for dissimilarity control and reduction method for output aggregation.",
+    "wrapper_regex": "def\\s+fused_cosine_embedding_loss_with_normalization\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "fused_cosine_embedding_loss_with_normalization"
+      ],
+      [
+        "fused_cosine_embedding_loss_with_normalization"
+      ],
+      [
+        "tl.sum",
+        "tl.max",
+        "tl.min",
+        "argmax",
+        "argmin",
+        "torch."
+      ]
+    ],
+    "source_index": 38
+  },
+  "tritonbench_t_039": {
+    "name": "fused_transformer_block",
+    "family": "convolution_fusion",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_039_fused_transformer_block.ebnf",
+    "wrapper": "fused_transformer_block(input, weight1, weight2, residual, dropout_p=0.1, eps=1e-5, *, out=None)",
+    "description": "Performs a sequence of operations commonly used in transformer models, combining matrix multiplication, softmax, dropout, another matrix multiplication, layer normalization, and addition (residual connection).",
+    "wrapper_regex": "def\\s+fused_transformer_block\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "fused_transformer_block"
+      ],
+      [
+        "softmax",
+        "dropout"
+      ],
+      [
+        "conv2d",
+        "weight",
+        "tl.load",
+        "torch.nn.functional"
+      ]
+    ],
+    "source_index": 39
+  },
+  "tritonbench_t_040": {
+    "name": "log1p",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_040_log1p.ebnf",
+    "wrapper": "log1p(input, *, out=None)",
+    "description": "Returns a new tensor with the natural logarithm of (1 + input). This function is more accurate than torch.log for small values of input.",
+    "wrapper_regex": "def\\s+log1p\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "log1p"
+      ],
+      [
+        "log"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 40
+  },
+  "tritonbench_t_041": {
+    "name": "sigmoid_batch_norm",
+    "family": "convolution_fusion",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_041_sigmoid_batch_norm.ebnf",
+    "wrapper": "sigmoid_batch_norm(input, running_mean, running_var, weight=None, bias=None, training=False, momentum=0.1, eps=1e-5)",
+    "description": "Applies Batch Normalization over the input tensor across each channel, followed by applying the sigmoid activation function element-wise to the normalized result. This is useful for scaling the output to a range between 0 and 1 after normalization.",
+    "wrapper_regex": "def\\s+sigmoid_batch_norm\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "sigmoid_batch_norm"
+      ],
+      [
+        "sigmoid",
+        "batch_norm"
+      ],
+      [
+        "conv2d",
+        "weight",
+        "tl.load",
+        "torch.nn.functional"
+      ]
+    ],
+    "source_index": 41
+  },
+  "tritonbench_t_042": {
+    "name": "fused_hardsigmoid_batch_norm",
+    "family": "convolution_fusion",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_042_fused_hardsigmoid_batch_norm.ebnf",
+    "wrapper": "fused_hardsigmoid_batch_norm(x: torch.Tensor, running_mean: torch.Tensor, running_var: torch.Tensor, weight: torch.Tensor = None, bias: torch.Tensor = None, training: bool = False, momentum: float = 0.1, eps: float = 1e-5, inplace: bool = False)",
+    "description": "Applies Batch Normalization followed by the Hardsigmoid activation function on the input tensor `x`. This function performs batch normalization on `x` using the specified parameters and then applies Hardsigmoid activation element-wise on the normalized output.",
+    "wrapper_regex": "def\\s+fused_hardsigmoid_batch_norm\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "fused_hardsigmoid_batch_norm"
+      ],
+      [
+        "sigmoid",
+        "batch_norm"
+      ],
+      [
+        "conv2d",
+        "weight",
+        "tl.load",
+        "torch.nn.functional"
+      ]
+    ],
+    "source_index": 42
+  },
+  "tritonbench_t_043": {
+    "name": "zeta",
+    "family": "reduction",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_043_zeta.ebnf",
+    "wrapper": "zeta(input, other, *, out=None)",
+    "description": "Computes the Hurwitz zeta function, elementwise. The function calculates the sum of the series for each element in the input tensors, which represent the parameters x and q of the Hurwitz zeta function. The Riemann zeta function is a special case when q equals 1.",
+    "wrapper_regex": "def\\s+zeta\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "zeta"
+      ],
+      [
+        "sum"
+      ],
+      [
+        "tl.sum",
+        "tl.max",
+        "tl.min",
+        "argmax",
+        "argmin",
+        "torch."
+      ]
+    ],
+    "source_index": 43
+  },
+  "tritonbench_t_044": {
+    "name": "symmetric_matrix_vector_norm",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_044_symmetric_matrix_vector_norm.ebnf",
+    "wrapper": "symmetric_matrix_vector_norm(A: torch.Tensor, x: torch.Tensor, alpha: float, beta: float, p: float = 2.0)",
+    "description": "Computes the matrix-vector product for a symmetric matrix `A` and a vector `x`, with scaling factors `alpha` and `beta`. Then calculates the norm of the resulting vector `y`. The operation performed is: 1. `y = alpha * torch.mv(A, x) + beta * y`, assuming `A` is symmetric. 2. `norm = torch.norm(y, p)`.",
+    "wrapper_regex": "def\\s+symmetric_matrix_vector_norm\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "symmetric_matrix_vector_norm"
+      ],
+      [
+        "symmetric_matrix_vector_norm"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 44
+  },
+  "tritonbench_t_045": {
+    "name": "softplus_linear",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_045_softplus_linear.ebnf",
+    "wrapper": "softplus_linear(input, weight, bias=None, beta=1, threshold=20)",
+    "description": "Applies a linear transformation to the input tensor, followed by the Softplus activation function applied element-wise. This combined operation first performs a linear transformation and then introduces non-linearity with Softplus, which is smoother than ReLU and approximates it for large values. The function is particularly designed to improve numerical stability by reverting to a linear function for values above a specified threshold.",
+    "wrapper_regex": "def\\s+softplus_linear\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "softplus_linear"
+      ],
+      [
+        "relu",
+        "linear"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 45
+  },
+  "tritonbench_t_046": {
+    "name": "fused_svd_reconstruct",
+    "family": "indexing_interpolation",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_046_fused_svd_reconstruct.ebnf",
+    "wrapper": "fused_svd_reconstruct(A: Tensor)",
+    "description": "Reconstructs the input matrix `A` using its Singular Value Decomposition (SVD). This function combines the Singular Value Decomposition (SVD) with matrix reconstruction. Given a matrix `A`, it performs the following operations: 1. Compute the SVD of `A`: A = U \u03a3 V^H, where `U` and `Vh` are unitary matrices and `S` contains the singular values of `A`. 2. Reconstruct `A` as A_reconstructed = U \u03a3 V^H.",
+    "wrapper_regex": "def\\s+fused_svd_reconstruct\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "fused_svd_reconstruct"
+      ],
+      [
+        "svd"
+      ],
+      [
+        "index",
+        "grid",
+        "gather",
+        "scatter",
+        "tl.load",
+        "torch."
+      ]
+    ],
+    "source_index": 46
+  },
+  "tritonbench_t_047": {
+    "name": "fused_mul_add_logsoftmax_dropout_bmm",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_047_fused_mul_add_logsoftmax_dropout_bmm.ebnf",
+    "wrapper": "fused_mul_add_logsoftmax_dropout_bmm(input1, input2, other, mat2, p=0.5, training=True, inplace=False, dim=-1, *, out=None)",
+    "description": "Performs a fused operation combining element-wise multiplication, addition, log-softmax activation, dropout, and batch matrix multiplication.",
+    "wrapper_regex": "def\\s+fused_mul_add_logsoftmax_dropout_bmm\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "fused_mul_add_logsoftmax_dropout_bmm"
+      ],
+      [
+        "log",
+        "softmax",
+        "dropout"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 47
+  },
+  "tritonbench_t_048": {
+    "name": "selu",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_048_selu.ebnf",
+    "wrapper": "selu(input, inplace=False)",
+    "description": "Applies the element-wise SELU (Scaled Exponential Linear Unit) function to the input tensor. The SELU function is defined as scale * (max(0, x) + min(0, alpha * (exp(x) - 1))), where the constants alpha and scale are fixed values with alpha approximately 1.673 and scale approximately 1.051.",
+    "wrapper_regex": "def\\s+selu\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "selu"
+      ],
+      [
+        "exp",
+        "linear",
+        "max",
+        "min"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 48
+  },
+  "tritonbench_t_049": {
+    "name": "scaled_add_norm",
+    "family": "reduction",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_049_scaled_add_norm.ebnf",
+    "wrapper": "scaled_add_norm(y: Tensor, x: Tensor, alpha: float)",
+    "description": "Computes `y += alpha * x` and returns the 2-norm of the modified `y`. The function takes a target tensor `y`, a tensor `x` to be scaled by a scalar `alpha`, and adds the scaled `x` to `y`. It then calculates and returns the 2-norm of the updated `y`.",
+    "wrapper_regex": "def\\s+scaled_add_norm\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "scaled_add_norm"
+      ],
+      [
+        "scaled_add_norm"
+      ],
+      [
+        "tl.sum",
+        "tl.max",
+        "tl.min",
+        "argmax",
+        "argmin",
+        "torch."
+      ]
+    ],
+    "source_index": 49
+  },
+  "tritonbench_t_050": {
+    "name": "leaky_relu_conv2d",
+    "family": "convolution_fusion",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_050_leaky_relu_conv2d.ebnf",
+    "wrapper": "leaky_relu_conv2d(input, weight, bias=None, stride=1, padding=0, dilation=1, groups=1, negative_slope=0.01, inplace=False)",
+    "description": "Applies a 2D convolution over the input tensor, followed by applying the Leaky ReLU activation function element-wise to the result. This allows for both feature extraction and non-linear activation in one step.",
+    "wrapper_regex": "def\\s+leaky_relu_conv2d\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "leaky_relu_conv2d"
+      ],
+      [
+        "relu",
+        "conv2d",
+        "linear"
+      ],
+      [
+        "conv2d",
+        "weight",
+        "tl.load",
+        "torch.nn.functional"
+      ]
+    ],
+    "source_index": 50
+  },
+  "tritonbench_t_051": {
+    "name": "sqrt_exp",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_051_sqrt_exp.ebnf",
+    "wrapper": "sqrt_exp(input, out=None)",
+    "description": "Computes the square root of each element in :attr:`input`, and then applies the exponential function to the square-rooted values. The combined operation is defined as: out_i = e^(sqrt(input_i))",
+    "wrapper_regex": "def\\s+sqrt_exp\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "sqrt_exp"
+      ],
+      [
+        "sqrt"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 51
+  },
+  "tritonbench_t_052": {
+    "name": "cos_avg_pool1d",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_052_cos_avg_pool1d.ebnf",
+    "wrapper": "cos_avg_pool1d(input: torch.Tensor, kernel_size: int, stride: int = None, padding: int = 0, ceil_mode: bool = False, count_include_pad: bool = True)",
+    "description": "Applies the cosine function element-wise to the input tensor, followed by a 1D average pooling. The function first computes the cosine of each element in the input tensor, then applies 1D average pooling over the resulting tensor with the specified kernel size, stride, padding, ceil mode, and padding inclusion.",
+    "wrapper_regex": "def\\s+cos_avg_pool1d\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "cos_avg_pool1d"
+      ],
+      [
+        "cos_avg_pool1d"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 52
+  },
+  "tritonbench_t_053": {
+    "name": "sum_std",
+    "family": "reduction",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_053_sum_std.ebnf",
+    "wrapper": "sum_std(input, dim=None, keepdim=False, dtype=None, correction=1, out=None)",
+    "description": "Computes the sum of elements in the input tensor along the specified dimension(s), followed by calculating the standard deviation of the summed values.",
+    "wrapper_regex": "def\\s+sum_std\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "sum_std"
+      ],
+      [
+        "sum"
+      ],
+      [
+        "tl.sum",
+        "tl.max",
+        "tl.min",
+        "argmax",
+        "argmin",
+        "torch."
+      ]
+    ],
+    "source_index": 53
+  },
+  "tritonbench_t_054": {
+    "name": "mul_relu",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_054_mul_relu.ebnf",
+    "wrapper": "mul_relu(input, other, inplace=False, out=None)",
+    "description": "This function performs element-wise multiplication of two inputs, input and other, and then applies the Rectified Linear Unit (ReLU) function to the result, which replaces all negative values with zero.",
+    "wrapper_regex": "def\\s+mul_relu\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "mul_relu"
+      ],
+      [
+        "relu",
+        "linear"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 54
+  },
+  "tritonbench_t_055": {
+    "name": "gelu_conv2d",
+    "family": "convolution_fusion",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_055_gelu_conv2d.ebnf",
+    "wrapper": "gelu_conv2d(input: Tensor, weight: Tensor, bias: Optional[Tensor] = None, stride: Union[int, Tuple[int, int]] = 1, padding: Union[int, Tuple[int, int], str] = 0, dilation: Union[int, Tuple[int, int]] = 1, groups: int = 1, approximate: str = 'none', out: Optional[Tensor] = None)",
+    "description": "Applies a 2D convolution over an input tensor with specified filters, followed by applying the Gaussian Error Linear Units (GELU) activation function element-wise to the result. This helps introduce non-linearity after the convolution operation.",
+    "wrapper_regex": "def\\s+gelu_conv2d\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "gelu_conv2d"
+      ],
+      [
+        "gelu",
+        "conv2d",
+        "linear"
+      ],
+      [
+        "conv2d",
+        "weight",
+        "tl.load",
+        "torch.nn.functional"
+      ]
+    ],
+    "source_index": 55
+  },
+  "tritonbench_t_056": {
+    "name": "fused_instance_norm_selu_conv2d",
+    "family": "convolution_fusion",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_056_fused_instance_norm_selu_conv2d.ebnf",
+    "wrapper": "fused_instance_norm_selu_conv2d(input: Tensor, weight: Tensor, bias=None, stride=1, padding=0, dilation=1, groups=1, num_features=None, eps=1e-5, momentum=0.1, affine=False, track_running_stats=False)",
+    "description": "Applies a fused operation consisting of a 2D convolution followed by SELU activation and instance normalization on the input tensor.",
+    "wrapper_regex": "def\\s+fused_instance_norm_selu_conv2d\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "fused_instance_norm_selu_conv2d"
+      ],
+      [
+        "conv2d"
+      ],
+      [
+        "conv2d",
+        "weight",
+        "tl.load",
+        "torch.nn.functional"
+      ]
+    ],
+    "source_index": 56
+  },
+  "tritonbench_t_057": {
+    "name": "fused_fractional_max_pool2d_with_relu",
+    "family": "reduction",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_057_fused_fractional_max_pool2d_with_relu.ebnf",
+    "wrapper": "fused_fractional_max_pool2d_with_relu(input: torch.Tensor, kernel_size, output_size=None, output_ratio=None, return_indices=False)",
+    "description": "Applies a ReLU activation followed by 2D fractional max pooling over an input signal composed of multiple planes. The input is first rectified (non-negative) and then pooled using fractional max pooling.",
+    "wrapper_regex": "def\\s+fused_fractional_max_pool2d_with_relu\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "fused_fractional_max_pool2d_with_relu"
+      ],
+      [
+        "relu",
+        "max"
+      ],
+      [
+        "tl.sum",
+        "tl.max",
+        "tl.min",
+        "argmax",
+        "argmin",
+        "torch."
+      ]
+    ],
+    "source_index": 57
+  },
+  "tritonbench_t_058": {
+    "name": "chebyshev_polynomial_t",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_058_chebyshev_polynomial_t.ebnf",
+    "wrapper": "chebyshev_polynomial_t(input, n, *, out=None)",
+    "description": "Computes the Chebyshev polynomial of the first kind T_n(input). If n = 0, returns 1. If n = 1, returns input. For n < 6 or |input| > 1, uses a recursive formula. Otherwise, uses an explicit trigonometric formula.",
+    "wrapper_regex": "def\\s+chebyshev_polynomial_t\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "chebyshev_polynomial_t"
+      ],
+      [
+        "chebyshev_polynomial_t"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 58
+  },
+  "tritonbench_t_059": {
+    "name": "logit",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_059_logit.ebnf",
+    "wrapper": "logit(input, eps=None, *, out=None)",
+    "description": "Returns a new tensor with the logit of the elements of input. The input is clamped to [eps, 1 - eps] when eps is not None. When eps is None and input < 0 or input > 1, the function yields NaN.",
+    "wrapper_regex": "def\\s+logit\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "logit"
+      ],
+      [
+        "clamp"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 59
+  },
+  "tritonbench_t_060": {
+    "name": "solve_symmetric_ldl",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_060_solve_symmetric_ldl.ebnf",
+    "wrapper": "solve_symmetric_ldl(A, b, *, hermitian=False, out=None)",
+    "description": "Solves a symmetric (or Hermitian) linear system A x = b using LDL decomposition. The function first decomposes A into L and D through LDL decomposition, reconstructs matrix A, and then uses `torch.linalg.solve` to solve the linear system.",
+    "wrapper_regex": "def\\s+solve_symmetric_ldl\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "solve_symmetric_ldl"
+      ],
+      [
+        "linear",
+        "solve"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 60
+  },
+  "tritonbench_t_061": {
+    "name": "exp_sqrt",
+    "family": "indexing_interpolation",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_061_exp_sqrt.ebnf",
+    "wrapper": "exp_sqrt(input, out=None)",
+    "description": "Computes the exponential of each element in the input tensor, followed by calculating the square root of the result. Returns a tensor where each element is the result of applying exponential followed by square root to each element of input.",
+    "wrapper_regex": "def\\s+exp_sqrt\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "exp_sqrt"
+      ],
+      [
+        "sqrt"
+      ],
+      [
+        "index",
+        "grid",
+        "gather",
+        "scatter",
+        "tl.load",
+        "torch."
+      ]
+    ],
+    "source_index": 61
+  },
+  "tritonbench_t_062": {
+    "name": "combined_activation",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_062_combined_activation.ebnf",
+    "wrapper": "combined_activation(input, weight1, weight2, bias, *, out=None)",
+    "description": "Performs a sequence of operations combining matrix multiplication, sigmoid, tanh, element-wise multiplication, and addition. It supports batches of inputs, where any leading batch dimensions in `input` will be preserved in the output. The function's operations are differentiable and support autograd. The function ensures the dimensions of `input` and `weight1` are compatible for matrix multiplication, and that `weight2` and `bias` are broadcastable to the shape of the output tensor.",
+    "wrapper_regex": "def\\s+combined_activation\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "combined_activation"
+      ],
+      [
+        "sigmoid",
+        "tanh"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 62
+  },
+  "tritonbench_t_063": {
+    "name": "scaled_add_dot",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_063_scaled_add_dot.ebnf",
+    "wrapper": "scaled_add_dot(y: Tensor, x: Tensor, alpha: float)",
+    "description": "Computes `y += alpha * x` and returns the dot product of the modified `y` with itself. This fused function performs two operations: 1. Scales `x` by a factor of `alpha` and adds the result to `y`. 2. Computes the dot product of the modified `y` with itself.",
+    "wrapper_regex": "def\\s+scaled_add_dot\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "scaled_add_dot"
+      ],
+      [
+        "scaled_add_dot"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 63
+  },
+  "tritonbench_t_064": {
+    "name": "tensordot",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_064_tensordot.ebnf",
+    "wrapper": "tensordot(a: Tensor, b: Tensor, dims: Union[int, Tuple[List[int], List[int]], List[List[int]]])",
+    "description": "Returns a contraction of a and b over multiple dimensions. It implements a generalized matrix product.",
+    "wrapper_regex": "def\\s+tensordot\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "tensordot"
+      ],
+      [
+        "tensordot"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 64
+  },
+  "tritonbench_t_065": {
+    "name": "qr",
+    "family": "complex_fallback",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_065_qr.ebnf",
+    "wrapper": "qr(A, mode='reduced', *, out=None)",
+    "description": "Computes the QR decomposition of a matrix. Supports input of float, double, cfloat and cdouble dtypes. Also supports batches of matrices, and if A is a batch of matrices then the output has the same batch dimensions. The parameter mode chooses between the full and reduced QR decomposition. It is always differentiable for 'reduced' mode, differentiable for 'complete' mode when m <= n, and never differentiable for 'r' mode.",
+    "wrapper_regex": "def\\s+qr\\s*\\(",
+    "required_terms": [
+      "import torch"
+    ],
+    "semantic_terms_any": [
+      [
+        "qr"
+      ],
+      [
+        "qr"
+      ],
+      [
+        "torch.linalg",
+        "solve",
+        "svd",
+        "qr",
+        "lu",
+        "return"
+      ]
+    ],
+    "source_index": 65
+  },
+  "tritonbench_t_066": {
+    "name": "asin",
+    "family": "complex_fallback",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_066_asin.ebnf",
+    "wrapper": "asin(input, *, out=None)",
+    "description": "Returns a new tensor with the arcsine of the elements of the input tensor. The function computes the inverse sine (arcsine) for each element in the input tensor.",
+    "wrapper_regex": "def\\s+asin\\s*\\(",
+    "required_terms": [
+      "import torch"
+    ],
+    "semantic_terms_any": [
+      [
+        "asin"
+      ],
+      [
+        "asin"
+      ],
+      [
+        "torch.linalg",
+        "solve",
+        "svd",
+        "qr",
+        "lu",
+        "return"
+      ]
+    ],
+    "source_index": 66
+  },
+  "tritonbench_t_067": {
+    "name": "fused_masked_select_add_gelu",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_067_fused_masked_select_add_gelu.ebnf",
+    "wrapper": "fused_masked_select_add_gelu(input, mask, other, *, alpha=1, approximate='none', out=None)",
+    "description": "This function performs a fused operation combining masked selection, addition, and GELU activation. It first selects elements from the input tensor based on a boolean mask, then adds a scalar or tensor (scaled by alpha) to the selected values, and finally applies the GELU (Gaussian Error Linear Unit) activation function element-wise to the result.",
+    "wrapper_regex": "def\\s+fused_masked_select_add_gelu\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "fused_masked_select_add_gelu"
+      ],
+      [
+        "gelu",
+        "linear"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 67
+  },
+  "tritonbench_t_068": {
+    "name": "fused_pairwise_distance_adaptive_avg_pool2d",
+    "family": "reduction",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_068_fused_pairwise_distance_adaptive_avg_pool2d.ebnf",
+    "wrapper": "fused_pairwise_distance_adaptive_avg_pool2d(x1: torch.Tensor, x2: torch.Tensor, output_size: int or tuple, p: float = 2.0, eps: float = 1e-6, keepdim: bool = False)",
+    "description": "This function applies adaptive average pooling to the input tensors `x1` and `x2` to resize them to the specified `output_size`, and then computes the pairwise distance between the pooled outputs. The function first applies `adaptive_avg_pool2d` to each input tensor, and then calculates the pairwise distance using the specified norm `p`. A small value `eps` is added to avoid division by zero during distance calculation. The function can also retain the reduced dimension of the output via the `keepdim` parameter.",
+    "wrapper_regex": "def\\s+fused_pairwise_distance_adaptive_avg_pool2d\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "fused_pairwise_distance_adaptive_avg_pool2d"
+      ],
+      [
+        "fused_pairwise_distance_adaptive_avg_pool2d"
+      ],
+      [
+        "tl.sum",
+        "tl.max",
+        "tl.min",
+        "argmax",
+        "argmin",
+        "torch."
+      ]
+    ],
+    "source_index": 68
+  },
+  "tritonbench_t_069": {
+    "name": "add_mean",
+    "family": "reduction",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_069_add_mean.ebnf",
+    "wrapper": "add_mean(input, other, dim=None, alpha=1, keepdim=False, dtype=None, out=None)",
+    "description": "Adds the `other` tensor, scaled by `alpha`, to the `input` tensor and computes the mean value along the specified dimension. If no dimension is specified, it computes the mean over all elements. Supports broadcasting, type promotion, and works with integer, float, and complex inputs.",
+    "wrapper_regex": "def\\s+add_mean\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "add_mean"
+      ],
+      [
+        "mean"
+      ],
+      [
+        "tl.sum",
+        "tl.max",
+        "tl.min",
+        "argmax",
+        "argmin",
+        "torch."
+      ]
+    ],
+    "source_index": 69
+  },
+  "tritonbench_t_070": {
+    "name": "fused_layer_norm_relu_linear",
+    "family": "convolution_fusion",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_070_fused_layer_norm_relu_linear.ebnf",
+    "wrapper": "fused_layer_norm_relu_linear(input: Tensor, weight: Tensor, bias=None, normalized_shape=None, eps=1e-5, elementwise_affine=True)",
+    "description": "Applies a fused operation consisting of a linear transformation followed by ReLU activation and layer normalization on the input tensor.",
+    "wrapper_regex": "def\\s+fused_layer_norm_relu_linear\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "fused_layer_norm_relu_linear"
+      ],
+      [
+        "relu",
+        "layer_norm",
+        "linear"
+      ],
+      [
+        "conv2d",
+        "weight",
+        "tl.load",
+        "torch.nn.functional"
+      ]
+    ],
+    "source_index": 70
+  },
+  "tritonbench_t_071": {
+    "name": "fused_add_mul_groupnorm",
+    "family": "reduction",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_071_fused_add_mul_groupnorm.ebnf",
+    "wrapper": "fused_add_mul_groupnorm(input1, input2, weight, bias, num_groups, eps=1e-5, *, out=None)",
+    "description": "Performs a fused operation combining element-wise addition, element-wise multiplication, and group normalization. It takes two input tensors, adds them element-wise, multiplies the result with the second tensor, and then applies group normalization using learnable parameters for scaling and shifting. The function supports autograd for gradient computation and all operations are differentiable.",
+    "wrapper_regex": "def\\s+fused_add_mul_groupnorm\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "fused_add_mul_groupnorm"
+      ],
+      [
+        "fused_add_mul_groupnorm"
+      ],
+      [
+        "tl.sum",
+        "tl.max",
+        "tl.min",
+        "argmax",
+        "argmin",
+        "torch."
+      ]
+    ],
+    "source_index": 71
+  },
+  "tritonbench_t_072": {
+    "name": "SGD",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_072_sgd.ebnf",
+    "wrapper": "SGD(params, lr=1e-3, momentum=0, weight_decay=0, dampening=0, nesterov=False, maximize=False, foreach=None, differentiable=False, fused=None) After generation, verify if the Triton wrapper aligns with the provided func_inputs. If not, regenerate.",
+    "description": "Implements stochastic gradient descent, optionally with momentum, weight decay, dampening, and Nesterov momentum. It can maximize or minimize an objective function and supports different optimization algorithms for performance.",
+    "wrapper_regex": "def\\s+SGD\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "SGD"
+      ],
+      [
+        "sgd"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 72
+  },
+  "tritonbench_t_073": {
+    "name": "relu_batch_norm_conv2d",
+    "family": "convolution_fusion",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_073_relu_batch_norm_conv2d.ebnf",
+    "wrapper": "relu_batch_norm_conv2d(input, weight, bias=None, stride=1, padding=0, dilation=1, groups=1, running_mean=None, running_var=None, bn_weight=None, bn_bias=None, training=False, momentum=0.1, eps=1e-5, inplace=False)",
+    "description": "Applies a 2D convolution over the input tensor, followed by batch normalization and then applies the ReLU activation function element-wise to the normalized result. This combined operation is useful for applying feature extraction, normalization, and non-linearity in one step, commonly used in convolutional neural networks (CNNs).",
+    "wrapper_regex": "def\\s+relu_batch_norm_conv2d\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "relu_batch_norm_conv2d"
+      ],
+      [
+        "relu",
+        "conv2d",
+        "batch_norm",
+        "linear"
+      ],
+      [
+        "conv2d",
+        "weight",
+        "tl.load",
+        "torch.nn.functional"
+      ]
+    ],
+    "source_index": 73
+  },
+  "tritonbench_t_074": {
+    "name": "conv2d",
+    "family": "convolution_fusion",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_074_conv2d.ebnf",
+    "wrapper": "conv2d(input, weight, bias=None, stride=1, padding=0, dilation=1, groups=1)",
+    "description": "Applies a 2D convolution over an input image composed of several input planes. Supports TensorFloat32. May select a nondeterministic algorithm on CUDA with CuDNN for performance. Supports complex data types.",
+    "wrapper_regex": "def\\s+conv2d\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "conv2d"
+      ],
+      [
+        "conv2d"
+      ],
+      [
+        "conv2d",
+        "weight",
+        "tl.load",
+        "torch.nn.functional"
+      ]
+    ],
+    "source_index": 74
+  },
+  "tritonbench_t_075": {
+    "name": "normalized_cosine_similarity",
+    "family": "reduction",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_075_normalized_cosine_similarity.ebnf",
+    "wrapper": "normalized_cosine_similarity(x1: Tensor, x2: Tensor, dim: int = 1, eps_similarity: float = 1e-8, p_norm: float = 2, eps_norm: float = 1e-12)",
+    "description": "Computes the cosine similarity between two normalized input tensors `x1` and `x2`. This function normalizes `x1` and `x2` along a specified dimension using L_p normalization, and subsequently calculates the cosine similarity between these normalized tensors along the specified dimension. This involves ensuring vectors are scaled to avoid division by zero by introducing small epsilon values both during normalization and similarity computation.",
+    "wrapper_regex": "def\\s+normalized_cosine_similarity\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "normalized_cosine_similarity"
+      ],
+      [
+        "normalized_cosine_similarity"
+      ],
+      [
+        "tl.sum",
+        "tl.max",
+        "tl.min",
+        "argmax",
+        "argmin",
+        "torch."
+      ]
+    ],
+    "source_index": 75
+  },
+  "tritonbench_t_076": {
+    "name": "fused_cholesky_solve",
+    "family": "complex_fallback",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_076_fused_cholesky_solve.ebnf",
+    "wrapper": "fused_cholesky_solve(A: Tensor, b: Tensor)",
+    "description": "Computes the solution `x` to the equation `Ax = b` using the Cholesky decomposition. It first performs Cholesky decomposition on a symmetric positive-definite matrix `A` to obtain a lower triangular matrix `L` such that `A = L * L.T`, then solves for `x` in `Ax = b` using the Cholesky factorization.",
+    "wrapper_regex": "def\\s+fused_cholesky_solve\\s*\\(",
+    "required_terms": [
+      "import torch"
+    ],
+    "semantic_terms_any": [
+      [
+        "fused_cholesky_solve"
+      ],
+      [
+        "solve"
+      ],
+      [
+        "torch.linalg",
+        "solve",
+        "svd",
+        "qr",
+        "lu",
+        "return"
+      ]
+    ],
+    "source_index": 76
+  },
+  "tritonbench_t_077": {
+    "name": "matmul",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_077_matmul.ebnf",
+    "wrapper": "matmul(input, other, *, out=None)",
+    "description": "Matrix product of two tensors. The behavior depends on the dimensionality of the tensors: 1D tensors return a dot product; 2D tensors return a matrix-matrix product; 1D and 2D tensors return a matrix-vector product; N-dimensional tensors (N > 2) return a batched matrix multiply with broadcasting support. Sparse layouts are supported for 2D matrix-matrix products. TensorFloat32 is supported. On certain ROCm devices, float16 inputs use different precision for backward. The 1D dot product version does not support an out parameter.",
+    "wrapper_regex": "def\\s+matmul\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "matmul"
+      ],
+      [
+        "matmul"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 77
+  },
+  "tritonbench_t_078": {
+    "name": "fused_gather_masked_fill",
+    "family": "indexing_interpolation",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_078_fused_gather_masked_fill.ebnf",
+    "wrapper": "fused_gather_masked_fill(input, dim, index, mask, value, *, sparse_grad=False, out=None)",
+    "description": "Performs a fused operation combining torch.gather and torch.Tensor.masked_fill. It first gathers values from the input tensor along a specified dimension using provided indices, and then replaces the gathered elements with a specified value where the mask is True.",
+    "wrapper_regex": "def\\s+fused_gather_masked_fill\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "fused_gather_masked_fill"
+      ],
+      [
+        "fill"
+      ],
+      [
+        "index",
+        "grid",
+        "gather",
+        "scatter",
+        "tl.load",
+        "torch."
+      ]
+    ],
+    "source_index": 78
+  },
+  "tritonbench_t_079": {
+    "name": "fused_cross_entropy_log_softmax",
+    "family": "reduction",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_079_fused_cross_entropy_log_softmax.ebnf",
+    "wrapper": "fused_cross_entropy_log_softmax(input: torch.Tensor, target: torch.Tensor, dim: int = 1, weight: torch.Tensor = None, ignore_index: int = -100, reduction: str = 'mean', label_smoothing: float = 0.0)",
+    "description": "This function computes the cross entropy loss with log softmax applied to the input logits. It combines log softmax activation and cross entropy loss calculation in a numerically stable way. The log softmax is applied to the input logits, and the cross entropy loss is computed between the normalized logits and the target. The function allows customization with options such as which dimension to apply the log softmax, manual rescaling weights for each class, handling of ignored targets, reduction method for loss aggregation, and label smoothing to modify the target distribution.",
+    "wrapper_regex": "def\\s+fused_cross_entropy_log_softmax\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "fused_cross_entropy_log_softmax"
+      ],
+      [
+        "log",
+        "softmax",
+        "log_softmax"
+      ],
+      [
+        "tl.sum",
+        "tl.max",
+        "tl.min",
+        "argmax",
+        "argmin",
+        "torch."
+      ]
+    ],
+    "source_index": 79
+  },
+  "tritonbench_t_080": {
+    "name": "addmm",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_080_addmm.ebnf",
+    "wrapper": "addmm(input, mat1, mat2, *, beta=1, alpha=1, out=None)",
+    "description": "Performs a matrix multiplication of the matrices mat1 and mat2. The matrix input is added to the final result. If mat1 is a (n x m) tensor, mat2 is a (m x p) tensor, then input must be broadcastable with a (n x p) tensor and out will be a (n x p) tensor. Alpha and beta are scaling factors on matrix-vector product between mat1 and mat2 and the added matrix input respectively. If beta is 0, then input will be ignored, and nan and inf in it will not be propagated. This operation supports sparse layouts. If input is sparse the result will have the same layout and if out is provided it must have the same layout as input. Sparse support is a beta feature and some layout(s)/dtype/device combinations may not be supported, or may not have autograd support. This operator supports TensorFloat32. On certain ROCm devices, when using float16 inputs this module will use different precision for backward.",
+    "wrapper_regex": "def\\s+addmm\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "addmm"
+      ],
+      [
+        "addmm"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 80
+  },
+  "tritonbench_t_081": {
+    "name": "fused_qr_solve",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_081_fused_qr_solve.ebnf",
+    "wrapper": "fused_qr_solve(A: Tensor, b: Tensor)",
+    "description": "Solves the linear system `Ax = b` using QR decomposition. This function combines the QR decomposition with solving a linear system. Given a matrix `A` and a vector (or matrix) `b`, it performs the QR decomposition of `A` and computes the solution `x` using the formula `x = R^{-1} (Q^T b)`.",
+    "wrapper_regex": "def\\s+fused_qr_solve\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "fused_qr_solve"
+      ],
+      [
+        "linear",
+        "solve",
+        "qr"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 81
+  },
+  "tritonbench_t_082": {
+    "name": "sigmoid_adaptive_avg_pool2d",
+    "family": "reduction",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_082_sigmoid_adaptive_avg_pool2d.ebnf",
+    "wrapper": "sigmoid_adaptive_avg_pool2d(input: Tensor, output_size: Union[int, Tuple[int, int]])",
+    "description": "Applies a 2D adaptive average pooling over an input tensor, followed by the sigmoid activation function applied element-wise. This is used for downsampling a feature map to a specified output size and then normalizing the result with the sigmoid function.",
+    "wrapper_regex": "def\\s+sigmoid_adaptive_avg_pool2d\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "sigmoid_adaptive_avg_pool2d"
+      ],
+      [
+        "sigmoid"
+      ],
+      [
+        "tl.sum",
+        "tl.max",
+        "tl.min",
+        "argmax",
+        "argmin",
+        "torch."
+      ]
+    ],
+    "source_index": 82
+  },
+  "tritonbench_t_083": {
+    "name": "cos",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_083_cos.ebnf",
+    "wrapper": "cos(input, *, out=None)",
+    "description": "Returns a new tensor with the cosine of the elements of the input tensor.",
+    "wrapper_regex": "def\\s+cos\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "cos"
+      ],
+      [
+        "cos"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 83
+  },
+  "tritonbench_t_084": {
+    "name": "fused_bmm_dropout_gelu",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_084_fused_bmm_dropout_gelu.ebnf",
+    "wrapper": "fused_bmm_dropout_gelu(input1, input2, p=0.5, training=True, inplace=False, approximate='none', *, out=None)",
+    "description": "Performs a fused operation combining batch matrix multiplication, dropout, and GELU activation. It computes the batch matrix multiplication of two input tensors, applies dropout to the result, and then applies the GELU activation function.",
+    "wrapper_regex": "def\\s+fused_bmm_dropout_gelu\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "fused_bmm_dropout_gelu"
+      ],
+      [
+        "gelu",
+        "dropout"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 84
+  },
+  "tritonbench_t_085": {
+    "name": "trunc",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_085_trunc.ebnf",
+    "wrapper": "trunc(input, *, out=None)",
+    "description": "Returns a new tensor with the truncated integer values of the elements of the input tensor. For integer inputs, it follows the array-api convention of returning a copy of the input tensor.",
+    "wrapper_regex": "def\\s+trunc\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "trunc"
+      ],
+      [
+        "trunc"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 85
+  },
+  "tritonbench_t_086": {
+    "name": "matrix_power_eig",
+    "family": "indexing_interpolation",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_086_matrix_power_eig.ebnf",
+    "wrapper": "matrix_power_eig(A, k, *, out=None)",
+    "description": "Computes the matrix power A^k of a square matrix A using eigendecomposition. It relies on A being diagonalizable and computes the power through the equation A^k = V diag(\u039b^k) V^(-1), where \u039b and V are the eigenvalues and eigenvectors of A. It allows for fractional powers of matrices and supports real or complex exponents. If A is not diagonalizable, the result may not be accurate.",
+    "wrapper_regex": "def\\s+matrix_power_eig\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "matrix_power_eig"
+      ],
+      [
+        "matrix_power_eig"
+      ],
+      [
+        "index",
+        "grid",
+        "gather",
+        "scatter",
+        "tl.load",
+        "torch."
+      ]
+    ],
+    "source_index": 86
+  },
+  "tritonbench_t_087": {
+    "name": "log_tanh",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_087_log_tanh.ebnf",
+    "wrapper": "log_tanh(input, out=None)",
+    "description": "Computes the natural logarithm of each element in the input tensor, then applies the hyperbolic tangent (tanh) function to the result. This involves applying the logarithm first, which is only defined for positive numbers, and then applying tanh to transform the result between -1 and 1.",
+    "wrapper_regex": "def\\s+log_tanh\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "log_tanh"
+      ],
+      [
+        "tanh"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 87
+  },
+  "tritonbench_t_088": {
+    "name": "exp",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_088_exp.ebnf",
+    "wrapper": "exp(input, *, out=None)",
+    "description": "Returns a new tensor with the exponential of the elements of the input tensor.",
+    "wrapper_regex": "def\\s+exp\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "exp"
+      ],
+      [
+        "exp"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 88
+  },
+  "tritonbench_t_089": {
+    "name": "matrix_multiply_symmetric",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_089_matrix_multiply_symmetric.ebnf",
+    "wrapper": "matrix_multiply_symmetric(A: torch.Tensor, B: torch.Tensor, C: torch.Tensor, alpha: float, beta: float)",
+    "description": "Computes two operations on matrix `C`: first, it performs the matrix-matrix product `C = alpha * torch.mm(A, B) + beta * C`, then updates `C` to be `C = alpha * torch.mm(C, C.T) + beta * C`. This function effectively performs two sequential matrix operations: a weighted sum of a matrix product and itself, followed by a weighted product of `C` and its transpose.",
+    "wrapper_regex": "def\\s+matrix_multiply_symmetric\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "matrix_multiply_symmetric"
+      ],
+      [
+        "sum"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 89
+  },
+  "tritonbench_t_090": {
+    "name": "fused_avg_pool2d_cosine_similarity",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_090_fused_avg_pool2d_cosine_similarity.ebnf",
+    "wrapper": "fused_avg_pool2d_cosine_similarity(x1: torch.Tensor, x2: torch.Tensor, kernel_size: int, stride: int = None, padding: int = 0, eps: float = 1e-8)",
+    "description": "Computes the cosine similarity between `x1` and `x2` along a specified dimension, adds a singleton dimension, and applies 2D average pooling. It first computes cosine similarity along dim=1 using `cosine_similarity`, then adds a singleton dimension using `unsqueeze`, and finally applies 2D average pooling using `avg_pool2d`.",
+    "wrapper_regex": "def\\s+fused_avg_pool2d_cosine_similarity\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "fused_avg_pool2d_cosine_similarity"
+      ],
+      [
+        "fused_avg_pool2d_cosine_similarity"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 90
+  },
+  "tritonbench_t_091": {
+    "name": "fused_hardshrink_dropout",
+    "family": "indexing_interpolation",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_091_fused_hardshrink_dropout.ebnf",
+    "wrapper": "fused_hardshrink_dropout(input: torch.Tensor, p: float = 0.5, training: bool = True, inplace: bool = False, lambd: float = 0.5)",
+    "description": "Applies a fused operation consisting of dropout followed by hard shrinkage on the input tensor. The function first applies dropout to the input tensor, where each element is zeroed with a probability of p if training is True. The dropout can be applied in-place if specified. After dropout, a hard shrinkage operation is applied, which shrinks values towards zero based on the lambda parameter.",
+    "wrapper_regex": "def\\s+fused_hardshrink_dropout\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "fused_hardshrink_dropout"
+      ],
+      [
+        "dropout"
+      ],
+      [
+        "index",
+        "grid",
+        "gather",
+        "scatter",
+        "tl.load",
+        "torch."
+      ]
+    ],
+    "source_index": 91
+  },
+  "tritonbench_t_092": {
+    "name": "erfc_sqrt",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_092_erfc_sqrt.ebnf",
+    "wrapper": "erfc_sqrt(input: torch.Tensor)",
+    "description": "Computes the complementary error function (erfc) and the square root of each element in the input tensor.",
+    "wrapper_regex": "def\\s+erfc_sqrt\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "erfc_sqrt"
+      ],
+      [
+        "sqrt"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 92
+  },
+  "tritonbench_t_093": {
+    "name": "tensordot_rsqrt",
+    "family": "elementwise_fusion",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_093_tensordot_rsqrt.ebnf",
+    "wrapper": "tensordot_rsqrt(a: torch.Tensor, b: torch.Tensor, dims)",
+    "description": "Returns the reciprocal of the square root of the tensordot product of two tensors `a` and `b`. This function performs a tensor contraction of `a` and `b` over the specified dimensions using `torch.tensordot`, and then applies the element-wise reciprocal square root to the resulting tensor. The operation involves computing the tensordot product first and then applying the reciprocal of the square root element-wise to the result.",
+    "wrapper_regex": "def\\s+tensordot_rsqrt\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "tensordot_rsqrt"
+      ],
+      [
+        "sqrt",
+        "rsqrt"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 93
+  },
+  "tritonbench_t_094": {
+    "name": "softmax_log",
+    "family": "reduction",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_094_softmax_log.ebnf",
+    "wrapper": "softmax_log(input, dim=-1, dtype=None)",
+    "description": "Applies the natural logarithm element-wise on the input tensor, followed by applying the softmax function along the specified dimension. This combined operation scales input values to a range between 0 and 1, summing to 1 after the logarithmic transformation. It allows transformation of the input tensor into a probability distribution.",
+    "wrapper_regex": "def\\s+softmax_log\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "softmax_log"
+      ],
+      [
+        "softmax"
+      ],
+      [
+        "tl.sum",
+        "tl.max",
+        "tl.min",
+        "argmax",
+        "argmin",
+        "torch."
+      ]
+    ],
+    "source_index": 94
+  },
+  "tritonbench_t_095": {
+    "name": "dropout_sigmoid_linear",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_095_dropout_sigmoid_linear.ebnf",
+    "wrapper": "dropout_sigmoid_linear(input: torch.Tensor, weight: torch.Tensor, bias=None, p=0.5, training=True, inplace=False)",
+    "description": "Applies a linear transformation followed by a sigmoid activation and dropout. This function sequentially applies a linear transformation to the input tensor, a sigmoid activation to scale the values between 0 and 1, and randomly zeroes some elements of the tensor with a specified probability during dropout.",
+    "wrapper_regex": "def\\s+dropout_sigmoid_linear\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "dropout_sigmoid_linear"
+      ],
+      [
+        "sigmoid",
+        "dropout",
+        "linear"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 95
+  },
+  "tritonbench_t_096": {
+    "name": "batch_norm",
+    "family": "convolution_fusion",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_096_batch_norm.ebnf",
+    "wrapper": "batch_norm(input, running_mean, running_var, weight=None, bias=None, training=False, momentum=0.1, eps=1e-05)",
+    "description": "Applies Batch Normalization for each channel across a batch of data. Batch Normalization is a technique to improve the training of deep neural networks by ensuring that each layer receives whitened input, which helps to stabilize the learning process and reduce the number of training epochs needed to converge.",
+    "wrapper_regex": "def\\s+batch_norm\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "batch_norm"
+      ],
+      [
+        "batch_norm"
+      ],
+      [
+        "conv2d",
+        "weight",
+        "tl.load",
+        "torch.nn.functional"
+      ]
+    ],
+    "source_index": 96
+  },
+  "tritonbench_t_097": {
+    "name": "gammaln",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_097_gammaln.ebnf",
+    "wrapper": "gammaln(input, *, out=None)",
+    "description": "Computes the natural logarithm of the absolute value of the gamma function on the input tensor.",
+    "wrapper_regex": "def\\s+gammaln\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "gammaln"
+      ],
+      [
+        "gammaln"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 97
+  },
+  "tritonbench_t_098": {
+    "name": "bitwise_and",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_098_bitwise_and.ebnf",
+    "wrapper": "bitwise_and(input, other, *, out=None)",
+    "description": "Computes the bitwise AND of input and other. The input tensor must be of integral or Boolean types. For bool tensors, it computes the logical AND.",
+    "wrapper_regex": "def\\s+bitwise_and\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "bitwise_and"
+      ],
+      [
+        "bitwise_and"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 98
+  },
+  "tritonbench_t_099": {
+    "name": "sub_gelu",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_099_sub_gelu.ebnf",
+    "wrapper": "sub_gelu(input, other, alpha=1, approximate='none', out=None)",
+    "description": "Subtracts 'other', scaled by 'alpha', from 'input', and then applies the Gaussian Error Linear Units (GELU) activation function to the result. The function supports two modes for GELU: exact and approximate using 'tanh'.",
+    "wrapper_regex": "def\\s+sub_gelu\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "sub_gelu"
+      ],
+      [
+        "gelu",
+        "tanh",
+        "linear"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 99
+  },
+  "tritonbench_t_100": {
+    "name": "gelu_std",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_100_gelu_std.ebnf",
+    "wrapper": "gelu_std(input, dim=None, keepdim=False, correction=1, approximate='none', out=None)",
+    "description": "Applies the Gaussian Error Linear Units (GELU) activation function to the elements of input, then computes the standard deviation along the specified dimension(s). The GELU function is applied element-wise to the input tensor, with an option to use an approximation method. After activation, the standard deviation of the result is calculated over specified dimensions, with options to keep reduced dimensions and apply a correction factor.",
+    "wrapper_regex": "def\\s+gelu_std\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "gelu_std"
+      ],
+      [
+        "gelu",
+        "linear"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 100
+  },
+  "tritonbench_t_101": {
+    "name": "permute_copy",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_101_permute_copy.ebnf",
+    "wrapper": "torch.permute_copy(input, dims)",
+    "description": "Performs the same operation as torch.permute, which rearranges the dimensions of the input tensor according to the specified dims, but all output tensors are freshly created instead of aliasing the input.",
+    "wrapper_regex": "def\\s+permute_copy\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "permute_copy"
+      ],
+      [
+        "permute_copy"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 101
+  },
+  "tritonbench_t_102": {
+    "name": "digamma",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_102_digamma.ebnf",
+    "wrapper": "digamma(input, *, out=None)",
+    "description": "Computes the logarithmic derivative of the gamma function on input. This function is similar to SciPy's scipy.special.digamma. From PyTorch 1.8 onwards, the digamma function returns -Inf for 0, previously it returned NaN for 0.",
+    "wrapper_regex": "def\\s+digamma\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "digamma"
+      ],
+      [
+        "digamma"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 102
+  },
+  "tritonbench_t_103": {
+    "name": "softmax_mul",
+    "family": "reduction",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_103_softmax_mul.ebnf",
+    "wrapper": "softmax_mul(input, other, dim, dtype=None, out=None)",
+    "description": "Applies the softmax function to the input tensor along the specified dimension, and then multiplies the softmaxed values by another tensor or number. The softmax function re-scales the elements so that they lie in the range [0, 1] and sum to 1 along the specified dimension.",
+    "wrapper_regex": "def\\s+softmax_mul\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "softmax_mul"
+      ],
+      [
+        "softmax",
+        "sum"
+      ],
+      [
+        "tl.sum",
+        "tl.max",
+        "tl.min",
+        "argmax",
+        "argmin",
+        "torch."
+      ]
+    ],
+    "source_index": 103
+  },
+  "tritonbench_t_104": {
+    "name": "bitwise_and_binomial",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_104_bitwise_and_binomial.ebnf",
+    "wrapper": "bitwise_and_binomial(input: torch.Tensor, other: torch.Tensor, total_count: torch.Tensor, probs: torch.Tensor = None, logits: torch.Tensor = None)",
+    "description": "Computes the bitwise AND operation between two tensors and then applies a Binomial distribution sampling based on the resulting tensor's values. First, it computes the bitwise AND of `input` and `other`. Then, the result is used as input for the Binomial distribution, with each element representing the number of trials with the probability specified in `probs` or `logits`.",
+    "wrapper_regex": "def\\s+bitwise_and_binomial\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "bitwise_and_binomial"
+      ],
+      [
+        "bitwise_and_binomial"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 104
+  },
+  "tritonbench_t_105": {
+    "name": "rad2deg_sqrt",
+    "family": "indexing_interpolation",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_105_rad2deg_sqrt.ebnf",
+    "wrapper": "rad2deg_sqrt(input: torch.Tensor)",
+    "description": "This function computes the conversion of angles from radians to degrees and calculates the square root for each element in the input tensor. It returns a tuple where the first element is the converted degrees and the second is the square root of the input tensor elements.",
+    "wrapper_regex": "def\\s+rad2deg_sqrt\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "rad2deg_sqrt"
+      ],
+      [
+        "sqrt"
+      ],
+      [
+        "index",
+        "grid",
+        "gather",
+        "scatter",
+        "tl.load",
+        "torch."
+      ]
+    ],
+    "source_index": 105
+  },
+  "tritonbench_t_106": {
+    "name": "bessel_j1",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_106_bessel_j1.ebnf",
+    "wrapper": "bessel_j1(input, *, out=None)",
+    "description": "Computes the Bessel function of the first kind of order 1 for each element of the input tensor.",
+    "wrapper_regex": "def\\s+bessel_j1\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "bessel_j1"
+      ],
+      [
+        "bessel_j1"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 106
+  },
+  "tritonbench_t_107": {
+    "name": "lu",
+    "family": "complex_fallback",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_107_lu.ebnf",
+    "wrapper": "lu(A, *, pivot=True, out=None)",
+    "description": "Computes the LU decomposition with partial pivoting of a matrix. If pivot=True, returns a permutation matrix P, a lower triangular matrix L, and an upper triangular matrix U such that A = PLU. If pivot=False and A is on GPU, computes the LU decomposition without pivoting, returning empty P, L and U such that A = LU. Supports float, double, cfloat, and cdouble dtypes, as well as batches of matrices. Outputs have the same batch dimensions as input.",
+    "wrapper_regex": "def\\s+lu\\s*\\(",
+    "required_terms": [
+      "import torch"
+    ],
+    "semantic_terms_any": [
+      [
+        "lu"
+      ],
+      [
+        "lu"
+      ],
+      [
+        "torch.linalg",
+        "solve",
+        "svd",
+        "qr",
+        "lu",
+        "return"
+      ]
+    ],
+    "source_index": 107
+  },
+  "tritonbench_t_108": {
+    "name": "gelu_min",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_108_gelu_min.ebnf",
+    "wrapper": "gelu_min(input, approximate='none', dim=None, keepdim=False, out=None)",
+    "description": "Applies the Gaussian Error Linear Units (GELU) activation function to each element in the input tensor, followed by computing the minimum value along the specified dimension. If no dimension is specified, it computes the minimum over all elements. The function supports two methods for computing GELU: exact ('none') and an approximation using 'tanh'.",
+    "wrapper_regex": "def\\s+gelu_min\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "gelu_min"
+      ],
+      [
+        "gelu",
+        "tanh",
+        "linear"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 108
+  },
+  "tritonbench_t_109": {
+    "name": "grid_sample_with_affine",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_109_grid_sample_with_affine.ebnf",
+    "wrapper": "grid_sample_with_affine(input: torch.Tensor, theta: torch.Tensor, size: torch.Size, mode: str = 'bilinear', padding_mode: str = 'zeros', align_corners: bool = False)",
+    "description": "This function applies an affine transformation to the input tensor followed by grid sampling. It first generates a 2D flow field (sampling grid) based on the input affine matrix `theta` using `affine_grid`. Then it uses the generated grid to sample from the input image using `grid_sample`. It supports multiple interpolation modes (such as 'bilinear', 'nearest', and 'bicubic'), different padding modes ('zeros', 'border', 'reflection'), and has an option to align corners for transformation consistency.",
+    "wrapper_regex": "def\\s+grid_sample_with_affine\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "grid_sample_with_affine"
+      ],
+      [
+        "linear",
         "grid"
       ],
       [
-        "bilinear",
-        "nearest",
-        "mode"
-      ],
-      [
-        "padding_mode",
-        "align_corners"
-      ],
-      [
-        "torch.nn.functional.grid_sample",
-        "@triton.jit",
-        "tl.load"
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
       ]
-    ]
+    ],
+    "source_index": 109
+  },
+  "tritonbench_t_110": {
+    "name": "pseudoinverse_svd",
+    "family": "complex_fallback",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_110_pseudoinverse_svd.ebnf",
+    "wrapper": "pseudoinverse_svd(A, *, full_matrices=True, rcond=1e-15, out=None)",
+    "description": "Computes the Moore-Penrose pseudoinverse of a matrix using Singular Value Decomposition (SVD). It decomposes the input matrix A into its singular value components, inverts the non-zero singular values above a certain threshold to avoid numerical instability, and reconstructs the pseudoinverse using these components. Supports input of float, double, cfloat, and cdouble dtypes, and can handle batches of matrices.",
+    "wrapper_regex": "def\\s+pseudoinverse_svd\\s*\\(",
+    "required_terms": [
+      "import torch"
+    ],
+    "semantic_terms_any": [
+      [
+        "pseudoinverse_svd"
+      ],
+      [
+        "svd"
+      ],
+      [
+        "torch.linalg",
+        "solve",
+        "svd",
+        "qr",
+        "lu",
+        "return"
+      ]
+    ],
+    "source_index": 110
+  },
+  "tritonbench_t_111": {
+    "name": "exp_mean",
+    "family": "reduction",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_111_exp_mean.ebnf",
+    "wrapper": "exp_mean(input, dim=None, keepdim=False, dtype=None, out=None)",
+    "description": "Applies the exponential function to each element in the input tensor and then computes the mean value of the result along the specified dimension or over all elements if no dimension is specified.",
+    "wrapper_regex": "def\\s+exp_mean\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "exp_mean"
+      ],
+      [
+        "mean"
+      ],
+      [
+        "tl.sum",
+        "tl.max",
+        "tl.min",
+        "argmax",
+        "argmin",
+        "torch."
+      ]
+    ],
+    "source_index": 111
+  },
+  "tritonbench_t_112": {
+    "name": "low_rank_svd_approximation",
+    "family": "reduction",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_112_low_rank_svd_approximation.ebnf",
+    "wrapper": "low_rank_svd_approximation(A, k, *, full_matrices=True, out=None)",
+    "description": "Computes a rank-k approximation of a matrix using its Singular Value Decomposition (SVD). The function retains the top-k singular values and corresponding singular vectors from the SVD of A to form the approximation Ak. This low-rank approximation minimizes the Frobenius norm of the difference between A and Ak among all rank-k matrices. Supports input of float, double, cfloat, and cdouble dtypes, and batches of matrices.",
+    "wrapper_regex": "def\\s+low_rank_svd_approximation\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "low_rank_svd_approximation"
+      ],
+      [
+        "svd"
+      ],
+      [
+        "tl.sum",
+        "tl.max",
+        "tl.min",
+        "argmax",
+        "argmin",
+        "torch."
+      ]
+    ],
+    "source_index": 112
+  },
+  "tritonbench_t_113": {
+    "name": "min",
+    "family": "reduction",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_113_min.ebnf",
+    "wrapper": "min(input, dim, keepdim=False, *, out=None)",
+    "description": "Returns the minimum value of each row of the input tensor in the given dimension dim, along with the index location of each minimum value found. If keepdim is True, the output tensors retain the same size as input except in the dimension dim where they are of size 1. Otherwise, dim is squeezed, resulting in the output tensors having 1 fewer dimension than input. If there are multiple minimal values in a reduced row, the indices of the first minimal value are returned. The function can also compare two tensors element-wise and return a tensor with the minimum values.",
+    "wrapper_regex": "def\\s+min\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "min"
+      ],
+      [
+        "min",
+        "index"
+      ],
+      [
+        "tl.sum",
+        "tl.max",
+        "tl.min",
+        "argmax",
+        "argmin",
+        "torch."
+      ]
+    ],
+    "source_index": 113
+  },
+  "tritonbench_t_114": {
+    "name": "symmetric_mm_and_abs_sum",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_114_symmetric_mm_and_abs_sum.ebnf",
+    "wrapper": "symmetric_mm_and_abs_sum(A: torch.Tensor, C: torch.Tensor, alpha: float, beta: float)",
+    "description": "Performs a symmetric matrix multiplication by multiplying matrix `A` with its transpose, scales the result by `alpha`, adds it to matrix `C` scaled by `beta`, and returns the sum of the absolute values of the resulting matrix.",
+    "wrapper_regex": "def\\s+symmetric_mm_and_abs_sum\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "symmetric_mm_and_abs_sum"
+      ],
+      [
+        "sum"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 114
+  },
+  "tritonbench_t_115": {
+    "name": "determinant_lu",
+    "family": "complex_fallback",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_115_determinant_lu.ebnf",
+    "wrapper": "determinant_lu(A, *, pivot=True, out=None)",
+    "description": "Computes the determinant of a square matrix using LU decomposition. The function performs LU decomposition on a given square matrix A and calculates its determinant. It supports matrices over real or complex numbers and can handle batch dimensions. The determinant is computed as the product of the diagonal elements of the upper triangular matrix U from the LU decomposition, adjusted by the sign of the permutation matrix P if pivoting is used. The function assumes A is invertible and supports float, double, cfloat, and cdouble dtypes.",
+    "wrapper_regex": "def\\s+determinant_lu\\s*\\(",
+    "required_terms": [
+      "import torch"
+    ],
+    "semantic_terms_any": [
+      [
+        "determinant_lu"
+      ],
+      [
+        "lu"
+      ],
+      [
+        "torch.linalg",
+        "solve",
+        "svd",
+        "qr",
+        "lu",
+        "return"
+      ]
+    ],
+    "source_index": 115
+  },
+  "tritonbench_t_116": {
+    "name": "tanh_linear",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_116_tanh_linear.ebnf",
+    "wrapper": "tanh_linear(input, weight, bias=None)",
+    "description": "Applies a linear transformation to the input tensor followed by a Tanh activation function. This combined operation is useful for introducing non-linearity after a linear transformation, helping to capture complex relationships in the data.",
+    "wrapper_regex": "def\\s+tanh_linear\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "tanh_linear"
+      ],
+      [
+        "tanh",
+        "linear"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 116
+  },
+  "tritonbench_t_117": {
+    "name": "sum",
+    "family": "reduction",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_117_sum.ebnf",
+    "wrapper": "sum(input, dim, keepdim=False, *, dtype=None)",
+    "description": "Returns the sum of each row of the input tensor in the given dimension dim. If dim is a list of dimensions, reduce over all of them. If keepdim is True, the output tensor is of the same size as input except in the dimension(s) dim where it is of size 1. Otherwise, dim is squeezed, resulting in the output tensor having 1 (or len(dim)) fewer dimension(s).",
+    "wrapper_regex": "def\\s+sum\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "sum"
+      ],
+      [
+        "sum"
+      ],
+      [
+        "tl.sum",
+        "tl.max",
+        "tl.min",
+        "argmax",
+        "argmin",
+        "torch."
+      ]
+    ],
+    "source_index": 117
+  },
+  "tritonbench_t_118": {
+    "name": "logspace",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_118_logspace.ebnf",
+    "wrapper": "logspace(start, end, steps, base=10.0, *, out=None, dtype=None, layout=torch.strided, device=None, requires_grad=False)",
+    "description": "Creates a one-dimensional tensor of size 'steps' whose values are evenly spaced from base^start to base^end, inclusive, on a logarithmic scale with a specified base. The tensor values are generated in a logarithmic progression from base^start to base^end using the specified number of steps.",
+    "wrapper_regex": "def\\s+logspace\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "logspace"
+      ],
+      [
+        "logspace"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 118
+  },
+  "tritonbench_t_119": {
+    "name": "solve_and_add_scaled_vector",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_119_solve_and_add_scaled_vector.ebnf",
+    "wrapper": "solve_and_add_scaled_vector(A: torch.Tensor, b: torch.Tensor, y: torch.Tensor, alpha: float)",
+    "description": "Solves the triangular system of linear equations Ax = b, where A is a triangular matrix. Then, adds a scaled version of the vector y to the solution x. The operations performed are: 1. Solve the triangular system Ax = b using torch.linalg.solve_triangular with A as an upper triangular matrix. 2. Add the scaled vector alpha * y to the solution x.",
+    "wrapper_regex": "def\\s+solve_and_add_scaled_vector\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "solve_and_add_scaled_vector"
+      ],
+      [
+        "add",
+        "linear",
+        "solve"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 119
+  },
+  "tritonbench_t_120": {
+    "name": "pixel_shuffle_conv2d",
+    "family": "convolution_fusion",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_120_pixel_shuffle_conv2d.ebnf",
+    "wrapper": "pixel_shuffle_conv2d(input: torch.Tensor, weight: torch.Tensor, bias=None, stride=1, padding=0, dilation=1, groups=1, upscale_factor=2)",
+    "description": "Applies a 2D convolution followed by pixel shuffle upscaling to rearrange the spatial dimensions. This function sequentially applies a 2D convolution operation and then rearranges the elements of the convolution output to increase the spatial resolution by the upscale_factor.",
+    "wrapper_regex": "def\\s+pixel_shuffle_conv2d\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "pixel_shuffle_conv2d"
+      ],
+      [
+        "conv2d"
+      ],
+      [
+        "conv2d",
+        "weight",
+        "tl.load",
+        "torch.nn.functional"
+      ]
+    ],
+    "source_index": 120
+  },
+  "tritonbench_t_121": {
+    "name": "matrix_vector_dot",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_121_matrix_vector_dot.ebnf",
+    "wrapper": "matrix_vector_dot(A: Tensor, x: Tensor, y: Tensor, alpha: float, beta: float)",
+    "description": "Computes the matrix-vector product `y = alpha * torch.mv(A, x) + beta * y` and then returns the dot product `torch.dot(y, x)`. The function first computes a scaled matrix-vector product and updates `y`, then calculates the dot product of the updated `y` with `x`. It requires an input matrix `A` of shape `(n, m)`, an input vector `x` of shape `(m,)`, and a target vector `y` of shape `(n,)` that is modified in-place. The scalar `alpha` is a multiplier for `torch.mv(A, x)`, while `beta` is a multiplier for `y`.",
+    "wrapper_regex": "def\\s+matrix_vector_dot\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "matrix_vector_dot"
+      ],
+      [
+        "matrix_vector_dot"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 121
+  },
+  "tritonbench_t_122": {
+    "name": "min_gelu",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_122_min_gelu.ebnf",
+    "wrapper": "min_gelu(input, dim=None, keepdim=False, approximate='none', out=None)",
+    "description": "Computes the Gaussian Error Linear Units (GELU) activation on the input tensor, then returns the minimum value along the specified dimension(s) or over all elements if no dimension is specified. The function supports two methods for computing GELU: exact and approximate using 'tanh'.",
+    "wrapper_regex": "def\\s+min_gelu\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "min_gelu"
+      ],
+      [
+        "gelu",
+        "tanh",
+        "linear"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 122
+  },
+  "tritonbench_t_123": {
+    "name": "pow",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_123_pow.ebnf",
+    "wrapper": "pow(input, exponent, *, out=None)",
+    "description": "Takes the power of each element in input with exponent and returns a tensor with the result. exponent can be either a single float number or a Tensor with the same number of elements as input. If exponent is a scalar value, the operation applied is out_i = x_i ^ exponent. If exponent is a tensor, the operation applied is out_i = x_i ^ exponent_i. When exponent is a tensor, the shapes of input and exponent must be broadcastable.",
+    "wrapper_regex": "def\\s+pow\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "pow"
+      ],
+      [
+        "pow"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 123
+  },
+  "tritonbench_t_124": {
+    "name": "relu_max_pool2d_conv2d",
+    "family": "convolution_fusion",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_124_relu_max_pool2d_conv2d.ebnf",
+    "wrapper": "relu_max_pool2d_conv2d(input, weight, bias=None, conv_stride=1, conv_padding=0, conv_dilation=1, conv_groups=1, pool_kernel_size=2, pool_stride=None, pool_padding=0, pool_dilation=1, pool_ceil_mode=False, inplace=False)",
+    "description": "Applies a 2D convolution over the input tensor, followed by max pooling and then applies the ReLU activation function element-wise to the pooled result. This combined operation is often used in convolutional neural networks (CNNs) for feature extraction, downsampling, and adding non-linearity.",
+    "wrapper_regex": "def\\s+relu_max_pool2d_conv2d\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "relu_max_pool2d_conv2d"
+      ],
+      [
+        "relu",
+        "conv2d",
+        "linear",
+        "max"
+      ],
+      [
+        "conv2d",
+        "weight",
+        "tl.load",
+        "torch.nn.functional"
+      ]
+    ],
+    "source_index": 124
+  },
+  "tritonbench_t_125": {
+    "name": "erf",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_125_erf.ebnf",
+    "wrapper": "erf(input, *, out=None)",
+    "description": "Computes the error function of the input tensor. The error function is used in probability, statistics, and partial differential equations describing diffusion.",
+    "wrapper_regex": "def\\s+erf\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "erf"
+      ],
+      [
+        "erf"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 125
+  },
+  "tritonbench_t_126": {
+    "name": "sigmoid",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_126_sigmoid.ebnf",
+    "wrapper": "sigmoid(input, *, out=None)",
+    "description": "This function computes the sigmoid of the input tensor element-wise. The sigmoid function is a common activation function used in neural networks, which maps any real-valued number into the range (0, 1).",
+    "wrapper_regex": "def\\s+sigmoid\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "sigmoid"
+      ],
+      [
+        "sigmoid"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 126
+  },
+  "tritonbench_t_127": {
+    "name": "gelu",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_127_gelu.ebnf",
+    "wrapper": "gelu(input, approximate='none')",
+    "description": "Applies the Gaussian Error Linear Unit (GELU) activation function element-wise to the input tensor. The function can be computed exactly or approximately using a tanh-based formula depending on the 'approximate' argument.",
+    "wrapper_regex": "def\\s+gelu\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "gelu"
+      ],
+      [
+        "gelu",
+        "tanh",
+        "linear"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 127
+  },
+  "tritonbench_t_128": {
+    "name": "det",
+    "family": "complex_fallback",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_128_det.ebnf",
+    "wrapper": "linalg.det(A, *, out=None)",
+    "description": "Computes the determinant of a square matrix. Supports input of float, double, cfloat and cdouble dtypes. Also supports batches of matrices, and if A is a batch of matrices then the output has the same batch dimensions.",
+    "wrapper_regex": "def\\s+det\\s*\\(",
+    "required_terms": [
+      "import torch"
+    ],
+    "semantic_terms_any": [
+      [
+        "det"
+      ],
+      [
+        "det"
+      ],
+      [
+        "torch.linalg",
+        "solve",
+        "svd",
+        "qr",
+        "lu",
+        "return"
+      ]
+    ],
+    "source_index": 128
+  },
+  "tritonbench_t_129": {
+    "name": "fused_bmm_rmsnorm_gelu_dropout",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_129_fused_bmm_rmsnorm_gelu_dropout.ebnf",
+    "wrapper": "fused_bmm_rmsnorm_gelu_dropout(input1, input2, normalized_shape, dropout_p=0.1, eps=1e-5, training=True, approximate='none', *, out=None)",
+    "description": "Performs a fused operation combining batch matrix multiplication, RMS normalization, GELU activation, and dropout.",
+    "wrapper_regex": "def\\s+fused_bmm_rmsnorm_gelu_dropout\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "fused_bmm_rmsnorm_gelu_dropout"
+      ],
+      [
+        "gelu",
+        "dropout"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 129
+  },
+  "tritonbench_t_130": {
+    "name": "floor",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_130_floor.ebnf",
+    "wrapper": "floor(input, *, out=None)",
+    "description": "Returns a new tensor with the floor of the elements of the input, the largest integer less than or equal to each element. For integer inputs, follows the array-api convention of returning a copy of the input tensor.",
+    "wrapper_regex": "def\\s+floor\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "floor"
+      ],
+      [
+        "floor"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 130
+  },
+  "tritonbench_t_131": {
+    "name": "rand",
+    "family": "indexing_interpolation",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_131_rand.ebnf",
+    "wrapper": "rand(*size, *, generator=None, out=None, dtype=None, layout=torch.strided, device=None, requires_grad=False, pin_memory=False)",
+    "description": "Returns a tensor filled with random numbers from a uniform distribution on the interval [0, 1). The shape of the tensor is defined by the variable argument size.",
+    "wrapper_regex": "def\\s+rand\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "rand"
+      ],
+      [
+        "fill"
+      ],
+      [
+        "index",
+        "grid",
+        "gather",
+        "scatter",
+        "tl.load",
+        "torch."
+      ]
+    ],
+    "source_index": 131
+  },
+  "tritonbench_t_132": {
+    "name": "cholesky_solve",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_132_cholesky_solve.ebnf",
+    "wrapper": "cholesky_solve(B, L, upper=False, *, out=None)",
+    "description": "Computes the solution of a system of linear equations with complex Hermitian or real symmetric positive-definite lhs given its Cholesky decomposition. Supports inputs of float, double, cfloat and cdouble dtypes. Also supports batches of matrices, and if :math:`A` or :math:`B` is a batch of matrices then the output has the same batch dimensions.",
+    "wrapper_regex": "def\\s+cholesky_solve\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "cholesky_solve"
+      ],
+      [
+        "linear",
+        "solve"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 132
+  },
+  "tritonbench_t_133": {
+    "name": "mul_sub",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_133_mul_sub.ebnf",
+    "wrapper": "mul_sub(input, other_mul, other_sub, alpha=1, out=None)",
+    "description": "Multiplies the input tensor by another tensor or number, then subtracts another tensor or number from the result, scaled by a given alpha. This operation is performed element-wise.",
+    "wrapper_regex": "def\\s+mul_sub\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "mul_sub"
+      ],
+      [
+        "mul_sub"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 133
+  },
+  "tritonbench_t_134": {
+    "name": "ldl_factor",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_134_ldl_factor.ebnf",
+    "wrapper": "linalg.ldl_factor(A, *, hermitian=False, out=None)",
+    "description": "Computes a compact representation of the LDL factorization of a Hermitian or symmetric (possibly indefinite) matrix. Supports input of float, double, cfloat and cdouble dtypes. Also supports batches of matrices, and if A is a batch of matrices then the output has the same batch dimensions. When A is complex valued it can be Hermitian (hermitian=True) or symmetric (hermitian=False). The factorization is of the form A = L D L^T. If hermitian is True then transpose operation is the conjugate transpose. L (or U) and D are stored in compact form in LD. They follow the format specified by LAPACK's sytrf function. These tensors may be used in torch.linalg.ldl_solve to solve linear systems.",
+    "wrapper_regex": "def\\s+ldl_factor\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "ldl_factor"
+      ],
+      [
+        "linear",
+        "solve"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 134
+  },
+  "tritonbench_t_135": {
+    "name": "abs",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_135_abs.ebnf",
+    "wrapper": "abs(input, *, out=None)",
+    "description": "Computes the absolute value of each element in the input tensor.",
+    "wrapper_regex": "def\\s+abs\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "abs"
+      ],
+      [
+        "abs"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 135
+  },
+  "tritonbench_t_136": {
+    "name": "mul",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_136_mul.ebnf",
+    "wrapper": "mul(input, other, *, out=None)",
+    "description": "Multiplies the input tensor by another tensor or a number, supporting broadcasting to a common shape, type promotion, and integer, float, and complex inputs.",
+    "wrapper_regex": "def\\s+mul\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "mul"
+      ],
+      [
+        "mul"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 136
+  },
+  "tritonbench_t_137": {
+    "name": "softmax",
+    "family": "reduction",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_137_softmax.ebnf",
+    "wrapper": "softmax(input, dim, dtype=None)",
+    "description": "Apply a softmax function to all slices along the specified dimension, re-scaling them so that the elements lie in the range [0, 1] and sum to 1.",
+    "wrapper_regex": "def\\s+softmax\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "softmax"
+      ],
+      [
+        "softmax",
+        "sum"
+      ],
+      [
+        "tl.sum",
+        "tl.max",
+        "tl.min",
+        "argmax",
+        "argmin",
+        "torch."
+      ]
+    ],
+    "source_index": 137
+  },
+  "tritonbench_t_138": {
+    "name": "leaky_relu",
+    "family": "reduction",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_138_leaky_relu.ebnf",
+    "wrapper": "leaky_relu(input, negative_slope=0.01, inplace=False)",
+    "description": "Applies the Leaky ReLU activation function element-wise to the input tensor. The function is defined as LeakyReLU(x) = max(0, x) + negative_slope * min(0, x), where negative_slope is a small constant that allows a small, non-zero gradient when the unit is not active.",
+    "wrapper_regex": "def\\s+leaky_relu\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "leaky_relu"
+      ],
+      [
+        "relu",
+        "max",
+        "min"
+      ],
+      [
+        "tl.sum",
+        "tl.max",
+        "tl.min",
+        "argmax",
+        "argmin",
+        "torch."
+      ]
+    ],
+    "source_index": 138
+  },
+  "tritonbench_t_139": {
+    "name": "invert_matrix_lu",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_139_invert_matrix_lu.ebnf",
+    "wrapper": "invert_matrix_lu(A, *, pivot=True, out=None)",
+    "description": "Computes the inverse of a square matrix using LU decomposition. Given a square invertible matrix A, it computes the inverse A^{-1} by performing LU decomposition and solving linear systems involving triangular matrices. Supports inputs of 'float', 'double', 'cfloat', and 'cdouble' dtypes, as well as batches of matrices.",
+    "wrapper_regex": "def\\s+invert_matrix_lu\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "invert_matrix_lu"
+      ],
+      [
+        "linear",
+        "lu"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 139
+  },
+  "tritonbench_t_140": {
+    "name": "std",
+    "family": "indexing_interpolation",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_140_std.ebnf",
+    "wrapper": "std(input, dim=None, *, correction=1, keepdim=False, out=None)",
+    "description": "Calculates the standard deviation over the specified dimensions of the input tensor. The dim argument can specify a single dimension, a list of dimensions, or None to reduce over all dimensions. If keepdim is set to True, the output tensor retains the reduced dimensions as size 1; otherwise, these dimensions are removed. The correction parameter adjusts the calculation for the difference between sample size and degrees of freedom, defaulting to Bessel's correction with correction=1.",
+    "wrapper_regex": "def\\s+std\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "std"
+      ],
+      [
+        "std"
+      ],
+      [
+        "index",
+        "grid",
+        "gather",
+        "scatter",
+        "tl.load",
+        "torch."
+      ]
+    ],
+    "source_index": 140
+  },
+  "tritonbench_t_141": {
+    "name": "tril_mm_and_scale",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_141_tril_mm_and_scale.ebnf",
+    "wrapper": "tril_mm_and_scale(A: torch.Tensor, B: torch.Tensor, alpha: float, beta: float)",
+    "description": "Performs a matrix multiplication of the lower triangular part of matrix `A` with matrix `B`, scales the result by `alpha`, and then scales the final output by `beta`. The operations are as follows: 1. Perform matrix multiplication between the lower triangular part of `A` (denoted as `torch.tril(A)`) and `B`, and scale the result by `alpha`. 2. Scale the resulting matrix from step 1 by `beta` to obtain the final result.",
+    "wrapper_regex": "def\\s+tril_mm_and_scale\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "tril_mm_and_scale"
+      ],
+      [
+        "tril_mm_and_scale"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 141
+  },
+  "tritonbench_t_142": {
+    "name": "A",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_142_a.ebnf",
+    "wrapper": "A (Tensor), B (Tensor), *, left (bool, optional), out (Tensor, optional) After generation, verify if the Triton wrapper aligns with the provided func_inputs. If not, regenerate.",
+    "description": "Computes the solution of a square system of linear equations with a unique solution. Supports inputs of float, double, cfloat and cdouble dtypes. Also supports batches of matrices, and if the inputs are batches of matrices then the output has the same batch dimensions. Assumes that matrix A is invertible.",
+    "wrapper_regex": "def\\s+A\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "A"
+      ],
+      [
+        "linear"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 142
+  },
+  "tritonbench_t_143": {
+    "name": "airy_ai",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_143_airy_ai.ebnf",
+    "wrapper": "airy_ai(input, *, out=None)",
+    "description": "Computes the Airy function Ai for each element of the input tensor.",
+    "wrapper_regex": "def\\s+airy_ai\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "airy_ai"
+      ],
+      [
+        "airy_ai"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 143
+  },
+  "tritonbench_t_144": {
+    "name": "signbit",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_144_signbit.ebnf",
+    "wrapper": "signbit(input, *, out=None)",
+    "description": "Tests if each element of the input tensor has its sign bit set or not. It handles signed zeros, so negative zero (-0) returns True.",
+    "wrapper_regex": "def\\s+signbit\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "signbit"
+      ],
+      [
+        "signbit"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 144
+  },
+  "tritonbench_t_145": {
+    "name": "matrix_multiply_and_row_dot",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_145_matrix_multiply_and_row_dot.ebnf",
+    "wrapper": "matrix_multiply_and_row_dot(A: torch.Tensor, B: torch.Tensor, alpha: float, beta: float, C: torch.Tensor)",
+    "description": "Computes a scaled matrix-matrix product, then calculates the dot product of the first two rows of the resulting matrix. First, it multiplies matrix A and B using the scalar alpha and then adds the scaled version of matrix C using scalar beta. Finally, it computes the dot product of the first two rows of the updated matrix C.",
+    "wrapper_regex": "def\\s+matrix_multiply_and_row_dot\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "matrix_multiply_and_row_dot"
+      ],
+      [
+        "matrix_multiply_and_row_dot"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 145
+  },
+  "tritonbench_t_146": {
+    "name": "polygamma",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_146_polygamma.ebnf",
+    "wrapper": "polygamma(n, input, *, out=None)",
+    "description": "Computes the n-th derivative of the digamma function on input. The function is implemented for nonnegative integers n >= 0.",
+    "wrapper_regex": "def\\s+polygamma\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "polygamma"
+      ],
+      [
+        "polygamma"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 146
+  },
+  "tritonbench_t_147": {
+    "name": "elu_linear",
+    "family": "fusion_matmul",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_147_elu_linear.ebnf",
+    "wrapper": "elu_linear(input, weight, bias=None, alpha=1.0, inplace=False)",
+    "description": "Applies a linear transformation to the input tensor, followed by the Exponential Linear Unit (ELU) activation function applied element-wise. This combined operation first performs a linear transformation and then introduces non-linearity with ELU.",
+    "wrapper_regex": "def\\s+elu_linear\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "elu_linear"
+      ],
+      [
+        "linear"
+      ],
+      [
+        "tl.dot",
+        "matmul",
+        "bmm",
+        "linear",
+        "torch."
+      ]
+    ],
+    "source_index": 147
+  },
+  "tritonbench_t_148": {
+    "name": "fused_pairwise_distance_normalize",
+    "family": "reduction",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_148_fused_pairwise_distance_normalize.ebnf",
+    "wrapper": "fused_pairwise_distance_normalize(x1: torch.Tensor, x2: torch.Tensor, p_norm: float = 2.0, eps_norm: float = 1e-12, eps_distance: float = 1e-6, keepdim: bool = False)",
+    "description": "Computes the pairwise distance between two input tensors `x1` and `x2` after normalizing both tensors. Normalization is performed along the specified dimension, followed by pairwise distance calculation.",
+    "wrapper_regex": "def\\s+fused_pairwise_distance_normalize\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "fused_pairwise_distance_normalize"
+      ],
+      [
+        "fused_pairwise_distance_normalize"
+      ],
+      [
+        "tl.sum",
+        "tl.max",
+        "tl.min",
+        "argmax",
+        "argmin",
+        "torch."
+      ]
+    ],
+    "source_index": 148
+  },
+  "tritonbench_t_149": {
+    "name": "Adam",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_149_adam.ebnf",
+    "wrapper": "Adam(params, lr=1e-3, betas=(0.9, 0.999), eps=1e-8, weight_decay=0, amsgrad=False, foreach=None, maximize=False, capturable=False, differentiable=False, fused=None)",
+    "description": "Implements the Adam optimization algorithm, which is an adaptive learning rate optimization algorithm designed for training deep neural networks. It computes individual adaptive learning rates for different parameters from estimates of first and second moments of the gradients. The algorithm can optionally use the AMSGrad variant, apply weight decay, and maximize the objective function. It supports various implementation optimizations like foreach and fused implementations for performance improvements on CUDA.",
+    "wrapper_regex": "def\\s+Adam\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "Adam"
+      ],
+      [
+        "adam"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 149
+  },
+  "tritonbench_t_150": {
+    "name": "fused_hstack_div",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_150_fused_hstack_div.ebnf",
+    "wrapper": "fused_hstack_div(tensors, divisor, *, rounding_mode=None, out=None)",
+    "description": "Performs a fused operation combining horizontal stacking (hstack) and element-wise division. The function first horizontally stacks a sequence of tensors and then divides each element of the resulting tensor by the corresponding element of a divisor tensor, with optional rounding modes.",
+    "wrapper_regex": "def\\s+fused_hstack_div\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "fused_hstack_div"
+      ],
+      [
+        "fused_hstack_div"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 150
+  },
+  "tritonbench_t_151": {
+    "name": "broadcast_tensors",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_151_broadcast_tensors.ebnf",
+    "wrapper": "broadcast_tensors(*tensors)",
+    "description": "Broadcasts the given tensors according to broadcasting semantics. This function takes multiple tensors as input and broadcasts them to have the same shape. Broadcasting refers to expanding the dimensions of tensors as necessary to make them compatible for element-wise operations. The broadcasted tensors share the same memory location for their elements, leading to potential issues with in-place operations.",
+    "wrapper_regex": "def\\s+broadcast_tensors\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "broadcast_tensors"
+      ],
+      [
+        "broadcast_tensors"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 151
+  },
+  "tritonbench_t_152": {
+    "name": "relu_conv2d",
+    "family": "convolution_fusion",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_152_relu_conv2d.ebnf",
+    "wrapper": "relu_conv2d(input, weight, bias=None, stride=1, padding=0, dilation=1, groups=1, inplace=False)",
+    "description": "Applies a 2D convolution over an input tensor, followed by applying the rectified linear unit (ReLU) activation function element-wise on the result. This operation first applies a 2D convolution over the input tensor using the specified filters, and then applies ReLU activation to the convolution result, setting all negative values to zero.",
+    "wrapper_regex": "def\\s+relu_conv2d\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "relu_conv2d"
+      ],
+      [
+        "relu",
+        "conv2d",
+        "linear"
+      ],
+      [
+        "conv2d",
+        "weight",
+        "tl.load",
+        "torch.nn.functional"
+      ]
+    ],
+    "source_index": 152
+  },
+  "tritonbench_t_153": {
+    "name": "log",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_153_log.ebnf",
+    "wrapper": "log(input, *, out=None)",
+    "description": "Returns a new tensor with the natural logarithm of the elements of the input tensor.",
+    "wrapper_regex": "def\\s+log\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "log"
+      ],
+      [
+        "log"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 153
+  },
+  "tritonbench_t_154": {
+    "name": "adaptive_avg_pool2d",
+    "family": "reduction",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_154_adaptive_avg_pool2d.ebnf",
+    "wrapper": "adaptive_avg_pool2d(output_size)",
+    "description": "Apply a 2D adaptive average pooling over an input signal composed of several input planes. The output is of size H x W, for any input size. The number of output features is equal to the number of input planes. The target output size of the image can be a tuple (H, W) or a single H for a square image H x H. H and W can be either an int, or None which means the size will be the same as that of the input.",
+    "wrapper_regex": "def\\s+adaptive_avg_pool2d\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "adaptive_avg_pool2d"
+      ],
+      [
+        "mean"
+      ],
+      [
+        "tl.sum",
+        "tl.max",
+        "tl.min",
+        "argmax",
+        "argmin",
+        "torch."
+      ]
+    ],
+    "source_index": 154
+  },
+  "tritonbench_t_155": {
+    "name": "quantize_dynamic",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_155_quantize_dynamic.ebnf",
+    "wrapper": "quantize_dynamic(model, qconfig_spec=None, inplace=False, mapping=None)",
+    "description": "Converts a float model to a dynamic quantized model by replacing specified modules with their dynamic weight-only quantized versions. Provides simple usage with a dtype argument (either float16 or qint8), and fine-grained control with qconfig and mapping parameters. The process is performed in-place if specified, transforming the original model.",
+    "wrapper_regex": "def\\s+quantize_dynamic\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "quantize_dynamic"
+      ],
+      [
+        "quantize_dynamic"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 155
+  },
+  "tritonbench_t_156": {
+    "name": "conv2d_add",
+    "family": "convolution_fusion",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_156_conv2d_add.ebnf",
+    "wrapper": "conv2d_add(input, weight, bias=None, other=None, stride=1, padding=0, dilation=1, groups=1, alpha=1, out=None)",
+    "description": "Applies a 2D convolution over an input image using specified filters and an optional bias, then adds another tensor or scalar to the convolution result, scaled by alpha. The input tensor shape is (minibatch, in_channels, iH, iW), and the weight tensor shape is (out_channels, in_channels / groups, kH, kW). The function also allows for setting the stride, padding, dilation, groups, and an optional output tensor.",
+    "wrapper_regex": "def\\s+conv2d_add\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "conv2d_add"
+      ],
+      [
+        "conv2d"
+      ],
+      [
+        "conv2d",
+        "weight",
+        "tl.load",
+        "torch.nn.functional"
+      ]
+    ],
+    "source_index": 156
+  },
+  "tritonbench_t_157": {
+    "name": "ifftshift",
+    "family": "complex_fallback",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_157_ifftshift.ebnf",
+    "wrapper": "ifftshift(input, dim=None)",
+    "description": "The function torch.fft.ifftshift is the inverse of torch.fft.fftshift. It rearranges the elements of the input tensor, which is in FFT order, such that the zero-frequency component is moved back to the original position. This is useful for preparing data for inverse FFT operations. The function can rearrange specified dimensions or all dimensions by default.",
+    "wrapper_regex": "def\\s+ifftshift\\s*\\(",
+    "required_terms": [
+      "import torch"
+    ],
+    "semantic_terms_any": [
+      [
+        "ifftshift"
+      ],
+      [
+        "fft"
+      ],
+      [
+        "torch.linalg",
+        "solve",
+        "svd",
+        "qr",
+        "lu",
+        "return"
+      ]
+    ],
+    "source_index": 157
+  },
+  "tritonbench_t_158": {
+    "name": "signbit_bitwise_and",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_158_signbit_bitwise_and.ebnf",
+    "wrapper": "signbit_bitwise_and(input: torch.Tensor, other: torch.Tensor)",
+    "description": "Computes the sign bit check and the bitwise AND operation on the input tensors. `signbit` checks if the sign bit of each element in `input` is set, returning True for negative values, including -0. `bitwise_and` computes the bitwise AND between `input` and `other`, with the tensors needing to be of integral or boolean types.",
+    "wrapper_regex": "def\\s+signbit_bitwise_and\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "signbit_bitwise_and"
+      ],
+      [
+        "signbit_bitwise_and"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 158
+  },
+  "tritonbench_t_159": {
+    "name": "fused_repeat_interleave_log_softmax",
+    "family": "reduction",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_159_fused_repeat_interleave_log_softmax.ebnf",
+    "wrapper": "fused_repeat_interleave_log_softmax(input, repeats, dim=None, *, output_size=None, dtype=None, out=None)",
+    "description": "Performs a fused operation combining element-wise repeat interleave and log-softmax activation. First, the input tensor is repeated along the specified dimension according to the values in 'repeats'. Then, a log-softmax activation is applied to the repeated tensor along the specified dimension. This function is differentiable and supports autograd for gradient computation, making it useful for backpropagation in neural networks.",
+    "wrapper_regex": "def\\s+fused_repeat_interleave_log_softmax\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "fused_repeat_interleave_log_softmax"
+      ],
+      [
+        "log",
+        "softmax",
+        "log_softmax"
+      ],
+      [
+        "tl.sum",
+        "tl.max",
+        "tl.min",
+        "argmax",
+        "argmin",
+        "torch."
+      ]
+    ],
+    "source_index": 159
+  },
+  "tritonbench_t_160": {
+    "name": "cholesky",
+    "family": "complex_fallback",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_160_cholesky.ebnf",
+    "wrapper": "linalg.cholesky(A, *, upper=False, out=None)",
+    "description": "Computes the Cholesky decomposition of a complex Hermitian or real symmetric positive-definite matrix. Supports input of float, double, cfloat and cdouble dtypes. Also supports batches of matrices, and if A is a batch of matrices then the output has the same batch dimensions.",
+    "wrapper_regex": "def\\s+cholesky\\s*\\(",
+    "required_terms": [
+      "import torch"
+    ],
+    "semantic_terms_any": [
+      [
+        "cholesky"
+      ],
+      [
+        "cholesky"
+      ],
+      [
+        "torch.linalg",
+        "solve",
+        "svd",
+        "qr",
+        "lu",
+        "return"
+      ]
+    ],
+    "source_index": 160
+  },
+  "tritonbench_t_161": {
+    "name": "ones_like",
+    "family": "indexing_interpolation",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_161_ones_like.ebnf",
+    "wrapper": "ones_like(input, *, dtype=None, layout=None, device=None, requires_grad=False, memory_format=torch.preserve_format)",
+    "description": "Returns a tensor filled with the scalar value 1, with the same size as the input tensor. It mirrors the properties of the input in terms of dtype, layout, device, and memory format unless specified otherwise. The function does not support the 'out' keyword as of version 0.4, and equivalent operation needs an alternative approach.",
+    "wrapper_regex": "def\\s+ones_like\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "ones_like"
+      ],
+      [
+        "fill"
+      ],
+      [
+        "index",
+        "grid",
+        "gather",
+        "scatter",
+        "tl.load",
+        "torch."
+      ]
+    ],
+    "source_index": 161
+  },
+  "tritonbench_t_162": {
+    "name": "autocast",
+    "family": "indexing_interpolation",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_162_autocast.ebnf",
+    "wrapper": "autocast(device_type, enabled=True, dtype=None, cache_enabled=True)",
+    "description": "The function `torch.cuda.amp.autocast` is deprecated and replaced by `torch.amp.autocast(\"cuda\", args...)`. It allows scripts to run in mixed precision, improving performance while maintaining accuracy. `autocast` serves as a context manager or decorator, wrapping the forward pass(es) of a network and any related loss computations. Tensors can be any type when entering an autocast region, and it is not necessary to manually cast models or inputs to `half()` or `bfloat16()`. The function selects op-specific data types for operations within an autocast region. Backward operations should not be run under autocast, as they execute in the same data type chosen for the corresponding forward operations.",
+    "wrapper_regex": "def\\s+autocast\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "autocast"
+      ],
+      [
+        "autocast"
+      ],
+      [
+        "index",
+        "grid",
+        "gather",
+        "scatter",
+        "tl.load",
+        "torch."
+      ]
+    ],
+    "source_index": 162
+  },
+  "tritonbench_t_163": {
+    "name": "reciprocal",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_163_reciprocal.ebnf",
+    "wrapper": "reciprocal(input, *, out=None)",
+    "description": "Returns a new tensor with the reciprocal of the elements of the input. Unlike NumPy's reciprocal, this function supports integral inputs by promoting them to the default scalar type.",
+    "wrapper_regex": "def\\s+reciprocal\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "reciprocal"
+      ],
+      [
+        "reciprocal"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 163
+  },
+  "tritonbench_t_164": {
+    "name": "cos_signbit",
+    "family": "elementwise",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_164_cos_signbit.ebnf",
+    "wrapper": "cos_signbit(input: torch.Tensor)",
+    "description": "Computes the cosine of each element in the input tensor, followed by determining the sign bit for each cosine result, indicating if it is positive or negative.",
+    "wrapper_regex": "def\\s+cos_signbit\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "cos_signbit"
+      ],
+      [
+        "cos_signbit"
+      ],
+      [
+        "tl.load",
+        "tl.store",
+        "torch."
+      ]
+    ],
+    "source_index": 164
+  },
+  "tritonbench_t_165": {
+    "name": "spectral_norm_eig",
+    "family": "reduction",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_165_spectral_norm_eig.ebnf",
+    "wrapper": "spectral_norm_eig(A, *, out=None)",
+    "description": "Computes the spectral norm (operator norm induced by the Euclidean vector norm) of a square matrix using its eigenvalues. The spectral norm is the largest absolute value among the eigenvalues of a matrix. It supports inputs of float, double, cfloat, and cdouble dtypes and handles batches of matrices.",
+    "wrapper_regex": "def\\s+spectral_norm_eig\\s*\\(",
+    "required_terms": [
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
+    ],
+    "semantic_terms_any": [
+      [
+        "spectral_norm_eig"
+      ],
+      [
+        "spectral_norm_eig"
+      ],
+      [
+        "tl.sum",
+        "tl.max",
+        "tl.min",
+        "argmax",
+        "argmin",
+        "torch."
+      ]
+    ],
+    "source_index": 165
+  },
+  "tritonbench_t_166": {
+    "name": "fftn",
+    "family": "complex_fallback",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_166_fftn.ebnf",
+    "wrapper": "fftn(input, s=None, dim=None, norm=None, *, out=None)",
+    "description": "Computes the N dimensional discrete Fourier transform of the input tensor. It returns all positive and negative frequency terms, even though for real inputs, half of these values are redundant. Supports torch.half and torch.chalf on CUDA with GPU Architecture SM53 or greater, but only for powers of 2 signal length in every transformed dimension.",
+    "wrapper_regex": "def\\s+fftn\\s*\\(",
+    "required_terms": [
+      "import torch"
+    ],
+    "semantic_terms_any": [
+      [
+        "fftn"
+      ],
+      [
+        "fftn"
+      ],
+      [
+        "torch.linalg",
+        "solve",
+        "svd",
+        "qr",
+        "lu",
+        "return"
+      ]
+    ],
+    "source_index": 166
   }
 }

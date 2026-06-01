@@ -1,0 +1,33 @@
+(* Contract for TritonBench-T example 027.
+   Target wrapper: fused_tile_exp(...)
+   Family: indexing plus elementwise operation. *)
+
+module = imports, implementation, wrapper ;
+
+imports = "import torch", newline,
+          "import triton", newline,
+          "import triton.language as tl", newline ;
+
+implementation = family_kernel | documented_fallback ;
+
+family_kernel = "@triton.jit", newline,
+                "def", identifier, "(", parameters, ")", ":", newline,
+                family_body ;
+
+family_body = { statement } ;
+
+documented_fallback = statement_with("torch.") ;
+
+wrapper = "def fused_tile_exp", "(", wrapper_parameters, ")", ":", newline,
+          { statement } ;
+
+required_semantics = "wrapper name: fused_tile_exp",
+                     "family: indexing_elementwise",
+                     "operation-specific semantic evidence" ;
+
+identifier = letter, { letter | digit | "_" } ;
+parameters = { character } ;
+wrapper_parameters = { character } ;
+statement = { character }, newline ;
+statement_with(token) = { character }, token, { character }, newline ;
+newline = "\n" ;

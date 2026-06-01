@@ -44,21 +44,10 @@ def tanh(input, *, out=None):
 """
 
 
-def test_tritonbench_subset_has_ten_contracts():
+def test_tritonbench_subset_has_all_simple_contracts():
     contracts = load_tritonbench_contracts()
 
-    assert set(contracts) == {
-        "tritonbench_t_001",
-        "tritonbench_t_002",
-        "tritonbench_t_003",
-        "tritonbench_t_004",
-        "tritonbench_t_005",
-        "tritonbench_t_006",
-        "tritonbench_t_007",
-        "tritonbench_t_008",
-        "tritonbench_t_009",
-        "tritonbench_t_010",
-    }
+    assert set(contracts) == {f"tritonbench_t_{index:03d}" for index in range(1, 167)}
 
 
 def test_div_candidate_passes_subset_contract():

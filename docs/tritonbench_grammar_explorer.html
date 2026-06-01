@@ -12,131 +12,61 @@
       --muted: #64717f;
       --line: #d9e1e8;
       --blue: #0b5c78;
-      --cyan: #16a6b6;
       --green: #1f7a55;
       --red: #b83a3a;
       --amber: #9b6500;
     }
 
     * { box-sizing: border-box; }
-
     body {
       margin: 0;
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: var(--bg);
       color: var(--ink);
     }
-
     main {
-      width: min(1280px, calc(100vw - 40px));
+      width: min(1380px, calc(100vw - 36px));
       margin: 0 auto;
-      padding: 30px 0 46px;
+      padding: 28px 0 44px;
     }
-
     header {
       display: flex;
       justify-content: space-between;
-      gap: 24px;
+      gap: 22px;
       align-items: flex-end;
       border-bottom: 1px solid var(--line);
-      padding-bottom: 22px;
+      padding-bottom: 20px;
     }
-
     h1 {
       margin: 0;
-      font-size: clamp(34px, 5vw, 62px);
-      line-height: 0.98;
+      font-size: clamp(34px, 5vw, 60px);
+      line-height: 1;
       letter-spacing: 0;
     }
-
-    h2, h3 { letter-spacing: 0; }
-
-    h2 {
-      margin: 0 0 14px;
-      font-size: 24px;
-    }
-
-    h3 {
-      margin: 0 0 8px;
-      font-size: 18px;
-    }
-
-    p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.48;
-    }
-
-    code, pre {
-      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-    }
-
+    h2, h3 { margin: 0 0 12px; letter-spacing: 0; }
+    p { margin: 0; color: var(--muted); line-height: 1.45; }
+    code, pre { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
     code {
       background: #eef4f6;
       color: #123f52;
       padding: 1px 4px;
       border-radius: 4px;
     }
-
     pre {
       margin: 0;
       white-space: pre-wrap;
-      line-height: 1.45;
+      line-height: 1.42;
       font-size: 13px;
       color: #102434;
     }
-
-    .subtitle {
-      margin-top: 10px;
-      max-width: 780px;
-      font-size: 17px;
-    }
-
-    .status {
-      min-width: 290px;
+    .subtitle { margin-top: 10px; max-width: 820px; font-size: 17px; }
+    .status, .panel, .metric, .codebox, .rule, .example-card, .decision div {
       border: 1px solid var(--line);
       background: var(--panel);
       border-radius: 8px;
-      padding: 14px 16px;
     }
-
-    .status strong {
-      display: block;
-      color: var(--blue);
-      text-transform: uppercase;
-      font-size: 12px;
-      margin-bottom: 8px;
-    }
-
-    .panel {
-      margin-top: 22px;
-      border: 1px solid var(--line);
-      background: var(--panel);
-      border-radius: 8px;
-      padding: 18px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 0.9fr 1.1fr;
-      gap: 18px;
-      align-items: start;
-    }
-
-    .three {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-    }
-
-    .metric {
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 14px;
-      background: #fbfcfd;
-    }
-
-    .label {
+    .status { min-width: 310px; padding: 14px 16px; }
+    .status strong, .label {
       display: block;
       color: var(--muted);
       text-transform: uppercase;
@@ -144,111 +74,90 @@
       font-size: 12px;
       margin-bottom: 7px;
     }
-
-    .value {
-      font-size: 24px;
-      font-weight: 800;
-    }
-
-    .controls {
+    .status strong { color: var(--blue); }
+    .panel { margin-top: 22px; padding: 18px; }
+    .three, .grid, .triple, .compare-grid, .decision, .controls {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 14px;
+      gap: 14px;
     }
-
-    select, button {
-      min-height: 48px;
+    .three { grid-template-columns: repeat(3, 1fr); }
+    .grid { grid-template-columns: 0.85fr 1.15fr; align-items: start; }
+    .triple { grid-template-columns: 0.95fr 1fr 1fr; }
+    .compare-grid { grid-template-columns: 1fr 1fr; margin-top: 16px; }
+    .decision { grid-template-columns: repeat(4, 1fr); margin-top: 14px; }
+    .controls { grid-template-columns: 1fr 1fr; margin-bottom: 14px; }
+    .metric, .decision div { padding: 14px; background: #fbfcfd; }
+    .value { font-size: 26px; font-weight: 850; }
+    select, button, input {
+      min-height: 46px;
       border: 1px solid var(--line);
       border-radius: 8px;
       padding: 8px 12px;
       background: white;
       color: var(--ink);
       font: inherit;
-      font-weight: 700;
+      font-weight: 750;
     }
-
     button.primary {
       background: var(--blue);
       color: white;
       border-color: var(--blue);
     }
-
     .example-list {
       display: grid;
       gap: 10px;
-      max-height: 650px;
+      max-height: 720px;
       overflow: auto;
       padding-right: 4px;
     }
-
     .example-card {
-      border: 1px solid var(--line);
-      border-radius: 8px;
       background: #fbfcfd;
       padding: 12px;
       cursor: pointer;
     }
-
     .example-card.active {
       border-color: var(--blue);
       background: #eaf6f9;
     }
-
-    .example-card strong {
-      display: block;
-      margin-bottom: 5px;
-    }
-
+    .example-card strong { display: block; margin-bottom: 5px; }
     .example-card span {
       display: block;
       color: var(--muted);
       font-size: 13px;
       line-height: 1.35;
     }
-
     .pill {
       display: inline-flex;
       align-items: center;
       min-height: 28px;
       border-radius: 999px;
       padding: 4px 10px;
-      font-weight: 800;
+      font-weight: 850;
       font-size: 12px;
       background: #eef4f6;
       color: var(--blue);
       margin-right: 6px;
       margin-bottom: 6px;
     }
-
     .pill.ok { background: #e4f4ec; color: var(--green); }
     .pill.warn { background: #fff2d9; color: var(--amber); }
     .pill.bad { background: #fae5e5; color: var(--red); }
-
-    .rule-list {
-      display: grid;
-      gap: 9px;
-      margin-top: 12px;
+    .codebox {
+      background: #fbfcfd;
+      padding: 14px;
+      min-height: 300px;
+      max-height: 520px;
+      overflow: auto;
     }
-
-    .compare-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      margin-top: 16px;
-    }
-
+    .rule-list { display: grid; gap: 9px; margin-top: 12px; }
     .rule {
       display: grid;
       grid-template-columns: 34px 1fr;
       gap: 10px;
       align-items: start;
-      border: 1px solid var(--line);
-      border-radius: 8px;
       padding: 11px;
       background: #fbfcfd;
     }
-
     .dot {
       width: 28px;
       height: 28px;
@@ -259,10 +168,8 @@
       font-weight: 900;
       background: var(--muted);
     }
-
     .rule.pass .dot { background: var(--green); }
     .rule.fail .dot { background: var(--red); }
-
     .rule strong { display: block; }
     .rule span {
       display: block;
@@ -270,44 +177,16 @@
       font-size: 14px;
       margin-top: 2px;
     }
-
-    .split {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-    }
-
-    .triple {
-      display: grid;
-      grid-template-columns: 0.95fr 1fr 1fr;
-      gap: 14px;
-    }
-
-    .codebox {
-      border: 1px solid var(--line);
+    .notice {
+      padding: 12px;
       border-radius: 8px;
-      background: #fbfcfd;
-      padding: 14px;
-      min-height: 280px;
-      overflow: auto;
-    }
-
-    .decision {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
+      background: #fff7e6;
+      border: 1px solid #f0d8a8;
+      color: #6d4b00;
       margin-top: 12px;
     }
-
-    .decision div {
-      border: 1px solid var(--line);
-      background: #fbfcfd;
-      border-radius: 8px;
-      padding: 12px;
-    }
-
-    @media (max-width: 900px) {
-      header, .grid, .split, .triple, .three, .decision, .controls, .compare-grid {
+    @media (max-width: 960px) {
+      header, .three, .grid, .triple, .compare-grid, .decision, .controls {
         grid-template-columns: 1fr;
         display: grid;
       }
@@ -319,11 +198,11 @@
     <header>
       <div>
         <h1>TritonBench-T Grammar Explorer</h1>
-        <p class="subtitle">A focused view for the first 10 examples from the 166-example TritonBench-T simple dataset. Use it to compare a reusable family grammar against per-example contracts.</p>
+        <p class="subtitle">Dynamic view of the 166 TritonBench-T simple tasks. It loads the generated grammar manifest and lets you compare individual task contracts against the reusable family grammar.</p>
       </div>
       <div class="status">
         <strong>Current strategy</strong>
-        <span>Use individual contracts to understand examples, then generalize into family grammars for constrained decoding.</span>
+        <span>Use individual contracts as scaffolding, family grammars for scaling, and XGrammar/HF for token-level constrained decoding.</span>
       </div>
     </header>
 
@@ -333,24 +212,31 @@
         <div class="metric">
           <span class="label">Full source</span>
           <span class="value">166</span>
-          <p>Examples in <code>external/TritonBench/data/TritonBench_T_simp_alpac_v1.json</code></p>
+          <p><code>external/TritonBench/data/TritonBench_T_simp_alpac_v1.json</code></p>
         </div>
         <div class="metric">
-          <span class="label">Class demo subset</span>
-          <span class="value">10</span>
-          <p>Saved as <code>data/tritonbench_t_simp_subset10.json</code></p>
+          <span class="label">Local subset</span>
+          <span class="value" id="taskCount">...</span>
+          <p><code>data/tritonbench_t_simp_subset166.json</code></p>
         </div>
         <div class="metric">
-          <span class="label">Grammar approach</span>
-          <span class="value">2 modes</span>
-          <p>General family grammar plus individual contracts for inspection.</p>
+          <span class="label">Grammar modes</span>
+          <span class="value">2</span>
+          <p>Individual EBNF per task and reusable family-level EBNF.</p>
         </div>
       </div>
+      <p class="notice" id="loadNotice">Loading contracts...</p>
     </section>
 
     <section class="grid">
       <div class="panel">
-        <h2>First 10 TritonBench-T Examples</h2>
+        <h2>166 TritonBench-T Examples</h2>
+        <div class="controls">
+          <input id="searchBox" placeholder="Search task, family, wrapper..." aria-label="Search tasks">
+          <select id="familyFilter" aria-label="Filter by family">
+            <option value="all">All families</option>
+          </select>
+        </div>
         <div class="example-list" id="exampleList"></div>
       </div>
 
@@ -360,6 +246,7 @@
         <div style="margin-top: 12px;">
           <span id="familyPill" class="pill">family</span>
           <span id="difficultyPill" class="pill warn">difficulty</span>
+          <span id="sourcePill" class="pill">source</span>
         </div>
         <div class="decision">
           <div>
@@ -397,7 +284,7 @@
           <div class="codebox"><pre id="grammarText"></pre></div>
         </div>
         <div>
-          <h3>PyTorch Reference</h3>
+          <h3>TritonBench Prompt Reference</h3>
           <div class="codebox"><pre id="pytorchText"></pre></div>
         </div>
         <div>
@@ -427,432 +314,179 @@
   </main>
 
   <script>
-    const generalGrammar = `module = imports, implementation, wrapper ;
-
-imports = "import torch", "import triton", "import triton.language as tl" ;
-
-implementation = elementwise_kernel
-               | reduction_kernel
-               | convolution_kernel
-               | matmul_or_fusion_kernel
-               | complex_fallback ;
-
-elementwise_kernel = "@triton.jit", kernel_def, offsets, mask, loads, elementwise_expr, store ;
-reduction_kernel = "@triton.jit", kernel_def, offsets, mask, loads, reduction_expr, store ;
-convolution_kernel = "@triton.jit", kernel_def, index_mapping, input_weight_loads, convolution_expr, activation, store ;
-matmul_or_fusion_kernel = "@triton.jit", kernel_def, tiled_offsets, matrix_loads, dot_or_multiply, optional_activation, store ;
-complex_fallback = wrapper_using_torch_reference ;
-
-wrapper = "def", function_name, "(", wrapper_parameters, ")", ":" ;`;
-
-    const tasks = [
-      {
-        id: "01",
-        name: "fused_bmm_rmsnorm_gelu_dropout_sub",
-        family: "fusion/matmul",
-        difficulty: "hard",
-        description: "Fused batch matrix multiplication, RMS normalization, GELU activation, dropout, and subtraction.",
-        wrapper: "fused_bmm_rmsnorm_gelu_dropout_sub(input1, input2, other, normalized_shape, dropout_p=0.5, training=True, approximate='none', eps=1e-5, *, out=None)",
-        pytorch: `import torch
-import torch.nn.functional as F
-
-def fused_bmm_rmsnorm_gelu_dropout_sub(input1, input2, other, normalized_shape, dropout_p=0.5, training=True, approximate='none', eps=1e-5, *, out=None):
-    z = torch.bmm(input1, input2)
-    z = F.rms_norm(z, normalized_shape, eps=eps)
-    z = F.gelu(z, approximate=approximate)
-    z = F.dropout(z, p=dropout_p, training=training)
-    result = z - other
-    return result if out is None else out.copy_(result)`,
-        grammar: `module = imports, one_or_more_kernels, wrapper ;
-wrapper = "def fused_bmm_rmsnorm_gelu_dropout_sub(...)" ;
-required_semantics = "bmm/dot", "rms normalization", "gelu", "dropout", "subtract other" ;`,
-        reason: "This is too specific for a pure elementwise grammar; it belongs to a fusion/matmul family.",
-        status: "Not the first target for XGrammar. Use after elementwise works.",
-        candidate: `import torch
-import triton
-import triton.language as tl
-
-@triton.jit
-def fused_kernel(X, Y, OTHER, OUT, N: tl.constexpr, BLOCK_SIZE: tl.constexpr):
-    pid = tl.program_id(0)
-    offsets = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)
-    mask = offsets < N
-    x = tl.load(X + offsets, mask=mask)
-    y = tl.load(Y + offsets, mask=mask)
-    other = tl.load(OTHER + offsets, mask=mask)
-    dot = x * y
-    rms = dot * tl.rsqrt(dot * dot + 1.0e-5)
-    gelu = 0.5 * rms * (1.0 + tl.tanh(0.79788456 * (rms + 0.044715 * rms * rms * rms)))
-    dropout = gelu
-    tl.store(OUT + offsets, dropout - other, mask=mask)
-
-def fused_bmm_rmsnorm_gelu_dropout_sub(input1, input2, other, normalized_shape, dropout_p=0.5, training=True, approximate='none', eps=1e-5, *, out=None):
-    return out`,
-        rules: [
-          ["wrapper", /def\s+fused_bmm_rmsnorm_gelu_dropout_sub\s*\(/, "Expected TritonBench-T wrapper exists."],
-          ["triton kernel", /@triton\.jit/, "Defines at least one Triton kernel."],
-          ["memory ops", /tl\.load[\s\S]*tl\.store/, "Loads and stores tensors."],
-          ["fusion evidence", /rms|gelu|dropout|other|-/, "Shows fused-operation semantics."],
-        ],
-      },
-      {
-        id: "02",
-        name: "div",
-        family: "elementwise",
-        difficulty: "medium",
-        description: "Elementwise division with broadcasting, type promotion, and optional rounding.",
-        wrapper: "div(input, other, *, rounding_mode=None, out=None)",
-        pytorch: `import torch
-
-def div(input, other, *, rounding_mode=None, out=None):
-    return torch.div(input, other, rounding_mode=rounding_mode, out=out)`,
-        grammar: `module = imports, kernel, wrapper ;
-elementwise_body = offsets, mask, load_input, load_other, divide, store ;
-wrapper = "def div(input, other, *, rounding_mode=None, out=None)" ;`,
-        reason: "Elementwise operation; good first target for constrained decoding.",
-        status: "Good XGrammar target.",
-        candidate: `import torch
-import triton
-import triton.language as tl
-
-@triton.jit
-def div_kernel(X, Y, Z, N: tl.constexpr, BLOCK_SIZE: tl.constexpr):
-    pid = tl.program_id(0)
-    offsets = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)
-    mask = offsets < N
-    x = tl.load(X + offsets, mask=mask)
-    y = tl.load(Y + offsets, mask=mask)
-    tl.store(Z + offsets, x / y, mask=mask)
-
-def div(input, other, *, rounding_mode=None, out=None):
-    return out`,
-        rules: [
-          ["wrapper", /def\s+div\s*\(/, "Expected wrapper exists."],
-          ["triton kernel", /@triton\.jit/, "Defines a Triton kernel."],
-          ["offsets/mask", /tl\.arange[\s\S]*mask/, "Uses offsets and mask."],
-          ["division/store", /\/[\s\S]*tl\.store|tl\.store[\s\S]*\//, "Computes and stores division."],
-        ],
-      },
-      {
-        id: "03",
-        name: "sigmoid_conv2d",
-        family: "convolution/fusion",
-        difficulty: "hard",
-        description: "2D convolution followed by sigmoid activation.",
-        wrapper: "sigmoid_conv2d(input, weight, bias=None, stride=1, padding=0, dilation=1, groups=1, out=None)",
-        pytorch: `import torch
-import torch.nn.functional as F
-
-def sigmoid_conv2d(input, weight, bias=None, stride=1, padding=0, dilation=1, groups=1, out=None):
-    y = F.conv2d(input, weight, bias=bias, stride=stride, padding=padding, dilation=dilation, groups=groups)
-    y = torch.sigmoid(y)
-    return y if out is None else out.copy_(y)`,
-        grammar: `module = imports, one_or_more_kernels, wrapper ;
-wrapper = "def sigmoid_conv2d(input, weight, bias=None, stride=1, padding=0, dilation=1, groups=1, out=None)" ;
-required_semantics = "input/weight loads", "convolution indexing", "sigmoid activation", "store output" ;`,
-        reason: "Needs shape/layout/indexing rules beyond simple elementwise kernels.",
-        status: "Second-stage XGrammar target after elementwise.",
-        candidate: `import torch
-import triton
-import triton.language as tl
-
-@triton.jit
-def sigmoid_conv2d_kernel(INPUT, WEIGHT, BIAS, OUT, N: tl.constexpr, BLOCK_SIZE: tl.constexpr):
-    pid = tl.program_id(0)
-    offsets = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)
-    mask = offsets < N
-    x = tl.load(INPUT + offsets, mask=mask)
-    w = tl.load(WEIGHT + offsets, mask=mask)
-    b = tl.load(BIAS + offsets, mask=mask)
-    conv_value = x * w + b
-    y = 1.0 / (1.0 + tl.exp(-conv_value))
-    tl.store(OUT + offsets, y, mask=mask)
-
-def sigmoid_conv2d(input, weight, bias=None, stride=1, padding=0, dilation=1, groups=1, out=None):
-    return out`,
-        rules: [
-          ["wrapper", /def\s+sigmoid_conv2d\s*\(/, "Expected wrapper exists."],
-          ["triton kernel", /@triton\.jit/, "Defines a Triton kernel."],
-          ["weight/bias", /weight|WEIGHT|bias|BIAS/, "Uses convolution parameters."],
-          ["sigmoid evidence", /sigmoid|tl\.exp|exp\s*\(/, "Implements sigmoid or exp-based formula."],
-        ],
-      },
-      {
-        id: "04",
-        name: "solve_multiple_lu",
-        family: "complex/fallback",
-        difficulty: "hard",
-        description: "Solves multiple linear systems using LU decomposition.",
-        wrapper: "solve_multiple_lu(A, Bs, *, pivot=True, out=None)",
-        pytorch: `import torch
-
-def solve_multiple_lu(A, Bs, *, pivot=True, out=None):
-    result = torch.linalg.solve(A, Bs)
-    return result if out is None else out.copy_(result)`,
-        grammar: `module = imports, implementation, wrapper ;
-implementation = one_or_more_kernels | documented_fallback ;
-documented_fallback = statement_with("torch.linalg") ;
-wrapper = "def solve_multiple_lu(A, Bs, *, pivot=True, out=None)" ;`,
-        reason: "A complete Triton LU solver is not a first-sprint grammar target; fallback contract keeps evaluation honest.",
-        status: "Complex case; benchmark target, not first XGrammar target.",
-        candidate: `import torch
-import triton
-import triton.language as tl
-
-def solve_multiple_lu(A, Bs, *, pivot=True, out=None):
-    result = torch.linalg.solve(A, Bs)
-    if out is not None:
-        out.copy_(result)
-        return out
-    return result`,
-        rules: [
-          ["wrapper", /def\s+solve_multiple_lu\s*\(/, "Expected wrapper exists."],
-          ["torch import", /import\s+torch/, "Imports PyTorch fallback/reference."],
-          ["linear solve", /torch\.linalg|lu|solve|triangular/i, "Shows solve/LU semantics."],
-          ["return/output", /return|out/, "Returns or writes the solution."],
-        ],
-      },
-      {
-        id: "05",
-        name: "tanh",
-        family: "elementwise",
-        difficulty: "easy",
-        description: "Elementwise hyperbolic tangent.",
-        wrapper: "tanh(input, *, out=None)",
-        pytorch: `import torch
-
-def tanh(input, *, out=None):
-    return torch.tanh(input, out=out)`,
-        grammar: `module = imports, kernel, wrapper ;
-elementwise_body = offsets, mask, load_input, tanh_operation, store ;
-wrapper = "def tanh(input, *, out=None)" ;`,
-        reason: "Clean elementwise task; best first target for grammar-constrained generation.",
-        status: "Best XGrammar target.",
-        candidate: `import torch
-import triton
-import triton.language as tl
-
-@triton.jit
-def tanh_kernel(X, Z, N: tl.constexpr, BLOCK_SIZE: tl.constexpr):
-    pid = tl.program_id(0)
-    offsets = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)
-    mask = offsets < N
-    x = tl.load(X + offsets, mask=mask)
-    z = tl.tanh(x)
-    tl.store(Z + offsets, z, mask=mask)
-
-def tanh(input, *, out=None):
-    return out`,
-        rules: [
-          ["wrapper", /def\s+tanh\s*\(/, "Expected wrapper exists."],
-          ["triton kernel", /@triton\.jit/, "Defines a Triton kernel."],
-          ["offsets/mask", /tl\.arange[\s\S]*mask/, "Uses offsets and mask."],
-          ["tanh/store", /tanh[\s\S]*tl\.store|tl\.store[\s\S]*tanh/, "Computes and stores tanh."],
-        ],
-      },
-      {
-        id: "06",
-        name: "relu_sqrt",
-        family: "elementwise/fusion",
-        difficulty: "medium",
-        description: "Applies ReLU then square root elementwise.",
-        wrapper: "relu_sqrt(input, inplace=False, out=None)",
-        pytorch: `import torch
-
-def relu_sqrt(input, inplace=False, out=None):
-    x = torch.relu_(input) if inplace else torch.relu(input)
-    result = torch.sqrt(x)
-    return result if out is None else out.copy_(result)`,
-        grammar: `elementwise_body = offsets, mask, load_input, relu_expr, sqrt_expr, store ;
-wrapper = "def relu_sqrt(input, inplace=False, out=None)" ;`,
-        reason: "Still elementwise, but fused: ReLU and sqrt must both appear.",
-        status: "Good after tanh/div.",
-        candidate: `import torch
-import triton
-import triton.language as tl
-
-@triton.jit
-def relu_sqrt_kernel(X, Z, N: tl.constexpr, BLOCK_SIZE: tl.constexpr):
-    pid = tl.program_id(0)
-    offsets = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)
-    mask = offsets < N
-    x = tl.load(X + offsets, mask=mask)
-    relu = tl.maximum(x, 0.0)
-    y = tl.sqrt(relu)
-    tl.store(Z + offsets, y, mask=mask)
-
-def relu_sqrt(input, inplace=False, out=None):
-    return out`,
-        rules: [
-          ["wrapper", /def\s+relu_sqrt\s*\(/, "Expected wrapper exists."],
-          ["triton kernel", /@triton\.jit/, "Defines a Triton kernel."],
-          ["relu evidence", /relu|maximum|max\s*\(/i, "Shows ReLU semantics."],
-          ["sqrt/store", /sqrt[\s\S]*tl\.store/, "Computes sqrt and stores result."],
-        ],
-      },
-      {
-        id: "07",
-        name: "sqrt",
-        family: "elementwise",
-        difficulty: "easy",
-        description: "Elementwise square root.",
-        wrapper: "sqrt(input, *, out=None)",
-        pytorch: `import torch
-
-def sqrt(input, *, out=None):
-    return torch.sqrt(input, out=out)`,
-        grammar: `elementwise_body = offsets, mask, load_input, sqrt_operation, store ;
-wrapper = "def sqrt(input, *, out=None)" ;`,
-        reason: "Simple reusable elementwise grammar.",
-        status: "Good XGrammar target.",
-        candidate: `import torch
-import triton
-import triton.language as tl
-
-@triton.jit
-def sqrt_kernel(X, Z, N: tl.constexpr, BLOCK_SIZE: tl.constexpr):
-    pid = tl.program_id(0)
-    offsets = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)
-    mask = offsets < N
-    x = tl.load(X + offsets, mask=mask)
-    y = tl.sqrt(x)
-    tl.store(Z + offsets, y, mask=mask)
-
-def sqrt(input, *, out=None):
-    return out`,
-        rules: [
-          ["wrapper", /def\s+sqrt\s*\(/, "Expected wrapper exists."],
-          ["triton kernel", /@triton\.jit/, "Defines a Triton kernel."],
-          ["offsets/mask", /tl\.arange[\s\S]*mask/, "Uses offsets and mask."],
-          ["sqrt/store", /sqrt[\s\S]*tl\.store/, "Computes sqrt and stores result."],
-        ],
-      },
-      {
-        id: "08",
-        name: "sigmoid_argmax",
-        family: "reduction",
-        difficulty: "hard",
-        description: "Applies sigmoid then computes argmax indices.",
-        wrapper: "sigmoid_argmax(input, dim=None, keepdim=False)",
-        pytorch: `import torch
-
-def sigmoid_argmax(input, dim=None, keepdim=False):
-    y = torch.sigmoid(input)
-    return torch.argmax(y, dim=dim, keepdim=keepdim)`,
-        grammar: `reduction_body = offsets, mask, load_input, sigmoid_expr, argmax_or_max_reduce, store_indices ;
-wrapper = "def sigmoid_argmax(input, dim=None, keepdim=False)" ;`,
-        reason: "Reduction behavior is different from elementwise; it needs a separate family grammar.",
-        status: "Third-stage XGrammar target.",
-        candidate: `import torch
-import triton
-import triton.language as tl
-
-@triton.jit
-def sigmoid_argmax_kernel(X, Z, N: tl.constexpr, BLOCK_SIZE: tl.constexpr):
-    pid = tl.program_id(0)
-    offsets = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)
-    mask = offsets < N
-    x = tl.load(X + offsets, mask=mask)
-    sigmoid = 1.0 / (1.0 + tl.exp(-x))
-    idx = tl.argmax(sigmoid, axis=0)
-    tl.store(Z + pid, idx)
-
-def sigmoid_argmax(input, dim=None, keepdim=False):
-    return None`,
-        rules: [
-          ["wrapper", /def\s+sigmoid_argmax\s*\(/, "Expected wrapper exists."],
-          ["triton kernel", /@triton\.jit/, "Defines a Triton kernel."],
-          ["sigmoid", /sigmoid|tl\.exp|exp\s*\(/, "Applies sigmoid."],
-          ["argmax/reduction", /argmax|max/, "Shows reduction semantics."],
-        ],
-      },
-      {
-        id: "09",
-        name: "sub",
-        family: "elementwise",
-        difficulty: "easy",
-        description: "Subtracts other scaled by alpha from input.",
-        wrapper: "sub(input, other, *, alpha=1, out=None)",
-        pytorch: `import torch
-
-def sub(input, other, *, alpha=1, out=None):
-    return torch.sub(input, other, alpha=alpha, out=out)`,
-        grammar: `elementwise_body = offsets, mask, load_input, load_other, scaled_subtract, store ;
-wrapper = "def sub(input, other, *, alpha=1, out=None)" ;`,
-        reason: "Simple elementwise operation with an alpha parameter.",
-        status: "Good XGrammar target.",
-        candidate: `import torch
-import triton
-import triton.language as tl
-
-@triton.jit
-def sub_kernel(X, Y, Z, ALPHA: tl.constexpr, N: tl.constexpr, BLOCK_SIZE: tl.constexpr):
-    pid = tl.program_id(0)
-    offsets = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)
-    mask = offsets < N
-    x = tl.load(X + offsets, mask=mask)
-    y = tl.load(Y + offsets, mask=mask)
-    tl.store(Z + offsets, x - ALPHA * y, mask=mask)
-
-def sub(input, other, *, alpha=1, out=None):
-    return out`,
-        rules: [
-          ["wrapper", /def\s+sub\s*\(/, "Expected wrapper exists."],
-          ["triton kernel", /@triton\.jit/, "Defines a Triton kernel."],
-          ["alpha", /alpha|ALPHA/, "Uses alpha scaling."],
-          ["subtract/store", /-[\s\S]*tl\.store|tl\.store[\s\S]*-/, "Subtracts and stores result."],
-        ],
-      },
-      {
-        id: "10",
-        name: "grid_sample",
-        family: "indexing/interpolation",
-        difficulty: "hard",
-        description: "Samples input values using spatial or volumetric grid coordinates.",
-        wrapper: "grid_sample(input, grid, mode='bilinear', padding_mode='zeros', align_corners=False)",
-        pytorch: `import torch
-import torch.nn.functional as F
-
-def grid_sample(input, grid, mode='bilinear', padding_mode='zeros', align_corners=False):
-    return F.grid_sample(input, grid, mode=mode, padding_mode=padding_mode, align_corners=align_corners)`,
-        grammar: `indexing_body = coordinate_mapping, boundary_handling, interpolation, store ;
-wrapper = "def grid_sample(input, grid, mode='bilinear', padding_mode='zeros', align_corners=False)" ;`,
-        reason: "Needs layout, interpolation, and boundary rules; not an early grammar target.",
-        status: "Benchmark target, later grammar family.",
-        candidate: `import torch
-import triton
-import triton.language as tl
-
-def grid_sample(input, grid, mode='bilinear', padding_mode='zeros', align_corners=False):
-    return torch.nn.functional.grid_sample(input, grid, mode=mode, padding_mode=padding_mode, align_corners=align_corners)`,
-        rules: [
-          ["wrapper", /def\s+grid_sample\s*\(/, "Expected wrapper exists."],
-          ["grid argument", /\bgrid\b/, "Uses coordinate grid."],
-          ["mode", /bilinear|nearest|mode/, "Keeps interpolation mode visible."],
-          ["boundary behavior", /padding_mode|align_corners/, "Keeps boundary settings visible."],
-        ],
-      },
-    ];
+    const CONTRACTS_URL = "../grammars/tritonbench_t_contracts.json";
+    const SUBSET_URL = "../data/tritonbench_t_simp_subset166.json";
+    const FAMILY_GRAMMAR_URL = "../grammars/tritonbench_t/general_kernel_family.ebnf";
 
     const familyDescriptions = {
       elementwise: "Reusable grammar for one output element per input element.",
-      "elementwise/fusion": "Elementwise grammar plus multiple operations fused into one store.",
-      reduction: "Needs reduction-specific rules such as max/argmax/sum across a dimension.",
-      "convolution/fusion": "Needs convolution indexing, shape metadata, and activation rules.",
-      "fusion/matmul": "Needs tiled matrix operations and fusion ordering.",
-      "complex/fallback": "Too complex for first-pass Triton grammar; allow documented fallback while measuring.",
-      "indexing/interpolation": "Needs coordinate transformation and boundary-condition rules.",
+      elementwise_fusion: "Elementwise grammar plus multiple operations fused into one generated kernel.",
+      reduction: "Reduction grammar for max/min/sum/argmax-style outputs.",
+      convolution_fusion: "Convolution family with indexing, weights, shape metadata, and optional activation/fusion.",
+      fusion_matmul: "Matrix/matmul family with tiled compute and fused post-ops.",
+      complex_fallback: "Advanced operator family where a documented PyTorch fallback may be accepted before real Triton support.",
+      indexing_interpolation: "Indexing, gather/scatter, grid, tile, repeat, and interpolation-style access.",
     };
 
+    let contracts = {};
+    let subset = [];
+    let tasks = [];
+    let filteredTasks = [];
     let selectedIndex = 0;
+    let generalGrammar = "";
+    let selectedIndividualGrammar = "";
+
+    function difficultyForFamily(family) {
+      if (family === "elementwise") return "easy";
+      if (family === "elementwise_fusion" || family === "reduction" || family === "indexing_interpolation") return "medium";
+      return "hard";
+    }
+
+    function escapeRegex(text) {
+      return String(text).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    }
+
+    function termsFromContract(contract) {
+      return (contract.semantic_terms_any || []).flat().filter(Boolean);
+    }
+
+    function taskToSketch(task) {
+      const name = task.name;
+      const family = task.family;
+      const semantic = termsFromContract(task.contract).slice(0, 8).join(", ") || name;
+      if (family === "complex_fallback") {
+        return `import torch
+
+def ${name}(*args, **kwargs):
+    # fallback target: ${semantic}
+    # TritonBench will still decide correctness and speedup.
+    raise NotImplementedError("complex fallback placeholder for ${name}")`;
+      }
+      if (family === "reduction") {
+        return `import torch
+import triton
+import triton.language as tl
+
+@triton.jit
+def ${name}_kernel(X, Z, N: tl.constexpr, BLOCK_SIZE: tl.constexpr):
+    pid = tl.program_id(0)
+    offsets = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)
+    mask = offsets < N
+    x = tl.load(X + offsets, mask=mask, other=0.0)
+    # reduction semantic target: ${semantic}
+    value = tl.max(x, axis=0)
+    tl.store(Z + pid, value)
+
+def ${name}(*args, **kwargs):
+    return None`;
+      }
+      return `import torch
+import triton
+import triton.language as tl
+
+@triton.jit
+def ${name}_kernel(X, Z, N: tl.constexpr, BLOCK_SIZE: tl.constexpr):
+    pid = tl.program_id(0)
+    offsets = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)
+    mask = offsets < N
+    x = tl.load(X + offsets, mask=mask)
+    # semantic target: ${semantic}
+    tl.store(Z + offsets, x, mask=mask)
+
+def ${name}(*args, **kwargs):
+    return None`;
+    }
+
+    function makeTask(taskId, contract, item) {
+      const description = contract.description || "No description extracted.";
+      return {
+        taskId,
+        id: String(contract.source_index || Number(taskId.split("_").pop())).padStart(3, "0"),
+        name: contract.name,
+        family: contract.family,
+        difficulty: difficultyForFamily(contract.family),
+        description,
+        wrapper: contract.wrapper || `${contract.name}(...)`,
+        grammarPath: contract.ebnf,
+        contract,
+        promptReference: item?.instruction
+          ? item.instruction.slice(0, 1800)
+          : `No local prompt found for ${taskId}.`,
+      };
+    }
+
+    async function loadText(url) {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`${url}: ${response.status}`);
+      return response.text();
+    }
+
+    async function loadJson(url) {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`${url}: ${response.status}`);
+      return response.json();
+    }
+
+    async function init() {
+      try {
+        const [loadedContracts, loadedSubset, loadedFamilyGrammar] = await Promise.all([
+          loadJson(CONTRACTS_URL),
+          loadJson(SUBSET_URL),
+          loadText(FAMILY_GRAMMAR_URL),
+        ]);
+        contracts = loadedContracts;
+        subset = loadedSubset;
+        generalGrammar = loadedFamilyGrammar;
+        tasks = Object.entries(contracts)
+          .sort(([a], [b]) => a.localeCompare(b))
+          .map(([taskId, contract]) => makeTask(taskId, contract, subset[(contract.source_index || 1) - 1]));
+        filteredTasks = tasks;
+        selectedIndex = 0;
+        renderFamilyFilter();
+        document.getElementById("taskCount").textContent = String(tasks.length);
+        document.getElementById("loadNotice").textContent =
+          `Loaded ${tasks.length} generated task contracts. These are structural constraints; GPU correctness still comes from TritonBench.`;
+        renderAll();
+      } catch (error) {
+        document.getElementById("loadNotice").textContent =
+          `Could not load generated contracts. Make sure you are opening this through python3 -m http.server. Error: ${error.message}`;
+      }
+    }
+
+    function renderFamilyFilter() {
+      const select = document.getElementById("familyFilter");
+      const families = [...new Set(tasks.map((task) => task.family))].sort();
+      for (const family of families) {
+        const option = document.createElement("option");
+        option.value = family;
+        option.textContent = family;
+        select.appendChild(option);
+      }
+    }
+
+    function applyFilters() {
+      const query = document.getElementById("searchBox").value.trim().toLowerCase();
+      const family = document.getElementById("familyFilter").value;
+      filteredTasks = tasks.filter((task) => {
+        const matchesFamily = family === "all" || task.family === family;
+        const haystack = `${task.id} ${task.name} ${task.family} ${task.wrapper} ${task.description}`.toLowerCase();
+        return matchesFamily && (!query || haystack.includes(query));
+      });
+      selectedIndex = Math.min(selectedIndex, Math.max(filteredTasks.length - 1, 0));
+      renderAll();
+    }
 
     function renderExampleList() {
       const list = document.getElementById("exampleList");
       list.innerHTML = "";
-      tasks.forEach((task, index) => {
+      if (!filteredTasks.length) {
+        list.innerHTML = "<p>No tasks match the current filter.</p>";
+        return;
+      }
+      filteredTasks.forEach((task, index) => {
         const card = document.createElement("div");
         card.className = `example-card ${index === selectedIndex ? "active" : ""}`;
-        card.innerHTML = `<strong>${task.id}. ${task.name}</strong><span>${task.family} · ${task.difficulty}</span><span>${task.description}</span>`;
+        card.innerHTML = `<strong>${task.id}. ${task.name}</strong><span>${task.family} · ${task.difficulty}</span><span>${task.description.slice(0, 130)}${task.description.length > 130 ? "..." : ""}</span>`;
         card.addEventListener("click", () => {
           selectedIndex = index;
           renderAll();
@@ -861,29 +495,41 @@ def grid_sample(input, grid, mode='bilinear', padding_mode='zeros', align_corner
       });
     }
 
-    function generalRulesForTask(task) {
+    function familyRulesForTask(task) {
+      const wrapper = new RegExp(`def\\s+${escapeRegex(task.name)}\\s*\\(`);
       return [
-        ["imports", /import\s+torch[\s\S]*import\s+triton[\s\S]*import\s+triton\.language\s+as\s+tl|import\s+triton[\s\S]*import\s+triton\.language\s+as\s+tl/, "General module imports are present."],
-        ["wrapper", new RegExp(`def\\s+${task.name}\\s*\\(`), "Expected wrapper for the benchmark task exists."],
-        ["implementation", /@triton\.jit|torch\.|tl\./, "Contains a Triton implementation or documented fallback."],
+        ["imports", /import\s+torch|import\s+triton/, "Imports required runtime/library symbols."],
+        ["wrapper", wrapper, "Expected wrapper for this TritonBench task exists."],
+        ["implementation", /@triton\.jit|torch\.|tl\./, "Contains Triton implementation or documented fallback."],
         ["output behavior", /tl\.store|return|out/, "Stores or returns a result."],
       ];
     }
 
-    function activeRules() {
-      const task = tasks[selectedIndex];
-      const mode = document.getElementById("grammarMode").value;
-      if (mode === "individual") {
-        return task.rules;
-      }
-      return generalRulesForTask(task);
+    function individualRulesForTask(task) {
+      const wrapper = new RegExp(`def\\s+${escapeRegex(task.name)}\\s*\\(`);
+      const semanticTerms = termsFromContract(task.contract);
+      const semanticRegex = semanticTerms.length
+        ? new RegExp(semanticTerms.map(escapeRegex).join("|"), "i")
+        : new RegExp(escapeRegex(task.name), "i");
+      return [
+        ["wrapper", wrapper, "Expected task-specific wrapper exists."],
+        ["required imports", /import\s+torch|import\s+triton/, "Imports expected modules."],
+        ["implementation", /@triton\.jit|torch\.|tl\./, "Contains a generated implementation or accepted fallback."],
+        ["semantic evidence", semanticRegex, "Mentions operation-specific semantic evidence from the contract."],
+      ];
     }
 
-    function evaluateRules(task, rules) {
+    function activeRules(task) {
+      return document.getElementById("grammarMode").value === "individual"
+        ? individualRulesForTask(task)
+        : familyRulesForTask(task);
+    }
+
+    function evaluateRules(candidate, rules) {
       return rules.map(([name, regex, description]) => ({
         name,
         description,
-        pass: regex.test(task.candidate),
+        pass: regex.test(candidate),
       }));
     }
 
@@ -898,52 +544,74 @@ def grid_sample(input, grid, mode='bilinear', padding_mode='zeros', align_corner
       });
     }
 
-    function runCheck() {
-      const task = tasks[selectedIndex];
-      const rules = activeRules();
-      const results = evaluateRules(task, rules);
-      const individualResults = evaluateRules(task, task.rules);
-      const familyResults = evaluateRules(task, generalRulesForTask(task));
-      const passed = results.filter((r) => r.pass).length;
-      const total = results.length;
-      const individualPassed = individualResults.filter((r) => r.pass).length;
-      const familyPassed = familyResults.filter((r) => r.pass).length;
-      document.getElementById("resultSummary").textContent =
-        `${passed}/${total} rules passed using ${document.getElementById("grammarMode").value} grammar mode. Individual: ${individualPassed}/${individualResults.length}. Family: ${familyPassed}/${familyResults.length}. GPU execution and PyTorch equivalence still need the benchmark step.`;
+    async function renderTask() {
+      const task = filteredTasks[selectedIndex];
+      if (!task) return;
 
-      renderRuleRows("ruleList", results);
-      renderRuleRows("individualRuleList", individualResults);
-      renderRuleRows("familyRuleList", familyResults);
-    }
-
-    function renderTask() {
-      const task = tasks[selectedIndex];
       const mode = document.getElementById("grammarMode").value;
+      const grammarTitle = mode === "general" ? "General family grammar" : "Individual task contract";
       document.getElementById("taskTitle").textContent = `${task.id}. ${task.name}`;
       document.getElementById("taskDescription").textContent = task.description;
       document.getElementById("familyPill").textContent = task.family;
       document.getElementById("familyPill").className = `pill ${task.family.includes("elementwise") ? "ok" : "warn"}`;
       document.getElementById("difficultyPill").textContent = task.difficulty;
       document.getElementById("difficultyPill").className = `pill ${task.difficulty === "easy" ? "ok" : task.difficulty === "medium" ? "warn" : "bad"}`;
-      document.getElementById("taskWrapper").textContent = task.wrapper;
+      document.getElementById("sourcePill").textContent = task.taskId;
+      document.getElementById("taskWrapper").textContent = `def ${task.wrapper}`;
       document.getElementById("recommendedGrammar").textContent = `${task.family}: ${familyDescriptions[task.family] || "custom family grammar"}`;
-      document.getElementById("grammarReason").textContent = task.reason;
-      document.getElementById("xgrammarStatus").textContent = task.status;
-      document.getElementById("grammarTitle").textContent = mode === "general" ? "General family grammar" : "Individual task contract";
-      document.getElementById("grammarText").textContent = mode === "general" ? generalGrammar : task.grammar;
-      document.getElementById("pytorchText").textContent = task.pytorch;
-      document.getElementById("candidateText").textContent = task.candidate;
+      document.getElementById("grammarReason").textContent =
+        task.family.includes("elementwise")
+          ? "Good first candidate for XGrammar because it maps cleanly to offsets, mask, loads, operation, and store."
+          : "Use this structural contract to filter generated code; TritonBench still decides functional correctness.";
+      document.getElementById("xgrammarStatus").textContent =
+        `Ready for generate_with_tritonbench_xgrammar("${task.taskId}", mode="${mode === "general" ? "family" : "individual"}").`;
+      document.getElementById("grammarTitle").textContent = grammarTitle;
+      document.getElementById("pytorchText").textContent = task.promptReference;
+      document.getElementById("candidateText").textContent = taskToSketch(task);
+
+      if (mode === "general") {
+        document.getElementById("grammarText").textContent = generalGrammar;
+      } else {
+        document.getElementById("grammarText").textContent = "Loading individual EBNF...";
+        try {
+          selectedIndividualGrammar = await loadText(`../${task.grammarPath}`);
+          document.getElementById("grammarText").textContent = selectedIndividualGrammar;
+        } catch (error) {
+          document.getElementById("grammarText").textContent = `Could not load ${task.grammarPath}: ${error.message}`;
+        }
+      }
+      runCheck();
+    }
+
+    function runCheck() {
+      const task = filteredTasks[selectedIndex];
+      if (!task) return;
+      const candidate = taskToSketch(task);
+      const rules = activeRules(task);
+      const results = evaluateRules(candidate, rules);
+      const individualResults = evaluateRules(candidate, individualRulesForTask(task));
+      const familyResults = evaluateRules(candidate, familyRulesForTask(task));
+      const passed = results.filter((r) => r.pass).length;
+      const total = results.length;
+      const individualPassed = individualResults.filter((r) => r.pass).length;
+      const familyPassed = familyResults.filter((r) => r.pass).length;
+      document.getElementById("resultSummary").textContent =
+        `${passed}/${total} rules passed using ${document.getElementById("grammarMode").value} grammar mode. Individual: ${individualPassed}/${individualResults.length}. Family: ${familyPassed}/${familyResults.length}. This is structural only; call@1/exe@1/speedup require TritonBench GPU evaluation.`;
+      renderRuleRows("ruleList", results);
+      renderRuleRows("individualRuleList", individualResults);
+      renderRuleRows("familyRuleList", familyResults);
     }
 
     function renderAll() {
       renderExampleList();
       renderTask();
-      runCheck();
     }
 
     document.getElementById("grammarMode").addEventListener("change", renderAll);
     document.getElementById("runCheck").addEventListener("click", runCheck);
-    renderAll();
+    document.getElementById("searchBox").addEventListener("input", applyFilters);
+    document.getElementById("familyFilter").addEventListener("change", applyFilters);
+    init();
   </script>
 </body>
 </html>

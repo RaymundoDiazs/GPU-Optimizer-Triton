@@ -81,8 +81,8 @@ FAMILY_REQUIRED_TERMS = {
         ["@triton.jit"],
         ["tl.load"],
         ["tl.store"],
-        ["tl.dot", "bmm", "matmul", "dot"],
-        ["gelu", "relu", "tanh"],
+        ["tl.dot", "bmm", "matmul", "dot", "mv", "linear"],
+        ["gelu", "relu", "tanh", "softmax", "log_softmax", "logsumexp", "dropout"],
     ],
     "complex_fallback": [
         ["import torch"],
@@ -92,9 +92,9 @@ FAMILY_REQUIRED_TERMS = {
     "indexing_interpolation": [
         ["import torch"],
         ["grid"],
-        ["mode", "bilinear", "nearest"],
-        ["padding_mode", "align_corners"],
-        ["torch.nn.functional.grid_sample", "@triton.jit", "tl.load"],
+        ["mode", "bilinear", "nearest", "index", "fill", "repeat", "tile"],
+        ["padding_mode", "align_corners", "dim", "dims", "value"],
+        ["torch.nn.functional.grid_sample", "@triton.jit", "tl.load", "tl.store"],
     ],
 }
 

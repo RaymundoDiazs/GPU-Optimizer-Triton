@@ -1,0 +1,26 @@
+/* Auto-generated TritonBench-T contract for tritonbench_t_127: gelu.
+   This is a structural grammar contract for constrained decoding and
+   post-generation validation. TritonBench remains the source of functional
+   correctness and speedup evidence.
+*/
+
+root ::= module
+
+module ::= imports implementation wrapper
+imports ::= "import torch" "import triton" "import triton.language as tl"
+implementation ::= triton_kernel | torch_fallback
+triton_kernel ::= "@triton.jit" kernel_def kernel_body
+kernel_def ::= "def" identifier "(" parameters ")" ":"
+kernel_body ::= program_id offsets optional_mask memory_ops operation store
+program_id ::= "tl.program_id"
+offsets ::= "tl.arange"
+optional_mask ::= "mask" | ""
+memory_ops ::= "tl.load" memory_ops | "tl.load"
+operation ::= "fusion_matmul" "gelu, mul/gelu/tanh/sin/linear/lu, tl.dot/matmul/bmm/linear/torch."
+store ::= "tl.store"
+torch_fallback ::= "import torch" wrapper_body
+wrapper ::= "def gelu(input, approximate='none')"
+wrapper_body ::= statement+
+identifier ::= /[a-zA-Z_][a-zA-Z0-9_]*/
+parameters ::= /[^)]*/
+statement ::= /[^\n]+/

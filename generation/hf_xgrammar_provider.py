@@ -30,6 +30,7 @@ def load_hf_model(model_name: str = DEFAULT_HF_MODEL):
 def call_hf_xgrammar(
     prompt: str,
     model_name: str = DEFAULT_HF_MODEL,
+    grammar_text: str | None = None,
     max_new_tokens: int = 512,
 ) -> tuple[str, float]:
     """
@@ -43,6 +44,7 @@ def call_hf_xgrammar(
     decoder = XGrammarLLMDecoder(
         model=model,
         tokenizer=tokenizer,
+        **({"grammar_text": grammar_text} if grammar_text is not None else {}),
     )
 
     start = time.perf_counter()
