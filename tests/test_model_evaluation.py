@@ -270,6 +270,25 @@ class TestRunModelEvaluation:
         # El markdown fue eliminado
         assert "```" not in kernel_record["extracted_code"]
 
+    def test_qwen_constrained_jsonl_es_evaluable(self, tmp_path):
+        record = {
+            **make_record(MODEL_SMALL, VECTOR_ADD_TASK, VALID_KERNEL),
+            "mode": "constrained",
+            "constrained_decoding_backend": "xgrammar_hf",
+        }
+        jsonl = self._make_jsonl(tmp_path, [record])
+
+        rows = run_model_evaluation(output_dir=tmp_path, manual_outputs=jsonl)
+
+        assert len(rows) == 1
+        assert rows[0]["mode"] == "constrained"
+        assert rows[0]["constrained_decoding_backend"] == "xgrammar_hf"
+        assert rows[0]["syntax_valid"] is True
+
+        with (tmp_path / "generated_kernels.jsonl").open(encoding="utf-8") as f:
+            generated = json.loads(f.readline())
+        assert generated["constrained_decoding_backend"] == "xgrammar_hf"
+
     def test_multiples_modelos_y_ejemplos(self, tmp_path):
         relu_task = {
             "id": "vector_relu",
