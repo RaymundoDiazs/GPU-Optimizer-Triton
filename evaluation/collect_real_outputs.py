@@ -27,6 +27,7 @@ import sys
 import time
 from pathlib import Path
 from generation.hf_xgrammar_provider import call_hf_xgrammar
+from generation.tritonbench_constrained_decoding import build_tritonbench_constrained_spec
 
 import yaml
 
@@ -36,6 +37,7 @@ CONFIG_PATH = REPO_ROOT / "config" / "model_eval.yaml"
 # Modo generation
 PROMPT_TEMPLATE  = REPO_ROOT / "prompts" / "kernel_generation_prompt.txt"
 OUTPUT_PATH      = REPO_ROOT / "evaluation" / "real_outputs.jsonl"
+QWEN_CONSTRAINED_OUTPUT_PATH = REPO_ROOT / "evaluation" / "predictions_qwen_constrained.jsonl"
 
 # Modo translation
 TRANSLATION_PROMPT   = REPO_ROOT / "prompts" / "pytorch_to_triton_prompt.txt"
@@ -98,6 +100,12 @@ def build_translation_prompt(example: dict) -> str:
         pytorch_code=example["pytorch_code"],
         operation_description=example["operation_description"],
     )
+
+
+def build_tritonbench_constrained_prompt(task_id: str, mode: str = "family") -> tuple[str, str]:
+    """Build a TritonBench prompt and grammar contract for constrained Qwen generation."""
+    spec = build_tritonbench_constrained_spec(task_id, mode=mode)
+    return spec.prompt, spec.grammar_text
 
 
 def normalize_translation_task(example: dict, index: int) -> dict:
@@ -233,11 +241,22 @@ PROVIDER_FN = {
 }
 
 
+def _is_qwen_constrained(model: dict, mode: str) -> bool:
+    return mode == "constrained" and model.get("id") == "small_qwen25_coder_1_5b"
+
+
 # ---------------------------------------------------------------------------
 # Runner
 # ---------------------------------------------------------------------------
 
-def collect_for_model_generation(model: dict, tasks: list, modes: list, samples: int, out_file) -> int:
+def collect_for_model_generation(
+    model: dict,
+    tasks: list,
+    modes: list,
+    samples: int,
+    out_file,
+    qwen_out_file=None,
+) -> int:
     """Modo generation: genera un kernel Triton desde cero para cada tarea.
     Devuelve cantidad de registros escritos.
 
@@ -256,21 +275,24 @@ def collect_for_model_generation(model: dict, tasks: list, modes: list, samples:
     for task in tasks:
         for mode in modes:
             for sample_index in range(1, samples + 1):
-                prompt = build_prompt(task, mode)
+                uses_real_xgrammar = _is_qwen_constrained(model, mode)
                 print(
                     f"  [{model['id']}] task={task['id']} mode={mode} sample={sample_index} ... ",
                     end="",
                     flush=True,
                 )
 
-                uses_real_xgrammar = (
-                    mode == "constrained"
-                    and model["id"] == "small_qwen25_coder_1_5b"
-                )
-
                 if uses_real_xgrammar:
-                    output, latency = call_hf_xgrammar(prompt)
+                    prompt, grammar_text = build_tritonbench_constrained_prompt(
+                        task["id"], mode="family"
+                    )
+                    output, latency = call_hf_xgrammar(
+                        prompt,
+                        grammar_text=grammar_text,
+                        max_new_tokens=768,
+                    )
                 else:
+                    prompt = build_prompt(task, mode)
                     output, latency = call_fn(model_name, prompt)
 
                 print(f"OK ({latency:.1f}s)")
@@ -292,8 +314,10 @@ def collect_for_model_generation(model: dict, tasks: list, modes: list, samples:
                         "xgrammar_hf" if uses_real_xgrammar else "provider_prompt"
                     ),
                 }
-                out_file.write(json.dumps(record) + "\n")
-                out_file.flush()
+
+                target_file = qwen_out_file if uses_real_xgrammar else out_file
+                target_file.write(json.dumps(record) + "\n")
+                target_file.flush()
                 count += 1
 
     return count
@@ -398,6 +422,13 @@ def run(
         mode_open = "a" if out_path.exists() else "w"
         total = 0
 
+        qwen_out_file = None
+        if any(m.get("id") == "small_qwen25_coder_1_5b" for m in models) and "constrained" in modes:
+            qwen_path = QWEN_CONSTRAINED_OUTPUT_PATH
+            qwen_path.parent.mkdir(parents=True, exist_ok=True)
+            qwen_mode_open = "a" if qwen_path.exists() else "w"
+            qwen_out_file = qwen_path.open(qwen_mode_open, encoding="utf-8")
+
         print(f"\n=== Modo: GENERACIÓN desde cero ===")
         print(f"Tareas:  {[t['id'] for t in tasks]}")
         print(f"Modelos: {[m['id'] for m in models]}")
@@ -407,10 +438,22 @@ def run(
         with out_path.open(mode_open, encoding="utf-8") as out_file:
             for model in models:
                 print(f"\n>> Modelo: {model.get('display_name', model['id'])} [{model['provider']}]")
-                count = collect_for_model_generation(model, tasks, modes, samples, out_file)
+                count = collect_for_model_generation(
+                    model,
+                    tasks,
+                    modes,
+                    samples,
+                    out_file,
+                    qwen_out_file=qwen_out_file,
+                )
                 total += count
 
+        if qwen_out_file is not None:
+            qwen_out_file.close()
+
         print(f"\nListo. {total} registros guardados en {out_path}")
+        if qwen_out_file is not None:
+            print(f"  Qwen constrained records también guardados en {QWEN_CONSTRAINED_OUTPUT_PATH}")
         print("Siguiente paso:")
         print("  python evaluation/model_evaluation.py --manual-outputs evaluation/real_outputs.jsonl")
 

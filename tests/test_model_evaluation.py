@@ -21,6 +21,7 @@ from evaluation.model_evaluation import (
     _rate,
 )
 from evaluation.collect_real_outputs import (
+    build_tritonbench_constrained_prompt,
     build_translation_prompt,
     load_pytorch_examples,
 )
@@ -375,6 +376,15 @@ class TestCollectRealOutputs:
         prompts = [build_translation_prompt(ex) for ex in examples]
         # Cada prompt es diferente porque el código PyTorch es diferente
         assert len(set(prompts)) == 3
+
+    def test_build_tritonbench_constrained_prompt_generates_family_grammar(self):
+        prompt, grammar_text = build_tritonbench_constrained_prompt("tritonbench_t_001", mode="family")
+
+        assert "Constrained decoding contract:" in prompt
+        assert "Target task id: tritonbench_t_001" in prompt
+        assert "Grammar mode: family" in prompt
+        assert "family grammar" in grammar_text.lower()
+        assert "tl.load" in grammar_text or "@triton.jit" in grammar_text
 
 
 # ---------------------------------------------------------------------------
