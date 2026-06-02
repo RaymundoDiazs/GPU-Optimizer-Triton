@@ -1,6 +1,7 @@
 import time
 from functools import lru_cache
 
+from generation.xgrammar_environment import verify_xgrammar_environment
 from generation.xgrammar_llm_decoder import XGrammarLLMDecoder
 
 
@@ -15,6 +16,8 @@ def load_hf_model(model_name: str = DEFAULT_HF_MODEL):
     This is required because XGrammar needs token-level access through
     logits processors, which commercial APIs do not expose.
     """
+    verify_xgrammar_environment()
+
     from transformers import AutoModelForCausalLM, AutoTokenizer
 
     tokenizer = AutoTokenizer.from_pretrained(model_name)

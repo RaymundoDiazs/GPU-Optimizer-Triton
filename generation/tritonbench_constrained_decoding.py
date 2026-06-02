@@ -18,6 +18,11 @@ ROOT = Path(__file__).resolve().parents[1]
 DATASET_PATH = ROOT / "data" / "tritonbench_t_simp_subset166.json"
 FAMILY_GRAMMAR_PATH = ROOT / "grammars" / "tritonbench_t" / "general_kernel_family.ebnf"
 
+if not FAMILY_GRAMMAR_PATH.exists():
+    raise FileNotFoundError(
+        f"Expected the general Triton grammar at {FAMILY_GRAMMAR_PATH}, but it was not found."
+    )
+
 
 @dataclass
 class TritonBenchConstrainedSpec:
