@@ -9,6 +9,14 @@ DEFAULT_HF_MODEL = "Qwen/Qwen2.5-Coder-1.5B-Instruct"
 
 
 @lru_cache(maxsize=1)
+def _ensure_local_qwen_model(model_name: str) -> None:
+    if "qwen" not in model_name.lower():
+        raise ValueError(
+            "XGrammar constrained decoding currently supports local Qwen models only. "
+            "Use a local Qwen model name such as 'Qwen/Qwen2.5-Coder-1.5B-Instruct'."
+        )
+
+
 def load_hf_model(model_name: str = DEFAULT_HF_MODEL):
     """
     Load a local HuggingFace model for real XGrammar constrained decoding.
@@ -17,10 +25,11 @@ def load_hf_model(model_name: str = DEFAULT_HF_MODEL):
     logits processors, which commercial APIs do not expose.
     """
     verify_xgrammar_environment()
+    _ensure_local_qwen_model(model_name)
 
     from transformers import AutoModelForCausalLM, AutoTokenizer
 
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True)
 
     model = AutoModelForCausalLM.from_pretrained(
         model_name,

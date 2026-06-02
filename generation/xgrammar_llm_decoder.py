@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 from parsing.triton_grammar_rules import validate_triton_kernel
@@ -25,6 +26,8 @@ text ::= [^\n]+
 ws ::= [ \t\n]*
 """
 
+DEFAULT_GRAMMAR_PATH = Path(__file__).resolve().parents[1] / "grammars" / "tritonbench_t" / "general_kernel_family.ebnf"
+
 
 @dataclass
 class XGrammarGenerationResult:
@@ -42,12 +45,18 @@ class XGrammarLLMDecoder:
         self,
         model: Any,
         tokenizer: Any,
-        grammar_text: str = DEFAULT_TRITON_EBNF,
+        grammar_text: str | None = None,
     ):
         self.model = model
         self.tokenizer = tokenizer
-        self.grammar_text = grammar_text
+        self.grammar_text = grammar_text or self._load_default_grammar()
         self.compiled_grammar = None
+
+    @staticmethod
+    def _load_default_grammar() -> str:
+        if DEFAULT_GRAMMAR_PATH.exists():
+            return DEFAULT_GRAMMAR_PATH.read_text(encoding="utf-8")
+        return DEFAULT_TRITON_EBNF
 
     def compile_grammar(self):
 
@@ -86,6 +95,13 @@ class XGrammarLLMDecoder:
             prompt,
             return_tensors="pt",
         )
+
+        # Move inputs to the same device as the model if possible.
+        try:
+            device = next(self.model.parameters()).device
+            inputs = {name: tensor.to(device) for name, tensor in inputs.items()}
+        except (StopIteration, AttributeError):
+            pass
 
         logits_processor = xgr.contrib.hf.LogitsProcessor(
             self.compiled_grammar
