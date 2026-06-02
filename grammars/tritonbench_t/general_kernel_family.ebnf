@@ -6,69 +6,69 @@
    describes the structure that XGrammar/constrained decoding should select
    after classifying the task family. *)
 
-module = imports, implementation, wrapper ;
+module = imports, decorator, kernel_def, implementation, [launcher_def] ;
 
 imports = torch_import, triton_imports ;
 torch_import = "import torch", newline ;
 triton_imports = "import triton", newline,
                  "import triton.language as tl", newline ;
 
-implementation = elementwise_kernel
-               | reduction_kernel
-               | convolution_kernel
-               | matmul_or_fusion_kernel
-               | complex_fallback ;
+launcher_def = "def", launcher_name, "(", wrapper_parameters, ")", ":", newline, launcher_body ;
 
-elementwise_kernel = decorator, kernel_def, elementwise_body ;
-elementwise_body = program_id, offsets, mask, one_or_more_loads, elementwise_expr, store ;
-
-reduction_kernel = decorator, kernel_def, reduction_body ;
-reduction_body = program_id, offsets, mask, one_or_more_loads, reduction_expr, store ;
-
-convolution_kernel = decorator, kernel_def, convolution_body ;
-convolution_body = program_id, index_mapping, input_weight_loads, convolution_expr, optional_bias, activation, store ;
-
-matmul_or_fusion_kernel = decorator, kernel_def, fusion_body ;
-fusion_body = program_id, tiled_offsets, matrix_loads, dot_or_multiply, optional_normalization, optional_activation, optional_dropout, store ;
-
-complex_fallback = wrapper_using_torch_reference ;
-
-wrapper = "def", function_name, "(", wrapper_parameters, ")", ":", newline, wrapper_body ;
+implementation = elementwise_body
+               | reduction_body
+               | convolution_body
+               | matmul_or_fusion_body
+               | generic_kernel_body ;
 
 decorator = "@triton.jit", newline ;
 kernel_def = "def", kernel_name, "(", kernel_parameters, ")", ":", newline ;
-program_id = statement_with("tl.program_id") ;
-offsets = statement_with("tl.arange") ;
-mask = statement_with("mask") ;
-one_or_more_loads = statement_with("tl.load"), { statement_with("tl.load") } ;
-store = statement_with("tl.store") ;
+program_id = identifier, ws, "=", ws, "tl.program_id", "(", integer, ")", newline ;
+offsets = identifier, ws, "=", ws, "tl.arange", "(", integer, ",", ws, identifier, ")", newline ;
+mask = identifier, ws, "=", ws, "tl.load", "(", text, ")", newline ;
+load = identifier, ws, "=", ws, "tl.load", "(", text, ")", newline ;
+store = "tl.store", "(", text, ")", newline ;
+one_or_more_loads = load, { load } ;
 
-elementwise_expr = statement_with("tl.tanh")
-                 | statement_with("/")
-                 | statement_with("+")
-                 | statement_with("-")
-                 | statement_with("*")
-                 | statement_with("tl.exp")
-                 | statement_with("sqrt") ;
+elementwise_body = program_id, offsets, mask, one_or_more_loads, elementwise_expr, store ;
+reduction_body = program_id, offsets, mask, one_or_more_loads, reduction_expr, store ;
+convolution_body = program_id, index_mapping, input_weight_loads, convolution_expr, optional_bias, activation, store ;
+matmul_or_fusion_body = program_id, tiled_offsets, matrix_loads, dot_or_multiply, optional_normalization, optional_activation, optional_dropout, store ;
+generic_kernel_body = program_id, offsets, one_or_more_loads, optional_computation, store ;
 
-reduction_expr = statement_with("tl.sum")
-               | statement_with("tl.max")
-               | statement_with("tl.min")
-               | statement_with("argmax") ;
+elementwise_expr = assignment ;
+reduction_expr = assignment ;
+convolution_expr = assignment ;
+dot_or_multiply = assignment ;
+optional_bias = [ statement ] ;
+optional_normalization = [ statement ] ;
+optional_activation = [ statement ] ;
+optional_dropout = [ statement ] ;
+optional_computation = [ assignment ] ;
 
-activation = statement_with("sigmoid")
-           | statement_with("tl.exp")
-           | statement_with("gelu")
-           | statement_with("relu")
-           | empty ;
+assignment = identifier, ws, "=", ws, text, newline ;
 
-function_name = identifier ;
+launcher_name = identifier ;
+
 kernel_name = identifier ;
-wrapper_parameters = { character } ;
-kernel_parameters = { character } ;
+function_name = identifier ;
+
+kernel_parameters = [ kernel_param, { ",", ws, kernel_param } ] ;
+kernel_param = identifier, [ ":", ws, "tl.constexpr" ] ;
+wrapper_parameters = [ wrapper_param, { ",", ws, wrapper_param } ] ;
+wrapper_param = identifier ;
+
 wrapper_body = { statement } ;
 statement = { character }, newline ;
-statement_with(token) = { character }, token, { character }, newline ;
 identifier = letter, { letter | digit | "_" } ;
+integer = digit, { digit } ;
+text = { character } ;
+
+ws = { " " | "\t" } ;
 newline = "\n" ;
+character = any ;
+
+letter = ? [A-Za-z] ? ;
+digit = ? [0-9] ? ;
+any = ? [\s\S] ? ;
 empty = "" ;
