@@ -1,20 +1,154 @@
-You are an expert GPU kernel engineer.
+You are an expert in Triton GPU programming. Your task is to translate a PyTorch operation into a high-performance Triton kernel.
 
-Below is a PyTorch implementation:
+Output a single, self-contained Python module containing:
+(a) the necessary imports (torch, triton, triton.language as tl)
+(b) the Triton kernel(s) decorated with @triton.jit
+(c) the wrapper function that matches the provided function signature exactly
+
+Wrap the entire module in one ```python ... ``` fenced code block.
+Do NOT include any test code, example calls, or explanations — tests will be appended separately.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TRITON PROGRAMMING MODEL — MANDATORY RULES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. PARALLELISM — use tl.program_id, never Python loops
+   WRONG:  for i in range(N): output[i] = x[i] + y[i]
+   RIGHT:  pid = tl.program_id(0)
+           offsets = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)
+
+2. BLOCK SIZE — must be a tl.constexpr parameter, not a variable
+   WRONG:  def kernel(x_ptr, n): BLOCK_SIZE = 256
+   RIGHT:  def kernel(x_ptr, n, BLOCK_SIZE: tl.constexpr):
+
+3. MEMORY ACCESS — always use tl.load / tl.store, never direct indexing
+   WRONG:  output[offsets] = x[offsets] + y[offsets]
+   RIGHT:  x_vals = tl.load(x_ptr + offsets, mask=mask)
+           tl.store(output_ptr + offsets, result, mask=mask)
+
+4. BOUNDARY MASK — always guard memory access against out-of-bounds
+   REQUIRED:  mask = offsets < n_elements
+   Pass mask= to every tl.load and tl.store call.
+
+5. OFFSETS — use tl.arange to create vectorized index arrays
+   REQUIRED:  offsets = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)
+
+6. GRID LAUNCH — wrapper must compute the grid and call the kernel
+   REQUIRED:  grid = lambda meta: (triton.cdiv(n_elements, meta['BLOCK_SIZE']),)
+              kernel[grid](x_ptr, y_ptr, output_ptr, n_elements, BLOCK_SIZE=1024)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TRITON API QUICK REFERENCE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Core programming model:
+  tl.program_id(axis)          → scalar int, which block this thread-block handles
+  tl.arange(start, end)        → [start, start+1, ..., end-1] vector of indices
+  tl.constexpr                 → compile-time constant (required for BLOCK_SIZE)
+  triton.cdiv(a, b)            → ceiling division, use for grid size
+
+Memory:
+  tl.load(ptr, mask, other)    → load a block of values from DRAM
+  tl.store(ptr, value, mask)   → store a block of values to DRAM
+  tl.make_block_ptr(...)       → advanced 2D block pointer (for matmul, etc.)
+
+Math (operates on entire blocks, not scalars):
+  tl.sum(x, axis)              → reduction sum along axis
+  tl.max(x, axis)              → reduction max along axis
+  tl.min(x, axis)              → reduction min along axis
+  tl.exp(x)                    → element-wise e^x
+  tl.log(x)                    → element-wise ln(x)
+  tl.sqrt(x)                   → element-wise sqrt
+  tl.abs(x)                    → element-wise absolute value
+  tl.dot(a, b)                 → matrix multiply (for 2D blocks)
+  tl.where(cond, x, y)         → element-wise conditional select
+  tl.full(shape, value, dtype) → create a constant block
+
+Types:
+  tl.float32, tl.float16, tl.bfloat16, tl.int32, tl.int64
+  tl.cast(x, dtype)            → type cast
+
+Atomic operations (for reductions across blocks):
+  tl.atomic_add(ptr, val, mask)
+  tl.atomic_max(ptr, val, mask)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+COMPLETE VALID EXAMPLE — vector addition
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ```python
-{pytorch_code}
+import torch
+import triton
+import triton.language as tl
+
+
+@triton.jit
+def add_kernel(
+    x_ptr, y_ptr, output_ptr,
+    n_elements,
+    BLOCK_SIZE: tl.constexpr,
+):
+    pid = tl.program_id(axis=0)
+    offsets = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)
+    mask = offsets < n_elements
+
+    x = tl.load(x_ptr + offsets, mask=mask)
+    y = tl.load(y_ptr + offsets, mask=mask)
+    output = x + y
+    tl.store(output_ptr + offsets, output, mask=mask)
+
+
+def add_vectors(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
+    output = torch.empty_like(x)
+    n_elements = x.numel()
+    grid = lambda meta: (triton.cdiv(n_elements, meta['BLOCK_SIZE']),)
+    add_kernel[grid](x, y, output, n_elements, BLOCK_SIZE=1024)
+    return output
 ```
 
-Translate this into an optimized Triton kernel.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+COMPLETE VALID EXAMPLE — row softmax
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Return only Python code. Do not include explanations.
+```python
+import torch
+import triton
+import triton.language as tl
 
-Required properties:
-- import triton
-- import triton.language as tl
-- define one @triton.jit kernel function
-- use tl.program_id(0) and BLOCK_SIZE: tl.constexpr for parallelism
-- use tl.load and tl.store for memory access
-- include a boundary mask (offsets < N)
-- the operation must be: {operation_description}
+
+@triton.jit
+def softmax_kernel(
+    input_ptr, output_ptr,
+    n_cols,
+    BLOCK_SIZE: tl.constexpr,
+):
+    row_idx = tl.program_id(0)
+    col_offsets = tl.arange(0, BLOCK_SIZE)
+    mask = col_offsets < n_cols
+
+    row_ptrs = input_ptr + row_idx * n_cols + col_offsets
+    row = tl.load(row_ptrs, mask=mask, other=-float('inf'))
+
+    row_max = tl.max(row, axis=0)
+    numerator = tl.exp(row - row_max)
+    denominator = tl.sum(numerator, axis=0)
+    output = numerator / denominator
+
+    out_ptrs = output_ptr + row_idx * n_cols + col_offsets
+    tl.store(out_ptrs, output, mask=mask)
+
+
+def softmax(x: torch.Tensor) -> torch.Tensor:
+    n_rows, n_cols = x.shape
+    output = torch.empty_like(x)
+    BLOCK_SIZE = triton.next_power_of_2(n_cols)
+    grid = (n_rows,)
+    softmax_kernel[grid](x, output, n_cols, BLOCK_SIZE=BLOCK_SIZE)
+    return output
+```
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+NOW TRANSLATE THE FOLLOWING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+{instruction}

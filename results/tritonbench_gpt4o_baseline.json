@@ -1,0 +1,26 @@
+{
+  "model": "gpt-4o",
+  "provider": "gpt4o",
+  "dataset": "TritonBench_T_simp_alpac_v1 + pytorch_func_complete",
+  "total_predictions": 166,
+  "phase1_call_acc": {
+    "passed": 18,
+    "rate": 10.84
+  },
+  "phase2_exec_acc": {
+    "passed": 12,
+    "rate": 7.23
+  },
+  "phase3_efficiency": {
+    "speedup_vs_pytorch": 0.45,
+    "per_kernel": {
+      "adaptive_avg_pool2d": 0.2848,
+      "erf": 0.1453,
+      "fftn": 0.1834,
+      "i0": 0.232,
+      "logit": 0.4769,
+      "logsumexp": 1.203,
+      "rsqrt": 0.5961
+    }
+  }
+}
