@@ -1,0 +1,29 @@
+{
+  "model": "qwen2.5-coder:1.5b",
+  "provider": "qwen",
+  "dataset": "TritonBench_T_simp_alpac_v1 + pytorch_func_complete",
+  "total_predictions": 166,
+  "phase1_call_acc": {
+    "passed": 39,
+    "rate": 23.49
+  },
+  "phase2_exec_acc": {
+    "passed": 11,
+    "rate": 6.63
+  },
+  "phase3_efficiency": {
+    "speedup_vs_pytorch": 0.8,
+    "per_kernel": {
+      "bitwise_and_binomial": 0.4155,
+      "cholesky_solve": 0.4149,
+      "fused_add_mul_groupnorm": 0.1844,
+      "i0": 0.2481,
+      "log1p": 0.1487,
+      "ones_like": 5.9122,
+      "pow": 0.1467,
+      "relu_max_pool2d_conv2d": 0.1726,
+      "relu_sqrt": 0.1419,
+      "signbit": 0.1847
+    }
+  }
+}
