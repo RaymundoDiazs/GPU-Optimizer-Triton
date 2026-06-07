@@ -8,6 +8,7 @@ import platform
 import statistics
 import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
 from typing import Any, Callable
@@ -17,6 +18,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from generation.shape_aware_selector import select_vector_launch_config
+from evaluation.code_safety import validate_generated_code_safety
 
 
 EXTRA_COLUMNS = ("triton_compiles", "triton_numerically_correct", "triton_speedup")
@@ -24,6 +26,7 @@ DEFAULT_NUM_ELEMENTS = 1_048_576
 DEFAULT_WARMUP = 25
 DEFAULT_REPEATS = 100
 DEFAULT_FIXED_BLOCK_SIZE = 1024
+DEFAULT_WORKER_TIMEOUT = 120
 SCALE_ALPHA = 2.5
 
 
@@ -382,7 +385,7 @@ def _median_cuda_ms(fn: Callable[[], Any], torch: Any, warmup: int, repeats: int
     return statistics.median(timings)
 
 
-def _evaluate_row(
+def _evaluate_row_in_process(
     row: dict[str, Any],
     row_number: int,
     stack: dict[str, Any],
@@ -411,7 +414,11 @@ def _evaluate_row(
     enriched = dict(row)
 
     try:
-        namespace = _exec_extracted_code(str(row["extracted_code"]), stack, row_number)
+        code = str(row["extracted_code"])
+        safety = validate_generated_code_safety(code)
+        if not safety.safe:
+            raise KernelEvaluationError("; ".join(safety.errors))
+        namespace = _exec_extracted_code(code, stack, row_number)
         inputs, expected = _make_inputs(str(row["task_id"]), torch, num_elements, seed=row_number)
         if str(row["task_id"]) in {"vector_add", "vector_relu", "vector_scale"}:
             launch_config = select_vector_launch_config(num_elements, launch_policy, fixed_block_size)
@@ -462,21 +469,22 @@ def _evaluate_row(
     triton_ms: float | None = None
     pytorch_ms: float | None = None
     speedup: float | None = None
-    try:
-        triton_fn = lambda: _launch_task(
-            namespace,
-            str(row["task_id"]),
-            inputs,
-            stack,
-            launch_policy=launch_policy,
-            fixed_block_size=fixed_block_size,
-        )
-        torch_fn = _reference_callable(str(row["task_id"]), inputs)
-        triton_ms = _median_cuda_ms(triton_fn, torch, warmup, repeats)
-        pytorch_ms = _median_cuda_ms(torch_fn, torch, warmup, repeats)
-        speedup = None if triton_ms == 0 else pytorch_ms / triton_ms
-    except Exception as exc:
-        diagnostic["reason"] = diagnostic["reason"] or f"benchmark failed: {type(exc).__name__}: {exc}"
+    if correct:
+        try:
+            triton_fn = lambda: _launch_task(
+                namespace,
+                str(row["task_id"]),
+                inputs,
+                stack,
+                launch_policy=launch_policy,
+                fixed_block_size=fixed_block_size,
+            )
+            torch_fn = _reference_callable(str(row["task_id"]), inputs)
+            triton_ms = _median_cuda_ms(triton_fn, torch, warmup, repeats)
+            pytorch_ms = _median_cuda_ms(torch_fn, torch, warmup, repeats)
+            speedup = None if triton_ms == 0 else pytorch_ms / triton_ms
+        except Exception as exc:
+            diagnostic["reason"] = f"benchmark failed: {type(exc).__name__}: {exc}"
 
     enriched.update(
         {
@@ -497,6 +505,109 @@ def _evaluate_row(
     return enriched, diagnostic
 
 
+def _worker_environment() -> dict[str, str]:
+    import os
+
+    allowed = {
+        "CUDA_CACHE_PATH",
+        "CUDA_HOME",
+        "CUDA_VISIBLE_DEVICES",
+        "HOME",
+        "LD_LIBRARY_PATH",
+        "PATH",
+        "PYTHONPATH",
+        "TRITON_CACHE_DIR",
+    }
+    environment = {key: value for key, value in os.environ.items() if key in allowed}
+    existing_pythonpath = environment.get("PYTHONPATH", "")
+    environment["PYTHONPATH"] = (
+        str(ROOT)
+        if not existing_pythonpath
+        else str(ROOT) + os.pathsep + existing_pythonpath
+    )
+    return environment
+
+
+def _evaluate_row_isolated(
+    row: dict[str, Any],
+    row_number: int,
+    *,
+    num_elements: int,
+    warmup: int,
+    repeats: int,
+    launch_policy: str,
+    fixed_block_size: int,
+    worker_timeout: int,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    request = {
+        "row": row,
+        "row_number": row_number,
+        "num_elements": num_elements,
+        "warmup": warmup,
+        "repeats": repeats,
+        "launch_policy": launch_policy,
+        "fixed_block_size": fixed_block_size,
+    }
+    with tempfile.TemporaryDirectory(prefix="triton-kernel-worker-") as temp_dir:
+        temp_path = Path(temp_dir)
+        request_path = temp_path / "request.json"
+        response_path = temp_path / "response.json"
+        _json_write(request_path, request)
+        command = [
+            sys.executable,
+            "-m",
+            "benchmarks.kernel_worker",
+            str(request_path),
+            str(response_path),
+        ]
+        try:
+            completed = subprocess.run(
+                command,
+                cwd=temp_path,
+                env=_worker_environment(),
+                capture_output=True,
+                text=True,
+                timeout=worker_timeout,
+                check=False,
+            )
+        except subprocess.TimeoutExpired:
+            return _worker_failure(row, row_number, f"worker timeout after {worker_timeout}s")
+
+        if completed.returncode != 0 or not response_path.exists():
+            reason = completed.stderr.strip() or completed.stdout.strip() or "worker failed without output"
+            return _worker_failure(row, row_number, reason[-1000:])
+
+        with response_path.open("r", encoding="utf-8") as file:
+            response = json.load(file)
+        return response["enriched"], response["diagnostic"]
+
+
+def _worker_failure(
+    row: dict[str, Any],
+    row_number: int,
+    reason: str,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    enriched = dict(row)
+    enriched.update(
+        {
+            "triton_compiles": False,
+            "triton_numerically_correct": False,
+            "triton_speedup": None,
+        }
+    )
+    diagnostic = {
+        "row_number": row_number,
+        "task_id": row.get("task_id"),
+        "sample_index": row.get("sample_index"),
+        "status": "isolated_worker_failed",
+        "reason": reason,
+        "max_abs_error": None,
+        "pytorch_ms": None,
+        "triton_ms": None,
+    }
+    return enriched, diagnostic
+
+
 def evaluate_file(
     input_path: Path,
     output_path: Path,
@@ -508,6 +619,7 @@ def evaluate_file(
     repeats: int,
     launch_policy: str = "shape-aware",
     fixed_block_size: int = DEFAULT_FIXED_BLOCK_SIZE,
+    worker_timeout: int = DEFAULT_WORKER_TIMEOUT,
 ) -> None:
     rows = _jsonl_load(input_path)
     stack, unavailable_reason = _load_stack()
@@ -525,6 +637,8 @@ def evaluate_file(
             "speedup": "median_pytorch_ms / median_triton_ms",
             "launch_policy": launch_policy,
             "fixed_block_size": fixed_block_size,
+            "worker_timeout_seconds": worker_timeout,
+            "execution_isolation": "one subprocess per generated kernel",
             "shape_aware_policy": "generation.shape_aware_selector.select_vector_launch_config",
         }
     )
@@ -551,15 +665,15 @@ def evaluate_file(
     else:
         enriched_rows = []
         for row_number, row in enumerate(rows, start=1):
-            enriched, diagnostic = _evaluate_row(
+            enriched, diagnostic = _evaluate_row_isolated(
                 row,
                 row_number,
-                stack,
                 num_elements=num_elements,
                 warmup=warmup,
                 repeats=repeats,
                 launch_policy=launch_policy,
                 fixed_block_size=fixed_block_size,
+                worker_timeout=worker_timeout,
             )
             enriched_rows.append(enriched)
             diagnostics.append(diagnostic)
@@ -586,6 +700,7 @@ def main() -> None:
     parser.add_argument("--repeats", type=int, default=DEFAULT_REPEATS)
     parser.add_argument("--launch-policy", choices=("shape-aware", "fixed"), default="shape-aware")
     parser.add_argument("--fixed-block-size", type=int, default=DEFAULT_FIXED_BLOCK_SIZE)
+    parser.add_argument("--worker-timeout", type=int, default=DEFAULT_WORKER_TIMEOUT)
     args = parser.parse_args()
 
     evaluate_file(
@@ -598,6 +713,7 @@ def main() -> None:
         repeats=args.repeats,
         launch_policy=args.launch_policy,
         fixed_block_size=args.fixed_block_size,
+        worker_timeout=args.worker_timeout,
     )
     print(f"Wrote evaluated JSONL to {args.output}")
     print(f"Wrote reproducibility metadata to {args.metadata}")

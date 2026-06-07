@@ -1,0 +1,23 @@
+[
+  {
+    "id": "vector_add",
+    "pytorch_code": "z = x + y",
+    "operation_description": "element-wise addition of two vectors Z = X + Y",
+    "expected_kernel_name": "vector_add_kernel",
+    "expected_terms": ["@triton.jit", "tl.load", "tl.store", "tl.program_id"]
+  },
+  {
+    "id": "vector_relu",
+    "pytorch_code": "z = torch.relu(x)",
+    "operation_description": "ReLU activation: Z[i] = max(0, X[i]) for each element",
+    "expected_kernel_name": "relu_kernel",
+    "expected_terms": ["@triton.jit", "tl.load", "tl.store", "tl.program_id"]
+  },
+  {
+    "id": "vector_scale",
+    "pytorch_code": "z = x * alpha",
+    "operation_description": "scalar multiplication of a vector Z = X * alpha",
+    "expected_kernel_name": "scale_kernel",
+    "expected_terms": ["@triton.jit", "tl.load", "tl.store", "tl.program_id"]
+  }
+]

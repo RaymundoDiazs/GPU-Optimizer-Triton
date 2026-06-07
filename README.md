@@ -21,9 +21,22 @@ Automatizar la optimización de código GPU para tareas comunes:
 - `docs/presentation_outline.md`: esquema de presentación para explicar el proyecto.
 
 ## Instalación
+
+Entorno mínimo para ejecutar CI y las pruebas sin GPU:
+
 ```bash
-pip install -r requirements.txt
-bash setup.sh
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements-ci.txt
+pytest -q
+```
+
+Entorno completo para generación con modelos y validación CUDA:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
 ```
 
 ## Uso
@@ -83,24 +96,95 @@ python benchmarks/plot_results.py
 Esto escribe `benchmarks/results_summary.png`.
 
 ## Evaluación de modelos para generación de kernels
-Para preparar el segundo video de avance, el repo incluye un runner que compara un modelo pequeño contra dos modelos frontier en modo baseline y constrained:
+
+Las predicciones usan un esquema JSONL canónico con estos campos:
+
+```text
+schema_version
+record_id
+model
+task
+mode
+sample_index
+prompt
+output
+latency_seconds
+constrained_decoding_backend
+```
+
+Los archivos históricos con `{instruction, predict}` siguen siendo compatibles:
+se normalizan automáticamente al cargarlos.
+
+Para reevaluar las 498 predicciones baseline actuales:
 
 ```bash
-python evaluation/model_evaluation.py --samples 150
+python evaluation/model_evaluation.py \
+  --output-dir artifacts/current_evaluation \
+  --manual-outputs evaluation/predictions_qwen.jsonl \
+                   evaluation/predictions_gpt4o.jsonl \
+                   evaluation/predictions_claude.jsonl
 ```
 
 Esto genera:
-- `evaluation/artifacts/generated_kernels.jsonl`
-- `evaluation/artifacts/model_eval_results.csv`
-- `evaluation/artifacts/model_eval_summary.md`
 
-También se puede reparar los kernels generados y aplicar correcciones sintácticas con:
+- `artifacts/current_evaluation/generated_kernels.jsonl`
+- `artifacts/current_evaluation/model_eval_results.csv`
+- `artifacts/current_evaluation/model_eval_summary.md`
+
+La evaluación estática separa:
+
+- sintaxis Python válida;
+- política de seguridad válida;
+- contrato TritonBench válido;
+- proxy estructural de corrección.
+
+Ninguna de estas métricas sustituye compilación o equivalencia numérica GPU.
+
+Para validar los contratos individuales y familiares:
 
 ```bash
-python evaluation/repair_generated_kernels.py
+python benchmarks/benchmark_tritonbench_grammar.py \
+  --input artifacts/current_evaluation/generated_kernels.jsonl \
+  --output artifacts/current_evaluation/tritonbench_grammar_results.csv
 ```
 
-Los modelos por defecto en `config/model_eval.yaml` usan `provider: mock` para que el flujo sea reproducible sin API keys. Antes de presentar resultados reales, reemplaza esos outputs por corridas reales del modelo pequeño y los dos modelos frontier elegidos. El plan del video está en `docs/second_video_plan.md`.
+El comando falla si la entrada no existe o está vacía.
+
+## Ejecución segura de kernels generados
+
+`benchmarks/run_generated_kernels.py` no ejecuta directamente respuestas de
+modelos dentro del proceso coordinador. Cada kernel se evalúa en un subprocess
+temporal con:
+
+- validación AST previa;
+- lista restringida de imports;
+- entorno sin API keys;
+- directorio de trabajo temporal;
+- timeout configurable;
+- descarte completo del proceso después de cada kernel.
+
+Ejemplo:
+
+```bash
+python benchmarks/run_generated_kernels.py \
+  --input artifacts/current_evaluation/generated_kernels.jsonl \
+  --worker-timeout 120
+```
+
+Este benchmark requiere CUDA. El speedup solo se registra si la salida es
+numéricamente correcta.
+
+## Generación baseline
+
+```bash
+python evaluation/generate_baseline_predictions.py --provider qwen
+python evaluation/generate_baseline_predictions.py --provider gpt4o
+python evaluation/generate_baseline_predictions.py --provider claude
+```
+
+`--resume` carga registros viejos o canónicos, deduplica por `task_id` y
+reescribe el archivo en orden. Las API externas requieren sus variables de
+entorno correspondientes.
 
 ## Perfilado GPU
 El perfilado real requiere `torch`, `triton` y una GPU CUDA disponible:
@@ -119,7 +203,9 @@ generation:
   optimization_level: basic
 ```
 
-La interfaz ya está preparada para reemplazarse por un modelo real. Para una integración futura basada en API externa, usa una variable de entorno como `LLM_API_KEY` y conserva la firma pública `decide_strategy(code, ast_repr, grammar)`.
+La ruta principal conserva una heurística determinista para que `main.py`
+funcione sin descargar un modelo. Los flujos experimentales admiten Ollama,
+OpenAI, Anthropic y HuggingFace + XGrammar.
 
 ## CI
 El workflow de GitHub Actions en `.github/workflows/ci.yml` instala dependencias y ejecuta:
@@ -128,3 +214,30 @@ pytest -q
 ```
 
 Los pasos GPU se mantienen fuera de CI para que las pruebas funcionen también en runners sin acelerador.
+
+CI instala `requirements-ci.txt`, ejecuta un smoke test de `main.py` y después
+corre la suite completa.
+
+## Estado experimental actual
+
+Los artefactos actuales contienen 166 predicciones baseline por modelo:
+
+- Qwen2.5-Coder-1.5B;
+- GPT-4o;
+- Claude Haiku 4.5.
+
+No existe todavía una corrida constrained completa y comparable en los
+artefactos versionados. El reporte actual no afirma mejoras
+baseline-vs-constrained.
+
+El reporte reproducible vive en:
+
+```text
+reports/reporte_estadistico/reporte_borrador.md
+```
+
+Se regenera con:
+
+```bash
+python reports/reporte_estadistico/scripts/build_current_report.py
+```

@@ -15,12 +15,21 @@ Verifica:
 """
 
 import argparse
+import ast
 import json
 import sys
 from pathlib import Path
 
-ROOT      = Path(__file__).parent.parent
-SIMP_PATH = ROOT / "extras/TritonBench-main/data/TritonBench_T_simp_alpac_v1.json"
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from evaluation.code_safety import validate_generated_code_safety
+from evaluation.model_evaluation import extract_code
+from evaluation.prediction_schema import load_prediction_jsonl
+from parsing.tritonbench_grammar_rules import validate_tritonbench_candidate
+
+
 EXPECTED  = 166
 
 
@@ -29,59 +38,48 @@ def validate(file_path: Path) -> bool:
         print(f"ERROR: archivo no encontrado: {file_path}")
         return False
 
-    # Cargar dataset de referencia
-    with open(SIMP_PATH, encoding="utf-8") as f:
-        simp_data = json.load(f)
+    try:
+        records = load_prediction_jsonl(file_path)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(f"FALLO — {file_path}")
+        print(f"  No se pudo cargar: {type(exc).__name__}: {exc}")
+        return False
 
-    lines = []
-    parse_errors = []
+    issues: list[str] = []
+    if len(records) != EXPECTED:
+        issues.append(f"  Longitud: {len(records)} entradas (esperaba {EXPECTED})")
 
-    with open(file_path, encoding="utf-8") as f:
-        for lineno, raw in enumerate(f, start=1):
-            raw = raw.strip()
-            if not raw:
-                continue
-            try:
-                entry = json.loads(raw)
-                lines.append((lineno, entry))
-            except json.JSONDecodeError as e:
-                parse_errors.append(f"  línea {lineno}: JSON inválido — {e}")
+    for lineno, record in enumerate(records, start=1):
+        task_id = record["task"]["id"]
+        expected_task_id = f"tritonbench_t_{lineno:03d}"
+        if task_id != expected_task_id:
+            issues.append(
+                f"  línea {lineno}: task_id={task_id!r}, esperaba {expected_task_id!r}"
+            )
 
-    issues = []
-    issues.extend(parse_errors)
-
-    if len(lines) != EXPECTED:
-        issues.append(f"  Longitud: {len(lines)} entradas (esperaba {EXPECTED})")
-
-    for idx, (lineno, entry) in enumerate(lines):
-        # Verificar campos requeridos
-        if "instruction" not in entry:
-            issues.append(f"  línea {lineno}: falta campo 'instruction'")
+        code = extract_code(record["output"])
+        if not code:
+            issues.append(f"  línea {lineno}: output vacío")
             continue
-        if "predict" not in entry:
-            issues.append(f"  línea {lineno}: falta campo 'predict'")
+        if "```" in code:
+            issues.append(f"  línea {lineno}: output contiene fences")
+
+        try:
+            ast.parse(code)
+        except SyntaxError as exc:
+            issues.append(f"  línea {lineno}: sintaxis inválida: {exc.msg}")
             continue
 
-        instr   = entry["instruction"]
-        predict = entry["predict"]
+        safety = validate_generated_code_safety(code)
+        for error in safety.errors:
+            issues.append(f"  línea {lineno}: {error}")
 
-        # Verificar que instruction coincide con la referencia por posición
-        if idx < len(simp_data):
-            expected_instr = simp_data[idx]["instruction"]
-            if instr != expected_instr:
-                issues.append(
-                    f"  línea {lineno} [idx={idx}]: instruction no coincide con referencia\n"
-                    f"    got[:60]:      {instr[:60]!r}\n"
-                    f"    expected[:60]: {expected_instr[:60]!r}"
-                )
-
-        # Verificar que predict no está vacío
-        if not predict or not predict.strip():
-            issues.append(f"  línea {lineno}: 'predict' está vacío")
-
-        # Verificar que predict no contiene fences
-        if "```" in predict:
-            issues.append(f"  línea {lineno}: 'predict' contiene fences ```")
+        contract = validate_tritonbench_candidate(task_id, code)
+        for error in contract.errors:
+            issues.append(f"  línea {lineno}: {error}")
+        for warning in contract.warnings:
+            if "TODO/pass" in warning:
+                issues.append(f"  línea {lineno}: {warning}")
 
     if issues:
         print(f"FALLO — {file_path}")
@@ -91,7 +89,7 @@ def validate(file_path: Path) -> bool:
         return False
 
     print(f"OK — {file_path}")
-    print(f"  {len(lines)} entradas válidas, sin fences, instructions alineadas")
+    print(f"  {len(records)} entradas con sintaxis, seguridad y contrato válidos")
     return True
 
 

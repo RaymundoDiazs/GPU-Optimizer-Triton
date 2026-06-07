@@ -24,15 +24,15 @@ El objetivo es separar el reporte estadistico del codigo principal para evitar c
 
 ## Estado actual
 
-Los resultados actuales son preliminares. Usan 18 muestras:
+Los artefactos actuales contienen 498 predicciones baseline:
 
 ```text
-3 modelos x 2 modos x 3 muestras = 18 outputs
+3 modelos x 166 operadores = 498 outputs
 ```
 
-Esto sirve para validar el pipeline y preparar el reporte, pero no es suficiente para conclusiones estadisticas fuertes.
-
-Para el reporte final se recomienda aumentar a minimo 30 muestras por modelo/modo, idealmente 50.
+No existe todavía una corrida constrained completa con el mismo dataset y
+hardware. Por ello no se deben presentar comparaciones baseline-vs-constrained
+como resultados actuales.
 
 ## Conexion con TritonBench
 
@@ -51,16 +51,21 @@ python reports/reporte_estadistico/scripts/analyze_results.py
 python reports/reporte_estadistico/scripts/capture_environment.py
 ```
 
-El script lee:
+La evaluación actual se regenera primero con:
 
-```text
-evaluation/artifacts/model_eval_results.csv
+```bash
+python evaluation/model_evaluation.py \
+  --output-dir artifacts/current_evaluation \
+  --manual-outputs evaluation/predictions_qwen.jsonl \
+                   evaluation/predictions_gpt4o.jsonl \
+                   evaluation/predictions_claude.jsonl
 ```
 
-y genera:
+El reporte baseline actual se genera con:
 
-```text
-reports/reporte_estadistico/results/summary_by_model_mode.csv
-reports/reporte_estadistico/results/pairwise_proportion_tests.csv
-reports/reporte_estadistico/figures/*.png
+```bash
+python reports/reporte_estadistico/scripts/build_current_report.py
 ```
+
+Los análisis anteriores basados en `evaluation/artifacts/model_eval_results.csv`
+se conservan como historial, pero no son la fuente del reporte actual.

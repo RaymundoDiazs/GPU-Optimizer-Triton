@@ -4,7 +4,7 @@ experiment:
   temperature: 0.15
   top_p: 0.95
   max_tokens: 8192
-  dataset: data/TritonBench_T_simp_alpac_v1.json
+  translation_examples_file: data/tritonbench_t_simp_subset166.json
 
 models:
   - id: small_qwen25_coder_1_5b
@@ -27,4 +27,3 @@ models:
     provider: anthropic
     model_name: claude-haiku-4-5-20251001
     rationale: Fast frontier model via Anthropic API. Strong reasoning and structured output at low cost.
-

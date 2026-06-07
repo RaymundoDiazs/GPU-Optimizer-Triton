@@ -19,7 +19,17 @@ import sys
 import time
 from pathlib import Path
 
-ROOT       = Path(__file__).parent.parent
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from evaluation.prediction_schema import (
+    PROVIDER_MODELS,
+    load_prediction_jsonl,
+    make_prediction_record,
+    write_prediction_jsonl,
+)
+
 SIMP_PATH  = ROOT / "extras/TritonBench-main/data/TritonBench_T_simp_alpac_v1.json"
 T_PATH     = ROOT / "extras/TritonBench-main/data/TritonBench_T_v1.jsonl"
 PY_DIR     = ROOT / "extras/TritonBench-main/data/TritonBench_T_v1"
@@ -148,20 +158,10 @@ def call_claude(prompt: str, client) -> str:
 # Lógica de resume
 # ---------------------------------------------------------------------------
 
-def load_already_done(output_path: Path) -> set:
-    done = set()
-    if output_path.exists():
-        with open(output_path, encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
-                try:
-                    entry = json.loads(line)
-                    done.add(entry["instruction"])
-                except json.JSONDecodeError:
-                    pass
-    return done
+def load_existing_records(output_path: Path) -> dict[str, dict]:
+    if not output_path.exists():
+        return {}
+    return {record["task"]["id"]: record for record in load_prediction_jsonl(output_path)}
 
 
 # ---------------------------------------------------------------------------
@@ -177,10 +177,10 @@ def generate(provider: str, resume: bool):
 
     simp_data, t_data = load_datasets()
 
-    done_instructions = set()
+    records_by_task: dict[str, dict] = {}
     if resume:
-        done_instructions = load_already_done(output_path)
-        print(f"Resume: {len(done_instructions)} operadores ya procesados, saltando...")
+        records_by_task = load_existing_records(output_path)
+        print(f"Resume: {len(records_by_task)} operadores ya procesados, saltando...")
 
     # Inicializar cliente según provider
     client = None
@@ -226,40 +226,62 @@ def generate(provider: str, resume: bool):
     skipped   = 0
     errors    = 0
 
-    with open(output_path, "a", encoding="utf-8") as out_f:
-        for i, (s, t) in enumerate(zip(simp_data, t_data)):
-            instruction = s["instruction"]
+    for i, (s, t) in enumerate(zip(simp_data, t_data), start=1):
+        task_id = f"tritonbench_t_{i:03d}"
+        instruction = s["instruction"]
 
-            if instruction in done_instructions:
-                skipped += 1
-                continue
+        if task_id in records_by_task:
+            skipped += 1
+            continue
 
-            prompt = build_prompt(instruction, t["file"])
+        prompt = build_prompt(instruction, t["file"])
 
-            try:
-                if provider == "qwen":
-                    raw = call_qwen(prompt)
-                elif provider == "gpt4o":
-                    raw = call_gpt4o(prompt, client)
-                    time.sleep(0.5)
-                elif provider == "claude":
-                    raw = call_claude(prompt, client)
-                    time.sleep(0.5)
+        try:
+            if provider == "qwen":
+                raw = call_qwen(prompt)
+            elif provider == "gpt4o":
+                raw = call_gpt4o(prompt, client)
+                time.sleep(0.5)
+            elif provider == "claude":
+                raw = call_claude(prompt, client)
+                time.sleep(0.5)
 
-                code = extract_code(raw)
+            code = extract_code(raw)
 
-                entry = {"instruction": instruction, "predict": code}
-                out_f.write(json.dumps(entry, ensure_ascii=False) + "\n")
-                out_f.flush()
+            task = {
+                "id": task_id,
+                "benchmark": "tritonbench_t",
+                "name": t["name"],
+                "file": t["file"],
+                "instruction": instruction,
+                "expected_output": s.get("output", ""),
+            }
+            records_by_task[task_id] = make_prediction_record(
+                model=PROVIDER_MODELS[provider],
+                task=task,
+                output=code,
+                mode="baseline",
+                sample_index=1,
+                prompt=prompt,
+                source_index=i,
+            )
+            write_prediction_jsonl(
+                output_path,
+                [records_by_task[key] for key in sorted(records_by_task)],
+            )
 
-                processed += 1
-                print(f"[{i+1:3d}/{total}] OK — {t['name']}")
+            processed += 1
+            print(f"[{i:3d}/{total}] OK — {t['name']}")
 
-            except Exception as e:
-                errors += 1
-                print(f"[{i+1:3d}/{total}] ERROR — {t['name']}: {e}", file=sys.stderr)
-                # Escribir predict vacío para mantener alineación si se desea,
-                # pero es mejor no escribir nada y usar --resume para reintentar.
+        except Exception as e:
+            errors += 1
+            print(f"[{i:3d}/{total}] ERROR — {t['name']}: {e}", file=sys.stderr)
+
+    if records_by_task:
+        write_prediction_jsonl(
+            output_path,
+            [records_by_task[key] for key in sorted(records_by_task)],
+        )
 
     print(f"\nFinalizado — provider={provider}")
     print(f"  Procesados:  {processed}")

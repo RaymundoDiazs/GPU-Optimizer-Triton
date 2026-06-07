@@ -34,7 +34,8 @@ def _summarize(path: Path, policy: str) -> dict[str, Any]:
     speedups = [
         float(row["triton_speedup"])
         for row in rows
-        if row.get("triton_speedup") is not None
+        if row.get("triton_numerically_correct") is True
+        and row.get("triton_speedup") is not None
     ]
     return {
         "launch_policy": policy,

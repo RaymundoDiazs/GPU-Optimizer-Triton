@@ -152,7 +152,7 @@ def validate_tritonbench_candidate(task_id: str, code: str) -> TritonBenchGramma
     if "torch." in clean_code and "@triton.jit" not in clean_code:
         warnings.append("Candidate may be a PyTorch fallback instead of a Triton implementation")
 
-    if "TODO" in clean_code or "pass" in re.sub(r"\s+", " ", clean_code):
+    if "TODO" in clean_code or re.search(r"\bpass\b", clean_code):
         warnings.append("Candidate contains TODO/pass marker")
 
     return TritonBenchGrammarResult(
@@ -211,6 +211,8 @@ def validate_tritonbench_family_candidate(task_id: str, code: str) -> TritonBenc
 
     if "torch." in clean_code and "@triton.jit" not in clean_code:
         warnings.append("Candidate may be a PyTorch fallback instead of a Triton implementation")
+    if "TODO" in clean_code or re.search(r"\bpass\b", clean_code):
+        warnings.append("Candidate contains TODO/pass marker")
 
     return TritonBenchGrammarResult(
         valid=len(errors) == 0,

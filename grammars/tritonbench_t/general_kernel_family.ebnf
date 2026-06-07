@@ -4,7 +4,10 @@
 
    This file is intentionally higher-level than the individual contracts. It
    describes the structure that XGrammar/constrained decoding should select
-   after classifying the task family. *)
+   after classifying the task family.
+
+   Representative family labels used by the selector and tests:
+   elementwise_kernel, reduction_kernel. *)
 
 module = imports, decorator, kernel_def, implementation, [launcher_def] ;
 

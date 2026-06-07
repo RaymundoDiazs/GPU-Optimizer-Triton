@@ -15,13 +15,13 @@ from parsing.tritonbench_grammar_rules import (
 )
 
 
-DEFAULT_INPUT = ROOT / "evaluation" / "translation_outputs.jsonl"
+DEFAULT_INPUT = ROOT / "evaluation" / "artifacts" / "generated_kernels.jsonl"
 DEFAULT_OUTPUT = ROOT / "benchmarks" / "tritonbench_grammar_results.csv"
 
 
 def _read_jsonl(path: Path) -> list[dict]:
     if not path.exists():
-        return []
+        raise FileNotFoundError(f"Input JSONL does not exist: {path}")
     rows = []
     with path.open("r", encoding="utf-8") as file:
         for line in file:
@@ -31,6 +31,8 @@ def _read_jsonl(path: Path) -> list[dict]:
 
 
 def _task_id(record: dict) -> str:
+    if record.get("task_id"):
+        return str(record["task_id"])
     task = record.get("task", {})
     task_id = task.get("id", "")
     if task_id:
@@ -44,6 +46,8 @@ def _task_id(record: dict) -> str:
 def run_grammar_benchmark(input_path: Path = DEFAULT_INPUT, output_path: Path = DEFAULT_OUTPUT) -> list[dict]:
     """Validate generated TritonBench-T candidates against grammar contracts."""
     records = _read_jsonl(input_path)
+    if not records:
+        raise ValueError(f"Input JSONL contains no records: {input_path}")
     results = []
 
     for record in records:
@@ -52,19 +56,25 @@ def run_grammar_benchmark(input_path: Path = DEFAULT_INPUT, output_path: Path = 
             continue
 
         model = record.get("model", {})
-        output = record.get("output", "")
+        output = record.get("extracted_code", record.get("output", ""))
         individual = validate_tritonbench_candidate(task_id, output)
         family = validate_tritonbench_family_candidate(task_id, output)
+        individual_valid = individual.valid and not any(
+            "TODO/pass" in warning for warning in individual.warnings
+        )
+        family_valid = family.valid and not any(
+            "TODO/pass" in warning for warning in family.warnings
+        )
         results.append(
             {
-                "model_id": model.get("id", ""),
-                "provider": model.get("provider", ""),
+                "model_id": record.get("model_id", model.get("id", "")),
+                "provider": record.get("provider", model.get("provider", "")),
                 "task_id": task_id,
                 "mode": record.get("mode", ""),
                 "sample_index": record.get("sample_index", ""),
-                "individual_valid": individual.valid,
-                "family_valid": family.valid,
-                "validations_match": individual.valid == family.valid,
+                "individual_valid": individual_valid,
+                "family_valid": family_valid,
+                "validations_match": individual_valid == family_valid,
                 "individual_passed_rule_count": len(individual.passed_rules),
                 "family_passed_rule_count": len(family.passed_rules),
                 "individual_error_count": len(individual.errors),
@@ -111,7 +121,11 @@ def main() -> None:
     parser.add_argument("--output", default=str(DEFAULT_OUTPUT), help="Output CSV path")
     args = parser.parse_args()
 
-    rows = run_grammar_benchmark(Path(args.input), Path(args.output))
+    try:
+        rows = run_grammar_benchmark(Path(args.input), Path(args.output))
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        raise SystemExit(1) from exc
     total = len(rows)
     individual_passed = sum(1 for row in rows if row["individual_valid"])
     family_passed = sum(1 for row in rows if row["family_valid"])

@@ -12,3 +12,6 @@ pyyaml
 numpy
 pytest
 xgrammar
+openai
+anthropic
+python-dotenv

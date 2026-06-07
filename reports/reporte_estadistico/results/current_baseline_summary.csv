@@ -1,0 +1,4 @@
+model_id,n,syntax_valid_rate,safety_valid_rate,contract_valid_rate,call_accuracy_rate,execution_accuracy_rate,archived_speedup,speedups_recorded
+small_qwen25_coder_1_5b,166,0.9397590361445783,0.9337349397590361,0.024096385542168676,0.2349,0.0663,0.8,10
+frontier_openai,166,1.0,1.0,0.6506024096385542,0.1084,0.0723,0.45,7
+frontier_anthropic,166,0.9939759036144579,0.9819277108433735,0.8975903614457831,0.4157,0.4036,0.45,56

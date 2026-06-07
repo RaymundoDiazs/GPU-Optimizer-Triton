@@ -3,9 +3,9 @@
   "experiment_name": "evaluacion_generacion_kernels_slm_vs_baselines",
   "task": "vector_add",
   "task_description": "Generar un kernel Triton para Z = X + Y.",
-  "current_results_source": "evaluation/artifacts/model_eval_results.csv",
+  "current_results_source": "artifacts/current_evaluation/model_eval_results.csv",
   "planned_samples_per_model_mode": 50,
-  "current_samples_per_model_mode": 3,
+  "current_samples_per_model_mode": 166,
   "models": [
     {
       "id": "small_qwen25_coder_1_5b",
@@ -40,6 +40,8 @@
   "metrics": [
     "syntax_valid",
     "kernel_shape_valid",
+    "safety_valid",
+    "contract_valid",
     "correctness_proxy",
     "latency_seconds"
   ],
@@ -55,7 +57,6 @@
     "confidence_interval": 0.95,
     "primary_comparison": "small_qwen25_coder_1_5b baseline vs constrained on kernel_shape_valid",
     "effect_size_for_proportions": "difference in proportions",
-    "notes": "Con n=3 por grupo, los resultados actuales son exploratorios; el experimento final debe aumentar n."
+    "notes": "Hay 166 predicciones baseline por modelo. No existe todavía un grupo constrained actual y comparable."
   }
 }
-
