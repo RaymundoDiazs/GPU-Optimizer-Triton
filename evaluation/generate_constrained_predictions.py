@@ -1,5 +1,6 @@
 """Paso 2 (constrained) — Runner de predicciones con XGrammar.
 
+
 IMPORTANTE:
 - El constrained decoding via logits processor solo funciona con un modelo
   HF local (Qwen). GPT-4o / Claude por API NO exponen acceso a logits, asi
@@ -115,10 +116,26 @@ def run(
     resume: bool,
     seed: int,
     output: Path,
+    grammar_file: Path | None = None,
 ) -> int:
-    """Corrida real: carga Qwen local una vez y genera con XGrammar por task."""
+    """Corrida real: carga Qwen local una vez y genera con XGrammar por task.
+
+    Si se pasa grammar_file, se usa ESA gramatica GBNF (valida para XGrammar)
+    para los 166 tasks, en vez de las EBNF individuales del repo (que estan en
+    formato ISO y XGrammar no puede compilar). El prompt sigue siendo el de cada
+    task; solo cambia la gramatica que restringe el decoding.
+    """
     # Carga e import perezoso para que --dry-run no exija las dependencias.
     from generation.hf_xgrammar_provider import load_hf_model
+
+    custom_grammar = None
+    if grammar_file is not None:
+        custom_grammar = Path(grammar_file).read_text(encoding="utf-8")
+        print(f"Usando gramatica unica: {grammar_file}")
+        from generation.xgrammar_llm_decoder import XGrammarLLMDecoder
+        from generation.tritonbench_constrained_decoding import (
+            build_tritonbench_constrained_spec,
+        )
 
     try:
         import torch
@@ -151,13 +168,22 @@ def run(
             index = _task_id_to_index(task_id)
             instruction = dataset[index]["instruction"]
             try:
-                result = generate_with_tritonbench_xgrammar(
-                    task_id=task_id,
-                    model=model,
-                    tokenizer=tokenizer,
-                    mode=mode,
-                    max_new_tokens=max_new_tokens,
-                )
+                if custom_grammar is not None:
+                    spec = build_tritonbench_constrained_spec(task_id, mode=mode)
+                    decoder = XGrammarLLMDecoder(
+                        model=model, tokenizer=tokenizer, grammar_text=custom_grammar
+                    )
+                    result = decoder.generate(
+                        prompt=spec.prompt, max_new_tokens=max_new_tokens
+                    )
+                else:
+                    result = generate_with_tritonbench_xgrammar(
+                        task_id=task_id,
+                        model=model,
+                        tokenizer=tokenizer,
+                        mode=mode,
+                        max_new_tokens=max_new_tokens,
+                    )
                 predict = result.generated_code
                 tag = "ok" if result.accepted else "gen(no-valida)"
             except Exception as exc:  # noqa: BLE001
@@ -198,6 +224,10 @@ def main() -> None:
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--dry-run", action="store_true",
                         help="Valida prompts+gramaticas de los 166 sin cargar el modelo.")
+    parser.add_argument("--grammar-file", type=Path, default=None,
+                        help="Ruta a UNA gramatica GBNF valida para usar en los 166 "
+                             "(p.ej. grammars/triton_module.gbnf). Recomendado: las EBNF "
+                             "individuales estan en formato ISO y XGrammar no las compila.")
     args = parser.parse_args()
 
     if args.dry_run:
@@ -212,6 +242,7 @@ def main() -> None:
         resume=args.resume,
         seed=args.seed,
         output=args.output,
+        grammar_file=args.grammar_file,
     )
     sys.exit(1 if errors else 0)
 
