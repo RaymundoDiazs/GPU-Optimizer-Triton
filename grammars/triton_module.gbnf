@@ -1,20 +1,24 @@
 # Gramatica GBNF estructural para un modulo de kernel Triton (formato XGrammar).
 # Formato GBNF: reglas con ::=, comentarios con #, alternancia |, repeticion * + ?
-# Garantiza la envoltura: encabezado (imports/comentarios), >=1 kernel @triton.jit
-# con su def, y un def wrapper. El contenido de las lineas queda libre para no
-# bloquear al modelo (constrained = correccion estructural, no semantica completa).
+# Garantiza la envoltura: (opcional bloque markdown) encabezado (imports/comentarios),
+# >=1 kernel @triton.jit con su def, y un def wrapper. El contenido de las lineas
+# queda libre para no bloquear al modelo (constrained = correccion estructural).
+# Permite el fence ```python que los modelos instruct suelen emitir con chat template.
 
-root        ::= header kernel+ def_block trailer
+root         ::= fence_open header kernel+ def_block trailer fence_close
 
-header      ::= header_line+
-header_line ::= ("import " | "from " | "#") line_rest | "\n"
+fence_open   ::= ("```python\n" | "```\n")?
+fence_close  ::= ("```\n" | "```")?
 
-kernel      ::= "@triton.jit\n" "def " line_rest body
-def_block   ::= "def " line_rest body
-trailer     ::= body_line*
+header       ::= header_line+
+header_line  ::= ("import " | "from " | "#") line_rest | "\n"
 
-body        ::= body_line*
-body_line   ::= line_char+ "\n" | "\n"
+kernel       ::= "@triton.jit\n" "def " line_rest body
+def_block    ::= "def " line_rest body
+trailer      ::= body_line*
 
-line_rest   ::= line_char* "\n"
-line_char   ::= [^\n]
+body         ::= body_line*
+body_line    ::= line_char+ "\n" | "\n"
+
+line_rest    ::= line_char* "\n"
+line_char    ::= [^\n]

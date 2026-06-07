@@ -62,10 +62,23 @@ class XGrammarLLMDecoder:
 
         import xgrammar as xgr
 
-        vocab_size = getattr(self.tokenizer, "vocab_size", None)
-
-        if vocab_size is None and hasattr(self.model, "config"):
-            vocab_size = getattr(self.model.config, "vocab_size", None)
+        # Usar el vocab MAS GRANDE disponible. El tokenizer de Qwen reporta
+        # vocab_size base (151643) pero el modelo tiene tokens especiales por
+        # encima (p.ej. <|im_start|>=151644). Si XGrammar solo conoce el vocab
+        # base, rechaza esos tokens y truena con AssertionError en algunos tasks.
+        candidates = []
+        tok_vocab = getattr(self.tokenizer, "vocab_size", None)
+        if tok_vocab:
+            candidates.append(tok_vocab)
+        try:
+            candidates.append(len(self.tokenizer))
+        except TypeError:
+            pass
+        if hasattr(self.model, "config"):
+            cfg_vocab = getattr(self.model.config, "vocab_size", None)
+            if cfg_vocab:
+                candidates.append(cfg_vocab)
+        vocab_size = max(candidates) if candidates else None
 
         tokenizer_info = xgr.TokenizerInfo.from_huggingface(
             self.tokenizer,
@@ -91,8 +104,22 @@ class XGrammarLLMDecoder:
         if self.compiled_grammar is None:
             self.compile_grammar()
 
+        # Aplicar el chat template del modelo instruct (Qwen). Mandar el prompt
+        # crudo hace que el modelo siga mal la instruccion; con el template
+        # responde mucho mejor. Si el tokenizer no tiene template, usar el crudo.
+        text = prompt
+        try:
+            if getattr(self.tokenizer, "chat_template", None):
+                text = self.tokenizer.apply_chat_template(
+                    [{"role": "user", "content": prompt}],
+                    tokenize=False,
+                    add_generation_prompt=True,
+                )
+        except Exception:
+            text = prompt
+
         inputs = self.tokenizer(
-            prompt,
+            text,
             return_tensors="pt",
         )
 
