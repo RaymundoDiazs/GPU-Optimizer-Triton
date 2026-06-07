@@ -13,9 +13,9 @@ triton-imports ::= "import triton" ws "import triton.language as tl" ws
 
 kernel ::= decorator ws function-def ws body
 decorator ::= "@triton.jit"
-function-def ::= "def" ws identifier "(" params ")" ":"
+function-def ::= "def" ws identifier "(" params? ")" ":"
 
-launcher ::= "def" ws identifier "(" wrapper-params ")" ":" ws launcher-body
+launcher ::= "def" ws identifier "(" wrapper-params? ")" ":" ws launcher-body
 launcher-body ::= line*
 
 body ::= line+
@@ -34,14 +34,14 @@ store ::= "tl.store(" text ")"
 assignment ::= identifier opt-ws "=" opt-ws text
 generic-statement ::= text
 
-params ::= | param ("," opt-ws param)*
+params ::= param ("," opt-ws param)*
 
 param ::= identifier
         | identifier ":" opt-ws "tl.constexpr"
         | identifier opt-ws "=" opt-ws text
         | identifier ":" opt-ws "tl.constexpr" opt-ws "=" opt-ws text
 
-wrapper-params ::= | text
+wrapper-params ::= text
 
 arange-end ::= integer
              | identifier
