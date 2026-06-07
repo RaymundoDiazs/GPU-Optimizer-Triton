@@ -1,0 +1,20 @@
+# Gramatica GBNF estructural para un modulo de kernel Triton (formato XGrammar).
+# Formato GBNF: reglas con ::=, comentarios con #, alternancia |, repeticion * + ?
+# Garantiza la envoltura: encabezado (imports/comentarios), >=1 kernel @triton.jit
+# con su def, y un def wrapper. El contenido de las lineas queda libre para no
+# bloquear al modelo (constrained = correccion estructural, no semantica completa).
+
+root        ::= header kernel+ def_block trailer
+
+header      ::= header_line+
+header_line ::= ("import " | "from " | "#") line_rest | "\n"
+
+kernel      ::= "@triton.jit\n" "def " line_rest body
+def_block   ::= "def " line_rest body
+trailer     ::= body_line*
+
+body        ::= body_line*
+body_line   ::= line_char+ "\n" | "\n"
+
+line_rest   ::= line_char* "\n"
+line_char   ::= [^\n]
