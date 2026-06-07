@@ -1,77 +1,54 @@
-(* General TritonBench-T family grammar.
-   Purpose: choose a reusable grammar by operation family instead of writing
-   one grammar per benchmark example.
+# TritonBench-T family grammar for XGrammar constrained decoding.
+# Family labels used by selector tests: elementwise_kernel, reduction_kernel.
+root ::= module
 
-   This file is intentionally higher-level than the individual contracts. It
-   describes the structure that XGrammar/constrained decoding should select
-   after classifying the task family.
+module ::= imports ws kernel
+         | imports ws kernel ws launcher
 
-   Representative family labels used by the selector and tests:
-   elementwise_kernel, reduction_kernel. *)
+imports ::= triton-imports
+          | torch-import triton-imports
 
-module = imports, decorator, kernel_def, implementation, [launcher_def] ;
+torch-import ::= "import torch" ws
+triton-imports ::= "import triton" ws "import triton.language as tl" ws
 
-imports = torch_import, triton_imports ;
-torch_import = "import torch", newline ;
-triton_imports = "import triton", newline,
-                 "import triton.language as tl", newline ;
+kernel ::= decorator ws function-def ws body
+decorator ::= "@triton.jit"
+function-def ::= "def" ws identifier "(" params ")" ":"
 
-launcher_def = "def", launcher_name, "(", wrapper_parameters, ")", ":", newline, launcher_body ;
+launcher ::= "def" ws identifier "(" wrapper-params ")" ":" ws launcher-body
+launcher-body ::= line*
 
-implementation = elementwise_body
-               | reduction_body
-               | convolution_body
-               | matmul_or_fusion_body
-               | generic_kernel_body ;
+body ::= line+
+line ::= indent statement ws
+statement ::= program-id
+            | arange
+            | load
+            | store
+            | assignment
+            | generic-statement
 
-decorator = "@triton.jit", newline ;
-kernel_def = "def", kernel_name, "(", kernel_parameters, ")", ":", newline ;
-program_id = identifier, ws, "=", ws, "tl.program_id", "(", integer, ")", newline ;
-offsets = identifier, ws, "=", ws, "tl.arange", "(", integer, ",", ws, identifier, ")", newline ;
-mask = identifier, ws, "=", ws, "tl.load", "(", text, ")", newline ;
-load = identifier, ws, "=", ws, "tl.load", "(", text, ")", newline ;
-store = "tl.store", "(", text, ")", newline ;
-one_or_more_loads = load, { load } ;
+program-id ::= identifier opt-ws "=" opt-ws "tl.program_id(" integer ")"
+arange ::= identifier opt-ws "=" opt-ws "tl.arange(" integer "," opt-ws arange-end ")"
+load ::= identifier opt-ws "=" opt-ws "tl.load(" text ")"
+store ::= "tl.store(" text ")"
+assignment ::= identifier opt-ws "=" opt-ws text
+generic-statement ::= text
 
-elementwise_body = program_id, offsets, mask, one_or_more_loads, elementwise_expr, store ;
-reduction_body = program_id, offsets, mask, one_or_more_loads, reduction_expr, store ;
-convolution_body = program_id, index_mapping, input_weight_loads, convolution_expr, optional_bias, activation, store ;
-matmul_or_fusion_body = program_id, tiled_offsets, matrix_loads, dot_or_multiply, optional_normalization, optional_activation, optional_dropout, store ;
-generic_kernel_body = program_id, offsets, one_or_more_loads, optional_computation, store ;
+params ::= | param ("," opt-ws param)*
 
-elementwise_expr = assignment ;
-reduction_expr = assignment ;
-convolution_expr = assignment ;
-dot_or_multiply = assignment ;
-optional_bias = [ statement ] ;
-optional_normalization = [ statement ] ;
-optional_activation = [ statement ] ;
-optional_dropout = [ statement ] ;
-optional_computation = [ assignment ] ;
+param ::= identifier
+        | identifier ":" opt-ws "tl.constexpr"
+        | identifier opt-ws "=" opt-ws text
+        | identifier ":" opt-ws "tl.constexpr" opt-ws "=" opt-ws text
 
-assignment = identifier, ws, "=", ws, text, newline ;
+wrapper-params ::= | text
 
-launcher_name = identifier ;
+arange-end ::= integer
+             | identifier
 
-kernel_name = identifier ;
-function_name = identifier ;
-
-kernel_parameters = [ kernel_param, { ",", ws, kernel_param } ] ;
-kernel_param = identifier, [ ":", ws, "tl.constexpr" ] ;
-wrapper_parameters = [ wrapper_param, { ",", ws, wrapper_param } ] ;
-wrapper_param = identifier ;
-
-wrapper_body = { statement } ;
-statement = { character }, newline ;
-identifier = letter, { letter | digit | "_" } ;
-integer = digit, { digit } ;
-text = { character } ;
-
-ws = { " " | "\t" } ;
-newline = "\n" ;
-character = any ;
-
-letter = ? [A-Za-z] ? ;
-digit = ? [0-9] ? ;
-any = ? [\s\S] ? ;
-empty = "" ;
+identifier ::= [a-zA-Z_][a-zA-Z0-9_]*
+integer ::= [0-9]+
+indent ::= [ \t]*
+opt-ws ::= [ \t]*
+ws ::= [ \t\n]+
+text ::= [^\n]+
