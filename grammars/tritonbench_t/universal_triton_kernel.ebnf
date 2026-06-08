@@ -1,0 +1,30 @@
+root ::= module
+
+module ::= imports ws kernel_module ws wrapper_module?
+
+imports ::= import_line+
+import_line ::= "import" ws import_text newline
+import_text ::= [^\n]+
+
+kernel_module ::= decorator ws function_def ws kernel_body
+decorator ::= "@triton.jit" newline
+function_def ::= "def" ws identifier "(" parameters ")" ":" newline
+
+kernel_body ::= statement* required_parallelism statement* required_memory_io statement*
+required_parallelism ::= program_id statement* offsets
+required_memory_io ::= load statement* store
+
+program_id ::= indent identifier ws "=" ws "tl.program_id(" text ")" newline
+offsets ::= indent identifier ws "=" ws text "tl.arange(" text ")" text newline
+load ::= indent identifier ws "=" ws "tl.load(" text ")" newline
+store ::= indent "tl.store(" text ")" newline
+
+wrapper_module ::= "def" ws identifier "(" parameters ")" ":" newline statement*
+statement ::= indent text newline
+
+parameters ::= [^\n)]*
+identifier ::= [a-zA-Z_][a-zA-Z0-9_]*
+text ::= [^\n]*
+indent ::= [ \t]+
+ws ::= [ \t]*
+newline ::= "\n"
