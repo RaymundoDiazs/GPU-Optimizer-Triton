@@ -1,3 +1,4 @@
+import ast
 import re
 from dataclasses import dataclass
 
@@ -19,6 +20,14 @@ REQUIRED_PATTERNS = {
     "mask": r"mask\s*=",
 }
 
+FORBIDDEN_KERNEL_NAME_ROOTS = {"torch", "np", "numpy", "math"}
+FORBIDDEN_KERNEL_CALLS = {"isinstance", "range"}
+FORBIDDEN_TRITON_JIT_CALLS = {
+    "triton.jit.block_index",
+    "triton.jit.get_block_index",
+    "triton.jit.get_global_id",
+}
+
 
 def check_balanced_symbols(code: str) -> list[str]:
     errors = []
@@ -30,6 +39,72 @@ def check_balanced_symbols(code: str) -> list[str]:
         errors.append("Unbalanced brackets")
 
     return errors
+
+
+def _attribute_name(node: ast.AST) -> str:
+    if isinstance(node, ast.Name):
+        return node.id
+    if isinstance(node, ast.Attribute):
+        prefix = _attribute_name(node.value)
+        return f"{prefix}.{node.attr}" if prefix else node.attr
+    return ""
+
+
+def _attribute_root(node: ast.AST) -> str:
+    name = _attribute_name(node)
+    return name.split(".", 1)[0] if name else ""
+
+
+def _decorator_name(node: ast.AST) -> str:
+    if isinstance(node, ast.Call):
+        return _attribute_name(node.func)
+    return _attribute_name(node)
+
+
+def _is_triton_jit_kernel(node: ast.AST) -> bool:
+    return isinstance(node, ast.FunctionDef) and any(
+        _decorator_name(decorator) == "triton.jit"
+        for decorator in node.decorator_list
+    )
+
+
+def _validate_kernel_ast(kernel: ast.FunctionDef) -> list[str]:
+    errors: list[str] = []
+    for node in ast.walk(kernel):
+        if node is kernel:
+            continue
+        if isinstance(node, (ast.For, ast.AsyncFor)):
+            errors.append(
+                f"Forbidden Python loop inside @triton.jit kernel {kernel.name}: for"
+            )
+        elif isinstance(node, ast.Name):
+            if node.id in FORBIDDEN_KERNEL_NAME_ROOTS:
+                errors.append(
+                    f"Forbidden {node.id} use inside @triton.jit kernel {kernel.name}"
+                )
+        elif isinstance(node, ast.Attribute):
+            root = _attribute_root(node)
+            full_name = _attribute_name(node)
+            if root in FORBIDDEN_KERNEL_NAME_ROOTS:
+                errors.append(
+                    f"Forbidden {root} use inside @triton.jit kernel {kernel.name}"
+                )
+            if full_name in FORBIDDEN_TRITON_JIT_CALLS:
+                errors.append(
+                    f"Invalid Triton API inside @triton.jit kernel {kernel.name}: {full_name}"
+                )
+        elif isinstance(node, ast.Call):
+            call_name = _attribute_name(node.func)
+            if call_name in FORBIDDEN_KERNEL_CALLS:
+                errors.append(
+                    f"Forbidden call inside @triton.jit kernel {kernel.name}: {call_name}"
+                )
+            if call_name in FORBIDDEN_TRITON_JIT_CALLS:
+                errors.append(
+                    f"Invalid Triton API inside @triton.jit kernel {kernel.name}: {call_name}"
+                )
+
+    return sorted(set(errors))
 
 
 def validate_triton_kernel(code: str) -> GrammarCheckResult:
@@ -45,9 +120,35 @@ def validate_triton_kernel(code: str) -> GrammarCheckResult:
             warnings=[],
         )
 
+    try:
+        tree = ast.parse(clean_code)
+    except SyntaxError as exc:
+        return GrammarCheckResult(
+            valid=False,
+            errors=[f"Python syntax error: {exc.msg}"],
+            warnings=[],
+        )
+
+    kernels = [node for node in ast.walk(tree) if _is_triton_jit_kernel(node)]
+    if not kernels:
+        errors.append("Missing required Triton structure: triton_jit")
+
     for rule_name, pattern in REQUIRED_PATTERNS.items():
+        if rule_name == "triton_jit":
+            continue
         if not re.search(pattern, clean_code):
             errors.append(f"Missing required Triton structure: {rule_name}")
+
+    for kernel in kernels:
+        kernel_source = ast.get_source_segment(clean_code, kernel) or ""
+        for rule_name, pattern in REQUIRED_PATTERNS.items():
+            if rule_name in {"triton_jit", "kernel_def"}:
+                continue
+            if not re.search(pattern, kernel_source):
+                errors.append(
+                    f"Missing required Triton structure inside {kernel.name}: {rule_name}"
+                )
+        errors.extend(_validate_kernel_ast(kernel))
 
     errors.extend(check_balanced_symbols(clean_code))
 

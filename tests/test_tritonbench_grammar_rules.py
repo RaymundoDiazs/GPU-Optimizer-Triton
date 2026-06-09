@@ -44,6 +44,45 @@ def tanh(input, *, out=None):
 """
 
 
+TANH_WITH_TORCH_WRAPPER = """
+import torch
+import triton
+import triton.language as tl
+
+@triton.jit
+def tanh_kernel(X, Z, N: tl.constexpr, BLOCK_SIZE: tl.constexpr):
+    pid = tl.program_id(0)
+    offsets = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)
+    mask = offsets < N
+    x = tl.load(X + offsets, mask=mask)
+    z = tl.tanh(x)
+    tl.store(Z + offsets, z, mask=mask)
+
+def tanh(input, *, out=None):
+    output = torch.empty_like(input) if out is None else out
+    return output
+"""
+
+
+TANH_WITH_TORCH_IN_KERNEL = """
+import torch
+import triton
+import triton.language as tl
+
+@triton.jit
+def tanh_kernel(X, Z, N: tl.constexpr, BLOCK_SIZE: tl.constexpr):
+    pid = tl.program_id(0)
+    offsets = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)
+    mask = offsets < N
+    x = torch.from_buffer(X)
+    z = tl.tanh(x)
+    tl.store(Z + offsets, z, mask=mask)
+
+def tanh(input, *, out=None):
+    return out
+"""
+
+
 def test_tritonbench_subset_has_all_simple_contracts():
     contracts = load_tritonbench_contracts()
 
@@ -62,6 +101,31 @@ def test_tanh_candidate_passes_subset_contract():
 
     assert result.valid is True
     assert result.errors == []
+
+
+def test_markdown_fences_fail_contract():
+    result = validate_tritonbench_candidate(
+        "tritonbench_t_005",
+        f"```python\n{TANH_CANDIDATE}\n```",
+    )
+
+    assert result.valid is False
+    assert "Candidate contains markdown fences" in result.errors
+
+
+def test_torch_is_allowed_in_wrapper_but_not_kernel():
+    wrapper_result = validate_tritonbench_candidate(
+        "tritonbench_t_005",
+        TANH_WITH_TORCH_WRAPPER,
+    )
+    kernel_result = validate_tritonbench_candidate(
+        "tritonbench_t_005",
+        TANH_WITH_TORCH_IN_KERNEL,
+    )
+
+    assert wrapper_result.valid is True
+    assert kernel_result.valid is False
+    assert any("Forbidden torch use inside @triton.jit" in error for error in kernel_result.errors)
 
 
 def test_div_candidate_passes_family_contract():

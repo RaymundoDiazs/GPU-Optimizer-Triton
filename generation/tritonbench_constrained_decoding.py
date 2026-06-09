@@ -92,6 +92,10 @@ Constrained decoding contract:
 - Required wrapper: def {contract['wrapper']}
 - Grammar mode: {mode}
 - Family: {contract['family']}
+- Return raw Python only; do not wrap the answer in ```python fences.
+- Inside @triton.jit, do not use torch, torch.nn, numpy, math, isinstance, range, for loops, or triton.jit.get_* APIs.
+- Inside @triton.jit, use tl.program_id(0), tl.arange, mask = offsets < n_elements, tl.load(..., mask=mask), Triton/vector expressions, and tl.store(..., mask=mask).
+- Keep torch usage in the plain Python wrapper only, for allocation and launching the Triton kernel.
 
 Return only one Python module. Do not include explanations.
 """

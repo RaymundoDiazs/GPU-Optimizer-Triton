@@ -1,46 +1,35 @@
-(* Contract for TritonBench-T example 021.
-   Target wrapper: normalize_pairwise_distance(x1, x2, p_distance=2.0,
-   eps_distance=1e-6, keepdim=False, p_norm=2, dim_norm=1,
-   eps_norm=1e-12) -> Tensor. *)
+/* Auto-generated TritonBench-T contract for tritonbench_t_021: normalize_pairwise_distance.
+   TritonBench-T example 021.
+   This is a structural grammar contract for constrained decoding and
+   post-generation validation. TritonBench remains the source of functional
+   correctness and speedup evidence.
+   Family: reduction. Semantic hints: normalize_pairwise_distance, normalize_pairwise_distance, tl.sum/tl.max/tl.min/argmax/argmin.
+*/
 
-module = imports, implementation, wrapper ;
+root ::= module
 
-imports = "import torch", newline,
-          "import triton", newline,
-          "import triton.language as tl", newline ;
-
-implementation = kernel | documented_fallback ;
-
-kernel = "@triton.jit", newline,
-         "def", identifier, "(", parameters, ")", ":", newline,
-         distance_norm_body ;
-
-distance_norm_body = offsets, mask, load_x1, load_x2, pairwise_distance,
-                     normalize_distance, store ;
-
-offsets = statement_with("tl.program_id"), statement_with("tl.arange") ;
-mask = statement_with("mask") ;
-load_x1 = statement_with("tl.load") ;
-load_x2 = statement_with("tl.load") ;
-pairwise_distance = statement_with("p_distance")
-                  | statement_with("eps_distance")
-                  | statement_with("tl.abs")
-                  | statement_with("tl.sum") ;
-normalize_distance = statement_with("p_norm")
-                   | statement_with("dim_norm")
-                   | statement_with("eps_norm")
-                   | statement_with("tl.sqrt") ;
-store = statement_with("tl.store") ;
-
-documented_fallback = statement_with("pairwise_distance")
-                    | statement_with("normalize") ;
-
-wrapper = "def normalize_pairwise_distance", "(", wrapper_parameters, ")", ":", newline,
-          { statement } ;
-
-identifier = letter, { letter | digit | "_" } ;
-parameters = { character } ;
-wrapper_parameters = { character } ;
-statement = { character }, newline ;
-statement_with(token) = { character }, token, { character }, newline ;
-newline = "\n" ;
+module ::= imports implementation wrapper
+imports ::= "import torch" newline "import triton" newline "import triton.language as tl" newline
+implementation ::= triton_kernel
+triton_kernel ::= "@triton.jit" newline kernel_def kernel_body
+kernel_def ::= "def " identifier "(" parameters ")" ":" newline
+kernel_body ::= program_id offsets mask load_ops computation store
+program_id ::= indent identifier "=" "tl.program_id(0)" newline
+offsets ::= indent identifier "=" identifier "*" "BLOCK_SIZE" "+" "tl.arange(0, BLOCK_SIZE)" newline
+mask ::= indent identifier "=" identifier "<" identifier newline
+load_ops ::= load load?
+load ::= indent identifier "=" "tl.load(" pointer_expr "," "mask=" identifier ")" newline
+computation ::= indent identifier "=" triton_expr newline
+store ::= indent "tl.store(" pointer_expr "," identifier "," "mask=" identifier ")" newline
+triton_expr ::= identifier | identifier binary_op identifier | identifier binary_op number | "tl." triton_func "(" triton_args ")"
+pointer_expr ::= identifier "+" identifier
+triton_args ::= /[^\n)]*/
+triton_func ::= "abs" | "cos" | "exp" | "log" | "maximum" | "minimum" | "sigmoid" | "sqrt" | "sum" | "tanh" | "where"
+binary_op ::= "+" | "-" | "*" | "/" | "&" | "|" | "^"
+number ::= /[0-9]+(\.[0-9]+)?/
+wrapper ::= "def normalize_pairwise_distance(x1, x2, p_distance=2.0, eps_distance=1e-6, keepdim=False, p_norm=2, dim_norm=1, eps_norm=1e-12)" ":" newline wrapper_body
+wrapper_body ::= statement+
+indent ::= "    "
+identifier ::= /[a-zA-Z_][a-zA-Z0-9_]*/
+parameters ::= /[^)]*/
+statement ::= /[^\n]+/

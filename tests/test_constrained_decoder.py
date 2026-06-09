@@ -34,6 +34,52 @@ def bad_kernel(x_ptr, y_ptr, output_ptr, n_elements, BLOCK_SIZE: tl.constexpr):
 """
 
 
+INVALID_KERNEL_TORCH_IN_JIT = """
+import torch
+import triton
+import triton.language as tl
+
+@triton.jit
+def bad_kernel(input_ptr, output_ptr, n_elements, BLOCK_SIZE: tl.constexpr):
+    pid = tl.program_id(0)
+    offsets = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)
+    mask = offsets < n_elements
+    x = torch.from_buffer(input_ptr)
+    tl.store(output_ptr + offsets, x, mask=mask)
+"""
+
+
+INVALID_KERNEL_FAKE_TRITON_API = """
+import triton
+import triton.language as tl
+
+@triton.jit
+def bad_kernel(input_ptr, output_ptr, n_elements, BLOCK_SIZE: tl.constexpr):
+    pid = triton.jit.get_global_id(0)
+    offsets = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)
+    mask = offsets < n_elements
+    x = tl.load(input_ptr + offsets, mask=mask)
+    tl.store(output_ptr + offsets, x, mask=mask)
+"""
+
+
+INVALID_KERNEL_PYTHON_LOOP = """
+import triton
+import triton.language as tl
+
+@triton.jit
+def bad_kernel(input_ptr, output_ptr, n_elements, BLOCK_SIZE: tl.constexpr):
+    pid = tl.program_id(0)
+    offsets = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)
+    mask = offsets < n_elements
+    acc = 0.0
+    for i in range(4):
+        acc = acc + i
+    x = tl.load(input_ptr + offsets, mask=mask)
+    tl.store(output_ptr + offsets, x + acc, mask=mask)
+"""
+
+
 def test_valid_triton_kernel_passes():
     result = validate_triton_kernel(VALID_KERNEL)
 
@@ -46,6 +92,28 @@ def test_invalid_kernel_missing_store_fails():
 
     assert result.valid is False
     assert any("store" in error for error in result.errors)
+
+
+def test_invalid_kernel_rejects_torch_inside_jit():
+    result = validate_triton_kernel(INVALID_KERNEL_TORCH_IN_JIT)
+
+    assert result.valid is False
+    assert any("Forbidden torch use inside @triton.jit" in error for error in result.errors)
+
+
+def test_invalid_kernel_rejects_fake_triton_jit_api():
+    result = validate_triton_kernel(INVALID_KERNEL_FAKE_TRITON_API)
+
+    assert result.valid is False
+    assert any("triton.jit.get_global_id" in error for error in result.errors)
+
+
+def test_invalid_kernel_rejects_python_for_range_inside_jit():
+    result = validate_triton_kernel(INVALID_KERNEL_PYTHON_LOOP)
+
+    assert result.valid is False
+    assert any("Forbidden Python loop" in error for error in result.errors)
+    assert any("Forbidden call inside @triton.jit" in error for error in result.errors)
 
 
 def test_constrained_decoder_accepts_valid_kernel():

@@ -1,0 +1,160 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1050" viewBox="0 0 1600 1050" role="img" aria-labelledby="title desc">
+  <title id="title">GPU AI Optimizer repo architecture</title>
+  <desc id="desc">Architecture diagram showing the interactive optimization pipeline, shared grammar layer, and TritonBench-T evaluation pipeline in the GPU AI Optimizer repository.</desc>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#172026" flood-opacity="0.12"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" orient="auto-start-reverse">
+      <path d="M 1 1 L 11 6 L 1 11 z" fill="#2d5962"/>
+    </marker>
+    <style>
+      .bg { fill: #f7faf9; }
+      .title { font-family: Arial, Helvetica, sans-serif; font-size: 38px; font-weight: 700; fill: #173238; }
+      .subtitle { font-family: Arial, Helvetica, sans-serif; font-size: 18px; font-weight: 400; fill: #52686f; }
+      .lane-title { font-family: Arial, Helvetica, sans-serif; font-size: 23px; font-weight: 700; fill: #21454d; }
+      .box-title { font-family: Arial, Helvetica, sans-serif; font-size: 21px; font-weight: 700; fill: #102a31; }
+      .box-text { font-family: Arial, Helvetica, sans-serif; font-size: 16px; font-weight: 400; fill: #263b42; }
+      .mono { font-family: Menlo, Consolas, monospace; font-size: 15px; font-weight: 500; fill: #284349; }
+      .tag { font-family: Arial, Helvetica, sans-serif; font-size: 13px; font-weight: 700; letter-spacing: .8px; fill: #315c65; }
+      .note { font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: 400; fill: #5c7178; }
+      .arrow { fill: none; stroke: #2d5962; stroke-width: 3.2; marker-end: url(#arrow); }
+      .soft-arrow { fill: none; stroke: #6a7b46; stroke-width: 2.8; marker-end: url(#arrow); stroke-dasharray: 7 8; }
+      .box { stroke-width: 1.5; }
+      .green { fill: #e5f5ec; stroke: #93c8aa; }
+      .blue { fill: #e8f1fb; stroke: #9ebee0; }
+      .amber { fill: #fff3db; stroke: #e1ba66; }
+      .rose { fill: #fbe9e5; stroke: #d99a8c; }
+      .mint { fill: #e9f7f3; stroke: #8ac9ba; }
+      .violet { fill: #f0edf8; stroke: #b8abd8; }
+      .chip { fill: #f4f7f6; stroke: #d5e0de; stroke-width: 1; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1600" height="1050"/>
+
+  <text class="title" x="58" y="58">GPU AI Optimizer - repo architecture</text>
+  <text class="subtitle" x="60" y="90">From PyTorch snippets and TritonBench-T predictions to grammar-checked Triton kernels, GPU validation, benchmarks, and report artifacts.</text>
+
+  <rect x="42" y="122" width="1516" height="390" rx="24" fill="#edf7f4" stroke="#d2e4df" stroke-width="1.5"/>
+  <text class="lane-title" x="72" y="160">Interactive optimization pipeline</text>
+  <text class="note" x="72" y="184">Used by main.py for quick classification, XGrammar-style structure, template generation, and optional CUDA validation.</text>
+
+  <rect class="box" x="75" y="220" width="245" height="205" rx="16" fill="#e5f5ec" stroke="#93c8aa"/>
+  <text class="tag" x="101" y="253">INPUTS</text>
+  <text class="box-title" x="101" y="284">User problem</text>
+  <text class="box-text" x="101" y="318">Python snippet or CLI call</text>
+  <text class="mono" x="101" y="348">main.py --code</text>
+  <text class="mono" x="101" y="374">config/settings.yaml</text>
+  <text class="mono" x="101" y="400">prompts/*.txt</text>
+
+  <rect class="box" x="365" y="220" width="265" height="205" rx="16" fill="#e8f1fb" stroke="#9ebee0"/>
+  <text class="tag" x="391" y="253">ANALYSIS</text>
+  <text class="box-title" x="391" y="284">Classify and parse</text>
+  <text class="mono" x="391" y="318">models/classifier.py</text>
+  <text class="mono" x="391" y="344">parsing/ast_parser.py</text>
+  <text class="mono" x="391" y="370">parsing/xgrammar_converter.py</text>
+  <text class="box-text" x="391" y="400">element-wise / reduction / matmul</text>
+
+  <rect class="box" x="675" y="220" width="275" height="205" rx="16" fill="#fff3db" stroke="#e1ba66"/>
+  <text class="tag" x="701" y="253">GENERATION</text>
+  <text class="box-title" x="701" y="284">Choose kernel strategy</text>
+  <text class="mono" x="701" y="318">models/llm_decider.py</text>
+  <text class="mono" x="701" y="344">generation/triton_gen.py</text>
+  <text class="mono" x="701" y="370">kernel_templates.py</text>
+  <text class="box-text" x="701" y="400">Triton kernel plus Python wrapper</text>
+
+  <rect class="box" x="995" y="220" width="260" height="205" rx="16" fill="#fbe9e5" stroke="#d99a8c"/>
+  <text class="tag" x="1021" y="253">RUNTIME CHECK</text>
+  <text class="box-title" x="1021" y="284">Compile and compare</text>
+  <text class="mono" x="1021" y="318">validation/gpu_validator.py</text>
+  <text class="mono" x="1021" y="344">benchmarks/profiler.py</text>
+  <text class="box-text" x="1021" y="374">CUDA availability aware</text>
+  <text class="box-text" x="1021" y="400">PyTorch reference comparison</text>
+
+  <rect class="box" x="1300" y="220" width="220" height="205" rx="16" fill="#e9f7f3" stroke="#8ac9ba"/>
+  <text class="tag" x="1326" y="253">OUTPUTS</text>
+  <text class="box-title" x="1326" y="284">Generated artifacts</text>
+  <text class="mono" x="1326" y="318">results.txt</text>
+  <text class="mono" x="1326" y="344">results_reduction.txt</text>
+  <text class="mono" x="1326" y="370">docs/*.html</text>
+  <text class="box-text" x="1326" y="400">demo + presentation material</text>
+
+  <line x1="320" y1="322" x2="350" y2="322" stroke="#2d5962" stroke-width="4"/>
+  <polygon points="350,311 370,322 350,333" fill="#2d5962"/>
+  <line x1="630" y1="322" x2="660" y2="322" stroke="#2d5962" stroke-width="4"/>
+  <polygon points="660,311 680,322 660,333" fill="#2d5962"/>
+  <line x1="950" y1="322" x2="980" y2="322" stroke="#2d5962" stroke-width="4"/>
+  <polygon points="980,311 1000,322 980,333" fill="#2d5962"/>
+  <line x1="1255" y1="322" x2="1285" y2="322" stroke="#2d5962" stroke-width="4"/>
+  <polygon points="1285,311 1305,322 1285,333" fill="#2d5962"/>
+
+  <rect class="box" x="465" y="455" width="680" height="118" rx="18" fill="#f0edf8" stroke="#b8abd8"/>
+  <text class="tag" x="493" y="488">SHARED GRAMMAR AND CONTRACT LAYER</text>
+  <text class="box-title" x="493" y="518">Rules that define acceptable Triton code shape</text>
+  <text class="mono" x="493" y="548">166 task EBNF files + vector_add + contracts.json</text>
+  <text class="mono" x="493" y="570">validators: triton_grammar_rules + tritonbench_grammar_rules</text>
+  <line x1="560" y1="425" x2="680" y2="455" stroke="#6a7b46" stroke-width="3" stroke-dasharray="7 8"/>
+  <polygon points="678,443 698,459 672,465" fill="#6a7b46"/>
+  <line x1="815" y1="425" x2="815" y2="445" stroke="#6a7b46" stroke-width="3" stroke-dasharray="7 8"/>
+  <polygon points="804,445 826,445 815,466" fill="#6a7b46"/>
+
+  <rect x="42" y="612" width="1516" height="345" rx="24" fill="#fff7e8" stroke="#ead7af" stroke-width="1.5"/>
+  <text class="lane-title" x="72" y="650">TritonBench-T evaluation pipeline</text>
+  <text class="note" x="72" y="674">Used to benchmark LLM predictions across 166 TritonBench-T tasks with safety, contract, correctness proxy, and GPU speed measurements.</text>
+
+  <rect class="box" x="75" y="715" width="250" height="185" rx="16" fill="#e5f5ec" stroke="#93c8aa"/>
+  <text class="tag" x="101" y="748">DATA AND MODELS</text>
+  <text class="box-title" x="101" y="779">Evaluation inputs</text>
+  <text class="mono" x="101" y="811">data/tritonbench_*166.json</text>
+  <text class="mono" x="101" y="837">evaluation/predictions_*.jsonl</text>
+  <text class="mono" x="101" y="863">results/*_baseline.json</text>
+
+  <rect class="box" x="370" y="715" width="260" height="185" rx="16" fill="#e8f1fb" stroke="#9ebee0"/>
+  <text class="tag" x="396" y="748">NORMALIZE</text>
+  <text class="box-title" x="396" y="779">Prediction schema</text>
+  <text class="mono" x="396" y="811">evaluation/prediction_schema.py</text>
+  <text class="mono" x="396" y="837">generate_baseline_*.py</text>
+  <text class="mono" x="396" y="863">collect_real_outputs.py</text>
+
+  <rect class="box" x="675" y="715" width="285" height="185" rx="16" fill="#fff3db" stroke="#e1ba66"/>
+  <text class="tag" x="701" y="748">STATIC EVALUATION</text>
+  <text class="box-title" x="701" y="779">Filter generated code</text>
+  <text class="mono" x="701" y="811">evaluation/model_evaluation.py</text>
+  <text class="mono" x="701" y="837">evaluation/code_safety.py</text>
+  <text class="box-text" x="701" y="866">syntax, safety, contract, proxy</text>
+
+  <rect class="box" x="1005" y="715" width="255" height="185" rx="16" fill="#fbe9e5" stroke="#d99a8c"/>
+  <text class="tag" x="1031" y="748">GPU BENCHMARK</text>
+  <text class="box-title" x="1031" y="779">Run in isolated worker</text>
+  <text class="mono" x="1031" y="811">benchmarks/kernel_worker.py</text>
+  <text class="mono" x="1031" y="837">run_generated_kernels.py</text>
+  <text class="box-text" x="1031" y="866">compiles, correctness, speedup</text>
+
+  <rect class="box" x="1305" y="715" width="215" height="185" rx="16" fill="#e9f7f3" stroke="#8ac9ba"/>
+  <text class="tag" x="1331" y="748">REPORTING</text>
+  <text class="box-title" x="1331" y="779">Results and tests</text>
+  <text class="mono" x="1331" y="811">artifacts/eval/</text>
+  <text class="mono" x="1331" y="837">results/perf_results/</text>
+  <text class="mono" x="1331" y="863">tests/</text>
+
+  <line x1="325" y1="807" x2="355" y2="807" stroke="#2d5962" stroke-width="4"/>
+  <polygon points="355,796 375,807 355,818" fill="#2d5962"/>
+  <line x1="630" y1="807" x2="660" y2="807" stroke="#2d5962" stroke-width="4"/>
+  <polygon points="660,796 680,807 660,818" fill="#2d5962"/>
+  <line x1="960" y1="807" x2="990" y2="807" stroke="#2d5962" stroke-width="4"/>
+  <polygon points="990,796 1010,807 990,818" fill="#2d5962"/>
+  <line x1="1260" y1="807" x2="1290" y2="807" stroke="#2d5962" stroke-width="4"/>
+  <polygon points="1290,796 1310,807 1290,818" fill="#2d5962"/>
+  <line x1="820" y1="573" x2="820" y2="704" stroke="#6a7b46" stroke-width="3" stroke-dasharray="7 8"/>
+  <polygon points="808,704 832,704 820,727" fill="#6a7b46"/>
+
+  <rect class="chip" x="74" y="982" width="358" height="34" rx="17"/>
+  <text class="note" x="94" y="1004">Prototype pipeline + TritonBench-T harness</text>
+  <rect class="chip" x="455" y="982" width="278" height="34" rx="17"/>
+  <text class="note" x="475" y="1004">166 task contracts + family grammar</text>
+  <rect class="chip" x="756" y="982" width="268" height="34" rx="17"/>
+  <text class="note" x="776" y="1004">GPU steps gracefully skip without CUDA</text>
+  <rect class="chip" x="1047" y="982" width="312" height="34" rx="17"/>
+  <text class="note" x="1067" y="1004">Outputs feed poster and final report</text>
+</svg>

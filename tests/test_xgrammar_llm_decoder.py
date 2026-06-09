@@ -65,9 +65,10 @@ class DummyXGrammarModel(DummyModel):
 
 
 def test_default_triton_grammar():
-    assert "root ::= kernel" in DEFAULT_TRITON_EBNF
+    assert "root ::= imports" in DEFAULT_TRITON_EBNF
     assert "@triton.jit" in DEFAULT_TRITON_EBNF
     assert "tl.store" in DEFAULT_TRITON_EBNF
+    assert "torch" not in DEFAULT_TRITON_EBNF
 
 
 def test_decoder_creation():

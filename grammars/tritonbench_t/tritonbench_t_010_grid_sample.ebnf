@@ -1,34 +1,35 @@
-(* Contract for TritonBench-T example 010.
-   Target wrapper: grid_sample(input, grid, mode='bilinear',
-   padding_mode='zeros', align_corners=False) -> Tensor. *)
+/* Auto-generated TritonBench-T contract for tritonbench_t_010: grid_sample.
+   TritonBench-T example 010.
+   This is a structural grammar contract for constrained decoding and
+   post-generation validation. TritonBench remains the source of functional
+   correctness and speedup evidence.
+   Family: fusion_matmul. Semantic hints: grid_sample, linear/grid, tl.dot/matmul/bmm/linear.
+*/
 
-module = imports, implementation, wrapper ;
+root ::= module
 
-imports = "import torch", newline,
-          "import triton", newline,
-          "import triton.language as tl", newline ;
-
-implementation = indexing_kernel | documented_fallback ;
-
-indexing_kernel = "@triton.jit", newline,
-                  "def", identifier, "(", parameters, ")", ":", newline,
-                  indexing_body ;
-
-indexing_body = coordinate_mapping, boundary_handling, interpolation, store ;
-
-coordinate_mapping = statement_with("grid") ;
-boundary_handling = statement_with("padding_mode") | statement_with("align_corners") ;
-interpolation = statement_with("bilinear") | statement_with("nearest") | statement_with("mode") ;
-store = statement_with("tl.store") ;
-
-documented_fallback = statement_with("torch.nn.functional.grid_sample") ;
-
-wrapper = "def grid_sample", "(", wrapper_parameters, ")", ":", newline,
-          { statement } ;
-
-identifier = letter, { letter | digit | "_" } ;
-parameters = { character } ;
-wrapper_parameters = { character } ;
-statement = { character }, newline ;
-statement_with(token) = { character }, token, { character }, newline ;
-newline = "\n" ;
+module ::= imports implementation wrapper
+imports ::= "import torch" newline "import triton" newline "import triton.language as tl" newline
+implementation ::= triton_kernel
+triton_kernel ::= "@triton.jit" newline kernel_def kernel_body
+kernel_def ::= "def " identifier "(" parameters ")" ":" newline
+kernel_body ::= program_id offsets mask load_ops computation store
+program_id ::= indent identifier "=" "tl.program_id(0)" newline
+offsets ::= indent identifier "=" identifier "*" "BLOCK_SIZE" "+" "tl.arange(0, BLOCK_SIZE)" newline
+mask ::= indent identifier "=" identifier "<" identifier newline
+load_ops ::= load load?
+load ::= indent identifier "=" "tl.load(" pointer_expr "," "mask=" identifier ")" newline
+computation ::= indent identifier "=" triton_expr newline
+store ::= indent "tl.store(" pointer_expr "," identifier "," "mask=" identifier ")" newline
+triton_expr ::= identifier | identifier binary_op identifier | identifier binary_op number | "tl." triton_func "(" triton_args ")"
+pointer_expr ::= identifier "+" identifier
+triton_args ::= /[^\n)]*/
+triton_func ::= "abs" | "cos" | "exp" | "log" | "maximum" | "minimum" | "sigmoid" | "sqrt" | "sum" | "tanh" | "where"
+binary_op ::= "+" | "-" | "*" | "/" | "&" | "|" | "^"
+number ::= /[0-9]+(\.[0-9]+)?/
+wrapper ::= "def grid_sample(input, grid, mode='bilinear', padding_mode='zeros', align_corners=False)" ":" newline wrapper_body
+wrapper_body ::= statement+
+indent ::= "    "
+identifier ::= /[a-zA-Z_][a-zA-Z0-9_]*/
+parameters ::= /[^)]*/
+statement ::= /[^\n]+/

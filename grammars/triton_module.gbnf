@@ -1,20 +1,54 @@
-# Gramatica GBNF estructural para un modulo de kernel Triton (formato XGrammar).
-# Formato GBNF: reglas con ::=, comentarios con #, alternancia |, repeticion * + ?
-# Garantiza la envoltura: encabezado (imports/comentarios), >=1 kernel @triton.jit
-# con su def, y un def wrapper. El contenido de las lineas queda libre para no
-# bloquear al modelo (constrained = correccion estructural, no semantica completa).
+# Gramatica GBNF estricta para un modulo Triton simple (formato XGrammar).
+# El kernel generado queda limitado a primitivas tl.* y aritmetica vectorial.
+# Torch solo aparece en el wrapper Python, nunca dentro de @triton.jit.
 
-root        ::= header kernel+ def_block trailer
+root ::= imports "\n" kernel "\n" wrapper
 
-header      ::= header_line+
-header_line ::= ("import " | "from " | "#") line_rest | "\n"
+imports ::= "import torch\n" "import triton\n" "import triton.language as tl\n"
 
-kernel      ::= "@triton.jit\n" "def " line_rest body
-def_block   ::= "def " line_rest body
-trailer     ::= body_line*
+kernel ::= "@triton.jit\n" "def generated_kernel(" kernel-params "):\n" kernel-body
+kernel-params ::= "input_ptr, other_ptr, output_ptr, n_elements, BLOCK_SIZE: tl.constexpr"
+kernel-body ::= indent "pid = tl.program_id(0)\n"
+                indent "offsets = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)\n"
+                indent "mask = offsets < n_elements\n"
+                indent "x = tl.load(input_ptr + offsets, mask=mask, other=0.0)\n"
+                load-other
+                indent "result = " expression "\n"
+                indent "tl.store(output_ptr + offsets, result, mask=mask)\n"
 
-body        ::= body_line*
-body_line   ::= line_char+ "\n" | "\n"
+load-other ::= indent "y = tl.load(other_ptr + offsets, mask=mask, other=0.0)\n" | ""
 
-line_rest   ::= line_char* "\n"
-line_char   ::= [^\n]
+expression ::= "x"
+             | "x + y"
+             | "x - y"
+             | "x * y"
+             | "x / y"
+             | "x + 1.0"
+             | "x - 1.0"
+             | "x * 0.5"
+             | "x * x"
+             | "tl.abs(x)"
+             | "tl.cos(x)"
+             | "tl.exp(x)"
+             | "tl.log(x)"
+             | "tl.maximum(x, 0.0)"
+             | "tl.minimum(x, y)"
+             | "tl.sigmoid(x)"
+             | "tl.sqrt(x)"
+             | "tl.tanh(x)"
+             | "tl.where(x > 0.0, x, 0.0)"
+
+wrapper ::= "def " wrapper-name "(*args, BLOCK_SIZE=1024, **kwargs):\n" wrapper-body
+wrapper-name ::= identifier
+wrapper-body ::= indent "input = args[0]\n"
+                 indent "other = args[1] if len(args) > 1 else input\n"
+                 indent "output = kwargs.get(\"out\")\n"
+                 indent "if output is None:\n"
+                 indent indent "output = torch.empty_like(input)\n"
+                 indent "n_elements = output.numel()\n"
+                 indent "grid = (triton.cdiv(n_elements, BLOCK_SIZE),)\n"
+                 indent "generated_kernel[grid](input, other, output, n_elements, BLOCK_SIZE=BLOCK_SIZE)\n"
+                 indent "return output\n"
+
+identifier ::= [a-zA-Z_][a-zA-Z0-9_]*
+indent ::= "    "

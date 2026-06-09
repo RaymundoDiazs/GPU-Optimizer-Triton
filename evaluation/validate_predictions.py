@@ -57,12 +57,14 @@ def validate(file_path: Path) -> bool:
                 f"  línea {lineno}: task_id={task_id!r}, esperaba {expected_task_id!r}"
             )
 
-        code = extract_code(record["output"])
+        raw_output = record["output"]
+        if "```" in raw_output:
+            issues.append(f"  línea {lineno}: output contiene fences")
+
+        code = extract_code(raw_output)
         if not code:
             issues.append(f"  línea {lineno}: output vacío")
             continue
-        if "```" in code:
-            issues.append(f"  línea {lineno}: output contiene fences")
 
         try:
             ast.parse(code)

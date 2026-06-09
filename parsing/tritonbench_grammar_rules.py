@@ -3,6 +3,8 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
+from parsing.triton_grammar_rules import validate_triton_kernel
+
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACTS_PATH = ROOT / "grammars" / "tritonbench_t_contracts.json"
@@ -85,16 +87,21 @@ FAMILY_REQUIRED_TERMS = {
         ["gelu", "relu", "tanh", "softmax", "log_softmax", "logsumexp", "dropout"],
     ],
     "complex_fallback": [
-        ["import torch"],
-        ["torch.linalg", "solve", "lu", "triangular"],
-        ["return", "out"],
+        ["@triton.jit"],
+        ["tl.program_id"],
+        ["tl.arange"],
+        ["mask"],
+        ["tl.load"],
+        ["tl.store"],
     ],
     "indexing_interpolation": [
-        ["import torch"],
-        ["grid"],
-        ["mode", "bilinear", "nearest", "index", "fill", "repeat", "tile"],
-        ["padding_mode", "align_corners", "dim", "dims", "value"],
-        ["torch.nn.functional.grid_sample", "@triton.jit", "tl.load", "tl.store"],
+        ["@triton.jit"],
+        ["tl.program_id"],
+        ["tl.arange"],
+        ["mask"],
+        ["tl.load"],
+        ["tl.store"],
+        ["index", "gather", "scatter", "where", "tl.load", "tl.store"],
     ],
 }
 
@@ -116,11 +123,15 @@ def validate_tritonbench_candidate(task_id: str, code: str) -> TritonBenchGramma
         )
 
     contract = contracts[task_id]
+    raw_code = code.strip()
     clean_code = extract_python_code(code)
     compact = re.sub(r"\s+", " ", clean_code)
     errors = []
     warnings = []
     passed_rules = []
+
+    if "```" in raw_code:
+        errors.append("Candidate contains markdown fences")
 
     if not clean_code:
         errors.append("Candidate code is empty")
@@ -137,6 +148,13 @@ def validate_tritonbench_candidate(task_id: str, code: str) -> TritonBenchGramma
     else:
         errors.append(f"Missing expected wrapper: {contract['name']}")
 
+    kernel_result = validate_triton_kernel(clean_code)
+    if kernel_result.valid:
+        passed_rules.append("strict_triton_kernel")
+    else:
+        errors.extend(kernel_result.errors)
+    warnings.extend(kernel_result.warnings)
+
     for term in contract.get("required_terms", []):
         if term in clean_code:
             passed_rules.append(f"required:{term}")
@@ -148,9 +166,6 @@ def validate_tritonbench_candidate(task_id: str, code: str) -> TritonBenchGramma
             passed_rules.append(f"semantic_group_{group_index}")
         else:
             errors.append(f"Missing semantic evidence; expected one of: {', '.join(options)}")
-
-    if "torch." in clean_code and "@triton.jit" not in clean_code:
-        warnings.append("Candidate may be a PyTorch fallback instead of a Triton implementation")
 
     if "TODO" in clean_code or re.search(r"\bpass\b", clean_code):
         warnings.append("Candidate contains TODO/pass marker")
@@ -178,11 +193,15 @@ def validate_tritonbench_family_candidate(task_id: str, code: str) -> TritonBenc
 
     contract = contracts[task_id]
     family = contract.get("family", "")
+    raw_code = code.strip()
     clean_code = extract_python_code(code)
     compact = re.sub(r"\s+", " ", clean_code)
     errors = []
     warnings = []
     passed_rules = []
+
+    if "```" in raw_code:
+        errors.append("Candidate contains markdown fences")
 
     if not clean_code:
         errors.append("Candidate code is empty")
@@ -199,6 +218,13 @@ def validate_tritonbench_family_candidate(task_id: str, code: str) -> TritonBenc
     else:
         errors.append(f"Missing expected wrapper: {contract['name']}")
 
+    kernel_result = validate_triton_kernel(clean_code)
+    if kernel_result.valid:
+        passed_rules.append("strict_triton_kernel")
+    else:
+        errors.extend(kernel_result.errors)
+    warnings.extend(kernel_result.warnings)
+
     required_groups = FAMILY_REQUIRED_TERMS.get(family)
     if required_groups is None:
         errors.append(f"No family grammar rules found for family={family}")
@@ -209,8 +235,6 @@ def validate_tritonbench_family_candidate(task_id: str, code: str) -> TritonBenc
             else:
                 errors.append(f"Missing family evidence; expected one of: {', '.join(options)}")
 
-    if "torch." in clean_code and "@triton.jit" not in clean_code:
-        warnings.append("Candidate may be a PyTorch fallback instead of a Triton implementation")
     if "TODO" in clean_code or re.search(r"\bpass\b", clean_code):
         warnings.append("Candidate contains TODO/pass marker")
 

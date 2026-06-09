@@ -1,26 +1,35 @@
 /* Auto-generated TritonBench-T contract for tritonbench_t_052: cos_avg_pool1d.
+   TritonBench-T example 052.
    This is a structural grammar contract for constrained decoding and
    post-generation validation. TritonBench remains the source of functional
    correctness and speedup evidence.
+   Family: elementwise. Semantic hints: cos_avg_pool1d, cos_avg_pool1d, tl.load/tl.store.
 */
 
 root ::= module
 
 module ::= imports implementation wrapper
-imports ::= "import torch" "import triton" "import triton.language as tl"
-implementation ::= triton_kernel | torch_fallback
-triton_kernel ::= "@triton.jit" kernel_def kernel_body
-kernel_def ::= "def" identifier "(" parameters ")" ":"
-kernel_body ::= program_id offsets optional_mask memory_ops operation store
-program_id ::= "tl.program_id"
-offsets ::= "tl.arange"
-optional_mask ::= "mask" | ""
-memory_ops ::= "tl.load" memory_ops | "tl.load"
-operation ::= "complex_fallback" "cos_avg_pool1d, add/sin/cos/lu, torch.linalg/solve/svd/qr/lu/return"
-store ::= "tl.store"
-torch_fallback ::= "import torch" wrapper_body
-wrapper ::= "def cos_avg_pool1d(input: torch.Tensor, kernel_size: int, stride: int = None, padding: int = 0, ceil_mode: bool = False, count_include_pad: bool = True)"
+imports ::= "import torch" newline "import triton" newline "import triton.language as tl" newline
+implementation ::= triton_kernel
+triton_kernel ::= "@triton.jit" newline kernel_def kernel_body
+kernel_def ::= "def " identifier "(" parameters ")" ":" newline
+kernel_body ::= program_id offsets mask load_ops computation store
+program_id ::= indent identifier "=" "tl.program_id(0)" newline
+offsets ::= indent identifier "=" identifier "*" "BLOCK_SIZE" "+" "tl.arange(0, BLOCK_SIZE)" newline
+mask ::= indent identifier "=" identifier "<" identifier newline
+load_ops ::= load load?
+load ::= indent identifier "=" "tl.load(" pointer_expr "," "mask=" identifier ")" newline
+computation ::= indent identifier "=" triton_expr newline
+store ::= indent "tl.store(" pointer_expr "," identifier "," "mask=" identifier ")" newline
+triton_expr ::= identifier | identifier binary_op identifier | identifier binary_op number | "tl." triton_func "(" triton_args ")"
+pointer_expr ::= identifier "+" identifier
+triton_args ::= /[^\n)]*/
+triton_func ::= "abs" | "cos" | "exp" | "log" | "maximum" | "minimum" | "sigmoid" | "sqrt" | "sum" | "tanh" | "where"
+binary_op ::= "+" | "-" | "*" | "/" | "&" | "|" | "^"
+number ::= /[0-9]+(\.[0-9]+)?/
+wrapper ::= "def cos_avg_pool1d(input: torch.Tensor, kernel_size: int, stride: int = None, padding: int = 0, ceil_mode: bool = False, count_include_pad: bool = True)" ":" newline wrapper_body
 wrapper_body ::= statement+
+indent ::= "    "
 identifier ::= /[a-zA-Z_][a-zA-Z0-9_]*/
 parameters ::= /[^)]*/
 statement ::= /[^\n]+/

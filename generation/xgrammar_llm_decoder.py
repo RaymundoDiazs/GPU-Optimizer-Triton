@@ -6,24 +6,17 @@ from parsing.triton_grammar_rules import validate_triton_kernel
 
 
 DEFAULT_TRITON_EBNF = r"""
-root ::= kernel
-kernel ::= decorator ws function_def ws body
-decorator ::= "@triton.jit"
-function_def ::= "def" ws identifier "(" params ")" ":"
-params ::= param ("," ws param)*
-param ::= identifier | identifier ":" ws "tl.constexpr"
-body ::= line+
-line ::= ws statement
-statement ::= program_id | arange | load | store | assignment
-program_id ::= identifier ws "=" ws "tl.program_id(" integer ")"
-arange ::= identifier ws "=" ws "tl.arange(" integer "," ws identifier ")"
-load ::= identifier ws "=" ws "tl.load(" text ")"
-store ::= "tl.store(" text ")"
-assignment ::= identifier ws "=" ws text
-identifier ::= [a-zA-Z_][a-zA-Z0-9_]*
-integer ::= [0-9]+
-text ::= [^\n]+
-ws ::= [ \t\n]*
+root ::= imports "\n" kernel
+imports ::= "import triton\n" "import triton.language as tl\n"
+kernel ::= "@triton.jit\n" "def generated_kernel(input_ptr, other_ptr, output_ptr, n_elements, BLOCK_SIZE: tl.constexpr):\n" body
+body ::= "    pid = tl.program_id(0)\n"
+         "    offsets = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)\n"
+         "    mask = offsets < n_elements\n"
+         "    x = tl.load(input_ptr + offsets, mask=mask, other=0.0)\n"
+         "    y = tl.load(other_ptr + offsets, mask=mask, other=0.0)\n"
+         "    result = " expression "\n"
+         "    tl.store(output_ptr + offsets, result, mask=mask)\n"
+expression ::= "x" | "x + y" | "x - y" | "x * y" | "x / y" | "tl.tanh(x)" | "tl.sqrt(x)" | "tl.exp(x)" | "tl.maximum(x, 0.0)"
 """
 
 DEFAULT_GRAMMAR_PATH = Path(__file__).resolve().parents[1] / "grammars" / "tritonbench_t" / "general_kernel_family.ebnf"
@@ -145,10 +138,11 @@ You are generating Triton GPU kernels.
 
 Rules:
 - Output only code.
+- Do not use markdown fences.
 - Use @triton.jit.
-- Use tl.program_id.
-- Use tl.load.
-- Use tl.store.
+- Inside @triton.jit use only Triton primitives: tl.program_id, tl.arange, tl.load, tl.store, tl.* math, and vector expressions.
+- Do not use torch, numpy, math, isinstance, range, for loops, or triton.jit.get_* inside @triton.jit.
+- Put torch allocation and launch logic only in a plain Python wrapper.
 - Do not explain anything.
 
 Task:

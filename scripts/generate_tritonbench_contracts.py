@@ -202,25 +202,23 @@ def _semantic_groups(name: str, description: str, family: str) -> list[list[str]
 
     groups = [[name], tokens[:8]]
     if family == "elementwise":
-        groups.append(["tl.load", "tl.store", "torch."])
+        groups.append(["tl.load", "tl.store"])
     elif family == "elementwise_fusion":
-        groups.append(["tl.load", "tl.store", "torch."])
+        groups.append(["tl.load", "tl.store"])
     elif family == "reduction":
-        groups.append(["tl.sum", "tl.max", "tl.min", "argmax", "argmin", "torch."])
+        groups.append(["tl.sum", "tl.max", "tl.min", "argmax", "argmin"])
     elif family == "fusion_matmul":
-        groups.append(["tl.dot", "matmul", "bmm", "linear", "torch."])
+        groups.append(["tl.dot", "matmul", "bmm", "linear"])
     elif family == "convolution_fusion":
-        groups.append(["conv2d", "weight", "tl.load", "torch.nn.functional"])
+        groups.append(["conv2d", "weight", "tl.load", "tl.store"])
     elif family == "indexing_interpolation":
-        groups.append(["index", "grid", "gather", "scatter", "tl.load", "torch."])
+        groups.append(["index", "grid", "gather", "scatter", "tl.load", "tl.store"])
     elif family == "complex_fallback":
-        groups.append(["torch.linalg", "solve", "svd", "qr", "lu", "return"])
+        groups.append(["tl.load", "tl.store"])
     return groups
 
 
 def _required_terms(family: str) -> list[str]:
-    if family == "complex_fallback":
-        return ["import torch"]
     return ["import triton", "import triton.language as tl", "@triton.jit"]
 
 
@@ -235,29 +233,39 @@ def _existing_ebnf(index: int) -> Path | None:
 
 def _ebnf_text(task_id: str, name: str, wrapper: str, family: str, semantic_groups: list[list[str]]) -> str:
     semantic = ", ".join("/".join(group) for group in semantic_groups)
+    example_id = task_id.removeprefix("tritonbench_t_")
     return f"""/* Auto-generated TritonBench-T contract for {task_id}: {name}.
+   TritonBench-T example {example_id}.
    This is a structural grammar contract for constrained decoding and
    post-generation validation. TritonBench remains the source of functional
    correctness and speedup evidence.
+   Family: {family}. Semantic hints: {semantic}.
 */
 
 root ::= module
 
 module ::= imports implementation wrapper
-imports ::= "import torch" "import triton" "import triton.language as tl"
-implementation ::= triton_kernel | torch_fallback
-triton_kernel ::= "@triton.jit" kernel_def kernel_body
-kernel_def ::= "def" identifier "(" parameters ")" ":"
-kernel_body ::= program_id offsets optional_mask memory_ops operation store
-program_id ::= "tl.program_id"
-offsets ::= "tl.arange"
-optional_mask ::= "mask" | ""
-memory_ops ::= "tl.load" memory_ops | "tl.load"
-operation ::= "{family}" "{semantic}"
-store ::= "tl.store"
-torch_fallback ::= "import torch" wrapper_body
-wrapper ::= "def {wrapper}"
+imports ::= "import torch" newline "import triton" newline "import triton.language as tl" newline
+implementation ::= triton_kernel
+triton_kernel ::= "@triton.jit" newline kernel_def kernel_body
+kernel_def ::= "def " identifier "(" parameters ")" ":" newline
+kernel_body ::= program_id offsets mask load_ops computation store
+program_id ::= indent identifier "=" "tl.program_id(0)" newline
+offsets ::= indent identifier "=" identifier "*" "BLOCK_SIZE" "+" "tl.arange(0, BLOCK_SIZE)" newline
+mask ::= indent identifier "=" identifier "<" identifier newline
+load_ops ::= load load?
+load ::= indent identifier "=" "tl.load(" pointer_expr "," "mask=" identifier ")" newline
+computation ::= indent identifier "=" triton_expr newline
+store ::= indent "tl.store(" pointer_expr "," identifier "," "mask=" identifier ")" newline
+triton_expr ::= identifier | identifier binary_op identifier | identifier binary_op number | "tl." triton_func "(" triton_args ")"
+pointer_expr ::= identifier "+" identifier
+triton_args ::= /[^\\n)]*/
+triton_func ::= "abs" | "cos" | "exp" | "log" | "maximum" | "minimum" | "sigmoid" | "sqrt" | "sum" | "tanh" | "where"
+binary_op ::= "+" | "-" | "*" | "/" | "&" | "|" | "^"
+number ::= /[0-9]+(\\.[0-9]+)?/
+wrapper ::= "def {wrapper}" ":" newline wrapper_body
 wrapper_body ::= statement+
+indent ::= "    "
 identifier ::= /[a-zA-Z_][a-zA-Z0-9_]*/
 parameters ::= /[^)]*/
 statement ::= /[^\\n]+/

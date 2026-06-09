@@ -26,3 +26,12 @@ def test_builds_constrained_spec_for_full_dataset():
     assert "Required wrapper" in spec.prompt
     assert "fftn" in spec.prompt
     assert spec.contract["source_index"] == 166
+
+
+def test_constrained_prompt_separates_kernel_and_wrapper_rules():
+    spec = build_tritonbench_constrained_spec("tritonbench_t_005", mode="family")
+
+    assert "do not wrap the answer" in spec.prompt
+    assert "do not use torch" in spec.prompt
+    assert "tl.load(..., mask=mask)" in spec.prompt
+    assert "plain Python wrapper" in spec.prompt

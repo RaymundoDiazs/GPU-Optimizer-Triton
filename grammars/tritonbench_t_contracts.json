@@ -23,8 +23,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 1
@@ -50,8 +49,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 2
@@ -80,7 +78,7 @@
         "conv2d",
         "weight",
         "tl.load",
-        "torch.nn.functional"
+        "tl.store"
       ]
     ],
     "source_index": 3
@@ -110,8 +108,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 4
@@ -137,8 +134,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 5
@@ -168,8 +164,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 6
@@ -195,8 +190,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 7
@@ -227,8 +221,7 @@
         "tl.max",
         "tl.min",
         "argmax",
-        "argmin",
-        "torch."
+        "argmin"
       ]
     ],
     "source_index": 8
@@ -254,8 +247,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 9
@@ -284,8 +276,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 10
@@ -298,7 +289,9 @@
     "description": "Computes the singular value decomposition (SVD) of a matrix. Supports input of float, double, cfloat and cdouble dtypes. Also supports batches of matrices, and if A is a batch of matrices then the output has the same batch dimensions. The returned decomposition is a named tuple (U, S, Vh) which corresponds to U, S, V^{H} above. The singular values are returned in descending order. The parameter full_matrices chooses between the full (default) and reduced SVD. The driver kwarg may be used in CUDA with a cuSOLVER backend to choose the algorithm used to compute the SVD. The choice of a driver is a trade-off between accuracy and speed.",
     "wrapper_regex": "def\\s+svd\\s*\\(",
     "required_terms": [
-      "import torch"
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
     ],
     "semantic_terms_any": [
       [
@@ -309,12 +302,8 @@
         "svd"
       ],
       [
-        "torch.linalg",
-        "solve",
-        "svd",
-        "qr",
-        "lu",
-        "return"
+        "tl.load",
+        "tl.store"
       ]
     ],
     "source_index": 11
@@ -340,8 +329,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 12
@@ -368,8 +356,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 13
@@ -400,7 +387,7 @@
         "conv2d",
         "weight",
         "tl.load",
-        "torch.nn.functional"
+        "tl.store"
       ]
     ],
     "source_index": 14
@@ -431,8 +418,7 @@
         "tl.max",
         "tl.min",
         "argmax",
-        "argmin",
-        "torch."
+        "argmin"
       ]
     ],
     "source_index": 15
@@ -458,8 +444,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 16
@@ -489,7 +474,7 @@
         "conv2d",
         "weight",
         "tl.load",
-        "torch.nn.functional"
+        "tl.store"
       ]
     ],
     "source_index": 17
@@ -519,7 +504,7 @@
         "gather",
         "scatter",
         "tl.load",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 18
@@ -549,8 +534,7 @@
         "tl.max",
         "tl.min",
         "argmax",
-        "argmin",
-        "torch."
+        "argmin"
       ]
     ],
     "source_index": 19
@@ -581,7 +565,7 @@
         "gather",
         "scatter",
         "tl.load",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 20
@@ -610,8 +594,7 @@
         "tl.max",
         "tl.min",
         "argmax",
-        "argmin",
-        "torch."
+        "argmin"
       ]
     ],
     "source_index": 21
@@ -642,8 +625,7 @@
         "tl.max",
         "tl.min",
         "argmax",
-        "argmin",
-        "torch."
+        "argmin"
       ]
     ],
     "source_index": 22
@@ -674,8 +656,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 23
@@ -704,8 +685,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 24
@@ -735,8 +715,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 25
@@ -766,7 +745,7 @@
         "gather",
         "scatter",
         "tl.load",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 26
@@ -796,7 +775,7 @@
         "gather",
         "scatter",
         "tl.load",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 27
@@ -827,7 +806,7 @@
         "gather",
         "scatter",
         "tl.load",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 28
@@ -858,7 +837,7 @@
         "conv2d",
         "weight",
         "tl.load",
-        "torch.nn.functional"
+        "tl.store"
       ]
     ],
     "source_index": 29
@@ -866,7 +845,7 @@
   "tritonbench_t_030": {
     "name": "index_fill_",
     "family": "indexing_interpolation",
-    "ebnf": "grammars/tritonbench_t/tritonbench_t_030_index_fill_.ebnf",
+    "ebnf": "grammars/tritonbench_t/tritonbench_t_030_index_fill.ebnf",
     "wrapper": "index_fill_(dim, index, value)",
     "description": "Fills the elements of the self tensor with a specified value by selecting the indices in the order given in the index tensor. The operation is performed along a specified dimension.",
     "wrapper_regex": "def\\s+index_fill_\\s*\\(",
@@ -889,7 +868,7 @@
         "gather",
         "scatter",
         "tl.load",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 30
@@ -917,7 +896,7 @@
         "conv2d",
         "weight",
         "tl.load",
-        "torch.nn.functional"
+        "tl.store"
       ]
     ],
     "source_index": 31
@@ -946,8 +925,7 @@
         "tl.max",
         "tl.min",
         "argmax",
-        "argmin",
-        "torch."
+        "argmin"
       ]
     ],
     "source_index": 32
@@ -976,8 +954,7 @@
         "tl.max",
         "tl.min",
         "argmax",
-        "argmin",
-        "torch."
+        "argmin"
       ]
     ],
     "source_index": 33
@@ -1007,8 +984,7 @@
         "tl.max",
         "tl.min",
         "argmax",
-        "argmin",
-        "torch."
+        "argmin"
       ]
     ],
     "source_index": 34
@@ -1038,8 +1014,7 @@
         "tl.max",
         "tl.min",
         "argmax",
-        "argmin",
-        "torch."
+        "argmin"
       ]
     ],
     "source_index": 35
@@ -1065,8 +1040,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 36
@@ -1095,8 +1069,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 37
@@ -1125,8 +1098,7 @@
         "tl.max",
         "tl.min",
         "argmax",
-        "argmin",
-        "torch."
+        "argmin"
       ]
     ],
     "source_index": 38
@@ -1155,7 +1127,7 @@
         "conv2d",
         "weight",
         "tl.load",
-        "torch.nn.functional"
+        "tl.store"
       ]
     ],
     "source_index": 39
@@ -1181,8 +1153,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 40
@@ -1211,7 +1182,7 @@
         "conv2d",
         "weight",
         "tl.load",
-        "torch.nn.functional"
+        "tl.store"
       ]
     ],
     "source_index": 41
@@ -1240,7 +1211,7 @@
         "conv2d",
         "weight",
         "tl.load",
-        "torch.nn.functional"
+        "tl.store"
       ]
     ],
     "source_index": 42
@@ -1269,8 +1240,7 @@
         "tl.max",
         "tl.min",
         "argmax",
-        "argmin",
-        "torch."
+        "argmin"
       ]
     ],
     "source_index": 43
@@ -1298,8 +1268,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 44
@@ -1328,8 +1297,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 45
@@ -1359,7 +1327,7 @@
         "gather",
         "scatter",
         "tl.load",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 46
@@ -1389,8 +1357,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 47
@@ -1421,8 +1388,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 48
@@ -1451,8 +1417,7 @@
         "tl.max",
         "tl.min",
         "argmax",
-        "argmin",
-        "torch."
+        "argmin"
       ]
     ],
     "source_index": 49
@@ -1482,7 +1447,7 @@
         "conv2d",
         "weight",
         "tl.load",
-        "torch.nn.functional"
+        "tl.store"
       ]
     ],
     "source_index": 50
@@ -1508,8 +1473,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 51
@@ -1535,8 +1499,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 52
@@ -1565,8 +1528,7 @@
         "tl.max",
         "tl.min",
         "argmax",
-        "argmin",
-        "torch."
+        "argmin"
       ]
     ],
     "source_index": 53
@@ -1595,8 +1557,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 54
@@ -1626,7 +1587,7 @@
         "conv2d",
         "weight",
         "tl.load",
-        "torch.nn.functional"
+        "tl.store"
       ]
     ],
     "source_index": 55
@@ -1654,7 +1615,7 @@
         "conv2d",
         "weight",
         "tl.load",
-        "torch.nn.functional"
+        "tl.store"
       ]
     ],
     "source_index": 56
@@ -1684,8 +1645,7 @@
         "tl.max",
         "tl.min",
         "argmax",
-        "argmin",
-        "torch."
+        "argmin"
       ]
     ],
     "source_index": 57
@@ -1711,8 +1671,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 58
@@ -1738,8 +1697,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 59
@@ -1768,8 +1726,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 60
@@ -1799,7 +1756,7 @@
         "gather",
         "scatter",
         "tl.load",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 61
@@ -1828,8 +1785,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 62
@@ -1857,8 +1813,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 63
@@ -1884,8 +1839,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 64
@@ -1898,7 +1852,9 @@
     "description": "Computes the QR decomposition of a matrix. Supports input of float, double, cfloat and cdouble dtypes. Also supports batches of matrices, and if A is a batch of matrices then the output has the same batch dimensions. The parameter mode chooses between the full and reduced QR decomposition. It is always differentiable for 'reduced' mode, differentiable for 'complete' mode when m <= n, and never differentiable for 'r' mode.",
     "wrapper_regex": "def\\s+qr\\s*\\(",
     "required_terms": [
-      "import torch"
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
     ],
     "semantic_terms_any": [
       [
@@ -1908,12 +1864,8 @@
         "qr"
       ],
       [
-        "torch.linalg",
-        "solve",
-        "svd",
-        "qr",
-        "lu",
-        "return"
+        "tl.load",
+        "tl.store"
       ]
     ],
     "source_index": 65
@@ -1926,7 +1878,9 @@
     "description": "Returns a new tensor with the arcsine of the elements of the input tensor. The function computes the inverse sine (arcsine) for each element in the input tensor.",
     "wrapper_regex": "def\\s+asin\\s*\\(",
     "required_terms": [
-      "import torch"
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
     ],
     "semantic_terms_any": [
       [
@@ -1936,12 +1890,8 @@
         "asin"
       ],
       [
-        "torch.linalg",
-        "solve",
-        "svd",
-        "qr",
-        "lu",
-        "return"
+        "tl.load",
+        "tl.store"
       ]
     ],
     "source_index": 66
@@ -1970,8 +1920,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 67
@@ -2000,8 +1949,7 @@
         "tl.max",
         "tl.min",
         "argmax",
-        "argmin",
-        "torch."
+        "argmin"
       ]
     ],
     "source_index": 68
@@ -2030,8 +1978,7 @@
         "tl.max",
         "tl.min",
         "argmax",
-        "argmin",
-        "torch."
+        "argmin"
       ]
     ],
     "source_index": 69
@@ -2061,7 +2008,7 @@
         "conv2d",
         "weight",
         "tl.load",
-        "torch.nn.functional"
+        "tl.store"
       ]
     ],
     "source_index": 70
@@ -2090,8 +2037,7 @@
         "tl.max",
         "tl.min",
         "argmax",
-        "argmin",
-        "torch."
+        "argmin"
       ]
     ],
     "source_index": 71
@@ -2117,8 +2063,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 72
@@ -2149,7 +2094,7 @@
         "conv2d",
         "weight",
         "tl.load",
-        "torch.nn.functional"
+        "tl.store"
       ]
     ],
     "source_index": 73
@@ -2177,7 +2122,7 @@
         "conv2d",
         "weight",
         "tl.load",
-        "torch.nn.functional"
+        "tl.store"
       ]
     ],
     "source_index": 74
@@ -2206,8 +2151,7 @@
         "tl.max",
         "tl.min",
         "argmax",
-        "argmin",
-        "torch."
+        "argmin"
       ]
     ],
     "source_index": 75
@@ -2220,7 +2164,9 @@
     "description": "Computes the solution `x` to the equation `Ax = b` using the Cholesky decomposition. It first performs Cholesky decomposition on a symmetric positive-definite matrix `A` to obtain a lower triangular matrix `L` such that `A = L * L.T`, then solves for `x` in `Ax = b` using the Cholesky factorization.",
     "wrapper_regex": "def\\s+fused_cholesky_solve\\s*\\(",
     "required_terms": [
-      "import torch"
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
     ],
     "semantic_terms_any": [
       [
@@ -2230,12 +2176,8 @@
         "solve"
       ],
       [
-        "torch.linalg",
-        "solve",
-        "svd",
-        "qr",
-        "lu",
-        "return"
+        "tl.load",
+        "tl.store"
       ]
     ],
     "source_index": 76
@@ -2263,8 +2205,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 77
@@ -2294,7 +2235,7 @@
         "gather",
         "scatter",
         "tl.load",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 78
@@ -2325,8 +2266,7 @@
         "tl.max",
         "tl.min",
         "argmax",
-        "argmin",
-        "torch."
+        "argmin"
       ]
     ],
     "source_index": 79
@@ -2354,8 +2294,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 80
@@ -2385,8 +2324,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 81
@@ -2415,8 +2353,7 @@
         "tl.max",
         "tl.min",
         "argmax",
-        "argmin",
-        "torch."
+        "argmin"
       ]
     ],
     "source_index": 82
@@ -2442,8 +2379,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 83
@@ -2472,8 +2408,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 84
@@ -2499,8 +2434,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 85
@@ -2530,7 +2464,7 @@
         "gather",
         "scatter",
         "tl.load",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 86
@@ -2556,8 +2490,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 87
@@ -2583,8 +2516,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 88
@@ -2612,8 +2544,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 89
@@ -2639,8 +2570,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 90
@@ -2670,7 +2600,7 @@
         "gather",
         "scatter",
         "tl.load",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 91
@@ -2696,8 +2626,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 92
@@ -2724,8 +2653,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 93
@@ -2754,8 +2682,7 @@
         "tl.max",
         "tl.min",
         "argmax",
-        "argmin",
-        "torch."
+        "argmin"
       ]
     ],
     "source_index": 94
@@ -2785,8 +2712,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 95
@@ -2814,7 +2740,7 @@
         "conv2d",
         "weight",
         "tl.load",
-        "torch.nn.functional"
+        "tl.store"
       ]
     ],
     "source_index": 96
@@ -2840,8 +2766,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 97
@@ -2867,8 +2792,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 98
@@ -2898,8 +2822,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 99
@@ -2928,8 +2851,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 100
@@ -2955,8 +2877,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 101
@@ -2982,8 +2903,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 102
@@ -3013,8 +2933,7 @@
         "tl.max",
         "tl.min",
         "argmax",
-        "argmin",
-        "torch."
+        "argmin"
       ]
     ],
     "source_index": 103
@@ -3040,8 +2959,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 104
@@ -3071,7 +2989,7 @@
         "gather",
         "scatter",
         "tl.load",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 105
@@ -3097,8 +3015,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 106
@@ -3111,7 +3028,9 @@
     "description": "Computes the LU decomposition with partial pivoting of a matrix. If pivot=True, returns a permutation matrix P, a lower triangular matrix L, and an upper triangular matrix U such that A = PLU. If pivot=False and A is on GPU, computes the LU decomposition without pivoting, returning empty P, L and U such that A = LU. Supports float, double, cfloat, and cdouble dtypes, as well as batches of matrices. Outputs have the same batch dimensions as input.",
     "wrapper_regex": "def\\s+lu\\s*\\(",
     "required_terms": [
-      "import torch"
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
     ],
     "semantic_terms_any": [
       [
@@ -3121,12 +3040,8 @@
         "lu"
       ],
       [
-        "torch.linalg",
-        "solve",
-        "svd",
-        "qr",
-        "lu",
-        "return"
+        "tl.load",
+        "tl.store"
       ]
     ],
     "source_index": 107
@@ -3156,8 +3071,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 108
@@ -3186,8 +3100,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 109
@@ -3200,7 +3113,9 @@
     "description": "Computes the Moore-Penrose pseudoinverse of a matrix using Singular Value Decomposition (SVD). It decomposes the input matrix A into its singular value components, inverts the non-zero singular values above a certain threshold to avoid numerical instability, and reconstructs the pseudoinverse using these components. Supports input of float, double, cfloat, and cdouble dtypes, and can handle batches of matrices.",
     "wrapper_regex": "def\\s+pseudoinverse_svd\\s*\\(",
     "required_terms": [
-      "import torch"
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
     ],
     "semantic_terms_any": [
       [
@@ -3210,12 +3125,8 @@
         "svd"
       ],
       [
-        "torch.linalg",
-        "solve",
-        "svd",
-        "qr",
-        "lu",
-        "return"
+        "tl.load",
+        "tl.store"
       ]
     ],
     "source_index": 110
@@ -3244,8 +3155,7 @@
         "tl.max",
         "tl.min",
         "argmax",
-        "argmin",
-        "torch."
+        "argmin"
       ]
     ],
     "source_index": 111
@@ -3274,8 +3184,7 @@
         "tl.max",
         "tl.min",
         "argmax",
-        "argmin",
-        "torch."
+        "argmin"
       ]
     ],
     "source_index": 112
@@ -3305,8 +3214,7 @@
         "tl.max",
         "tl.min",
         "argmax",
-        "argmin",
-        "torch."
+        "argmin"
       ]
     ],
     "source_index": 113
@@ -3334,8 +3242,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 114
@@ -3348,7 +3255,9 @@
     "description": "Computes the determinant of a square matrix using LU decomposition. The function performs LU decomposition on a given square matrix A and calculates its determinant. It supports matrices over real or complex numbers and can handle batch dimensions. The determinant is computed as the product of the diagonal elements of the upper triangular matrix U from the LU decomposition, adjusted by the sign of the permutation matrix P if pivoting is used. The function assumes A is invertible and supports float, double, cfloat, and cdouble dtypes.",
     "wrapper_regex": "def\\s+determinant_lu\\s*\\(",
     "required_terms": [
-      "import torch"
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
     ],
     "semantic_terms_any": [
       [
@@ -3358,12 +3267,8 @@
         "lu"
       ],
       [
-        "torch.linalg",
-        "solve",
-        "svd",
-        "qr",
-        "lu",
-        "return"
+        "tl.load",
+        "tl.store"
       ]
     ],
     "source_index": 115
@@ -3392,8 +3297,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 116
@@ -3422,8 +3326,7 @@
         "tl.max",
         "tl.min",
         "argmax",
-        "argmin",
-        "torch."
+        "argmin"
       ]
     ],
     "source_index": 117
@@ -3449,8 +3352,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 118
@@ -3480,8 +3382,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 119
@@ -3509,7 +3410,7 @@
         "conv2d",
         "weight",
         "tl.load",
-        "torch.nn.functional"
+        "tl.store"
       ]
     ],
     "source_index": 120
@@ -3537,8 +3438,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 121
@@ -3568,8 +3468,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 122
@@ -3595,8 +3494,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 123
@@ -3627,7 +3525,7 @@
         "conv2d",
         "weight",
         "tl.load",
-        "torch.nn.functional"
+        "tl.store"
       ]
     ],
     "source_index": 124
@@ -3653,8 +3551,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 125
@@ -3680,8 +3577,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 126
@@ -3711,8 +3607,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 127
@@ -3725,7 +3620,9 @@
     "description": "Computes the determinant of a square matrix. Supports input of float, double, cfloat and cdouble dtypes. Also supports batches of matrices, and if A is a batch of matrices then the output has the same batch dimensions.",
     "wrapper_regex": "def\\s+det\\s*\\(",
     "required_terms": [
-      "import torch"
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
     ],
     "semantic_terms_any": [
       [
@@ -3735,12 +3632,8 @@
         "det"
       ],
       [
-        "torch.linalg",
-        "solve",
-        "svd",
-        "qr",
-        "lu",
-        "return"
+        "tl.load",
+        "tl.store"
       ]
     ],
     "source_index": 128
@@ -3769,8 +3662,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 129
@@ -3796,8 +3688,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 130
@@ -3827,7 +3718,7 @@
         "gather",
         "scatter",
         "tl.load",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 131
@@ -3856,8 +3747,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 132
@@ -3883,8 +3773,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 133
@@ -3913,8 +3802,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 134
@@ -3940,8 +3828,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 135
@@ -3967,8 +3854,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 136
@@ -3998,8 +3884,7 @@
         "tl.max",
         "tl.min",
         "argmax",
-        "argmin",
-        "torch."
+        "argmin"
       ]
     ],
     "source_index": 137
@@ -4030,8 +3915,7 @@
         "tl.max",
         "tl.min",
         "argmax",
-        "argmin",
-        "torch."
+        "argmin"
       ]
     ],
     "source_index": 138
@@ -4060,8 +3944,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 139
@@ -4091,7 +3974,7 @@
         "gather",
         "scatter",
         "tl.load",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 140
@@ -4119,8 +4002,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 141
@@ -4148,8 +4030,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 142
@@ -4175,8 +4056,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 143
@@ -4202,8 +4082,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 144
@@ -4231,8 +4110,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 145
@@ -4258,8 +4136,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 146
@@ -4287,8 +4164,7 @@
         "tl.dot",
         "matmul",
         "bmm",
-        "linear",
-        "torch."
+        "linear"
       ]
     ],
     "source_index": 147
@@ -4317,8 +4193,7 @@
         "tl.max",
         "tl.min",
         "argmax",
-        "argmin",
-        "torch."
+        "argmin"
       ]
     ],
     "source_index": 148
@@ -4344,8 +4219,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 149
@@ -4371,8 +4245,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 150
@@ -4398,8 +4271,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 151
@@ -4429,7 +4301,7 @@
         "conv2d",
         "weight",
         "tl.load",
-        "torch.nn.functional"
+        "tl.store"
       ]
     ],
     "source_index": 152
@@ -4455,8 +4327,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 153
@@ -4485,8 +4356,7 @@
         "tl.max",
         "tl.min",
         "argmax",
-        "argmin",
-        "torch."
+        "argmin"
       ]
     ],
     "source_index": 154
@@ -4512,8 +4382,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 155
@@ -4541,7 +4410,7 @@
         "conv2d",
         "weight",
         "tl.load",
-        "torch.nn.functional"
+        "tl.store"
       ]
     ],
     "source_index": 156
@@ -4554,7 +4423,9 @@
     "description": "The function torch.fft.ifftshift is the inverse of torch.fft.fftshift. It rearranges the elements of the input tensor, which is in FFT order, such that the zero-frequency component is moved back to the original position. This is useful for preparing data for inverse FFT operations. The function can rearrange specified dimensions or all dimensions by default.",
     "wrapper_regex": "def\\s+ifftshift\\s*\\(",
     "required_terms": [
-      "import torch"
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
     ],
     "semantic_terms_any": [
       [
@@ -4564,12 +4435,8 @@
         "fft"
       ],
       [
-        "torch.linalg",
-        "solve",
-        "svd",
-        "qr",
-        "lu",
-        "return"
+        "tl.load",
+        "tl.store"
       ]
     ],
     "source_index": 157
@@ -4595,8 +4462,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 158
@@ -4627,8 +4493,7 @@
         "tl.max",
         "tl.min",
         "argmax",
-        "argmin",
-        "torch."
+        "argmin"
       ]
     ],
     "source_index": 159
@@ -4641,7 +4506,9 @@
     "description": "Computes the Cholesky decomposition of a complex Hermitian or real symmetric positive-definite matrix. Supports input of float, double, cfloat and cdouble dtypes. Also supports batches of matrices, and if A is a batch of matrices then the output has the same batch dimensions.",
     "wrapper_regex": "def\\s+cholesky\\s*\\(",
     "required_terms": [
-      "import torch"
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
     ],
     "semantic_terms_any": [
       [
@@ -4651,12 +4518,8 @@
         "cholesky"
       ],
       [
-        "torch.linalg",
-        "solve",
-        "svd",
-        "qr",
-        "lu",
-        "return"
+        "tl.load",
+        "tl.store"
       ]
     ],
     "source_index": 160
@@ -4686,7 +4549,7 @@
         "gather",
         "scatter",
         "tl.load",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 161
@@ -4716,7 +4579,7 @@
         "gather",
         "scatter",
         "tl.load",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 162
@@ -4742,8 +4605,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 163
@@ -4769,8 +4631,7 @@
       ],
       [
         "tl.load",
-        "tl.store",
-        "torch."
+        "tl.store"
       ]
     ],
     "source_index": 164
@@ -4799,8 +4660,7 @@
         "tl.max",
         "tl.min",
         "argmax",
-        "argmin",
-        "torch."
+        "argmin"
       ]
     ],
     "source_index": 165
@@ -4813,7 +4673,9 @@
     "description": "Computes the N dimensional discrete Fourier transform of the input tensor. It returns all positive and negative frequency terms, even though for real inputs, half of these values are redundant. Supports torch.half and torch.chalf on CUDA with GPU Architecture SM53 or greater, but only for powers of 2 signal length in every transformed dimension.",
     "wrapper_regex": "def\\s+fftn\\s*\\(",
     "required_terms": [
-      "import torch"
+      "import triton",
+      "import triton.language as tl",
+      "@triton.jit"
     ],
     "semantic_terms_any": [
       [
@@ -4823,12 +4685,8 @@
         "fftn"
       ],
       [
-        "torch.linalg",
-        "solve",
-        "svd",
-        "qr",
-        "lu",
-        "return"
+        "tl.load",
+        "tl.store"
       ]
     ],
     "source_index": 166
