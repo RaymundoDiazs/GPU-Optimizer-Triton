@@ -213,8 +213,8 @@ def main() -> None:
     )
     parser.add_argument("--provider", default="qwen", choices=["qwen"],
                         help="Solo qwen: el constrained real requiere modelo HF local.")
-    parser.add_argument("--mode", default="individual", choices=["individual", "family"],
-                        help="individual = EBNF por operador; family = gramatica de familia.")
+    parser.add_argument("--mode", default="individual", choices=["individual", "family", "universal"],
+                        help="individual = EBNF por operador; family = gramatica de familia; universal = gramatica Triton estricta agnostica.")
     parser.add_argument("--model-name", default=DEFAULT_MODEL)
     parser.add_argument("--max-new-tokens", type=int, default=768)
     parser.add_argument("--limit", type=int, default=0,

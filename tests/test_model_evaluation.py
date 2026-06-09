@@ -402,8 +402,11 @@ class TestCollectRealOutputs:
         assert "Constrained decoding contract:" in prompt
         assert "Target task id: tritonbench_t_001" in prompt
         assert "Grammar mode: family" in prompt
-        assert "family grammar" in grammar_text.lower()
-        assert "tl.load" in grammar_text or "@triton.jit" in grammar_text
+        assert "def generated_kernel" in grammar_text
+        assert "tl.program_id" in grammar_text
+        assert "tl.load" in grammar_text
+        assert "tl.store" in grammar_text
+        assert "torch_fallback" not in grammar_text
 
 
 # ---------------------------------------------------------------------------

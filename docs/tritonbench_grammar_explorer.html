@@ -83,7 +83,7 @@
     .three { grid-template-columns: repeat(3, 1fr); }
     .grid { grid-template-columns: 0.85fr 1.15fr; align-items: start; }
     .triple { grid-template-columns: 0.95fr 1fr 1fr; }
-    .compare-grid { grid-template-columns: 1fr 1fr; margin-top: 16px; }
+    .compare-grid { grid-template-columns: repeat(3, 1fr); margin-top: 16px; }
     .decision { grid-template-columns: repeat(4, 1fr); margin-top: 14px; }
     .controls { grid-template-columns: 1fr 1fr; margin-bottom: 14px; }
     .metric, .decision div { padding: 14px; background: #fbfcfd; }
@@ -198,11 +198,11 @@
     <header>
       <div>
         <h1>TritonBench-T Grammar Explorer</h1>
-        <p class="subtitle">Dynamic view of the 166 TritonBench-T simple tasks. It loads the generated grammar manifest and lets you compare individual task contracts against the reusable family grammar.</p>
+        <p class="subtitle">Dynamic view of the 166 TritonBench-T simple tasks. It loads the generated grammar manifest and lets you compare individual task contracts, reusable family grammar, and a universal Triton structural grammar.</p>
       </div>
       <div class="status">
         <strong>Current strategy</strong>
-        <span>Use individual contracts as scaffolding, family grammars for scaling, and XGrammar/HF for token-level constrained decoding.</span>
+          <span>Use individual contracts as scaffolding, family grammars for scaling, a universal Triton skeleton for broad coverage, and XGrammar/HF for token-level constrained decoding.</span>
       </div>
     </header>
 
@@ -221,8 +221,8 @@
         </div>
         <div class="metric">
           <span class="label">Grammar modes</span>
-          <span class="value">2</span>
-          <p>Individual EBNF per task and reusable family-level EBNF.</p>
+          <span class="value">3</span>
+          <p>Individual task EBNF, reusable family EBNF, and universal Triton structure EBNF.</p>
         </div>
       </div>
       <p class="notice" id="loadNotice">Loading contracts...</p>
@@ -270,10 +270,11 @@
     </section>
 
     <section class="panel">
-      <h2>General vs Individual Grammar</h2>
+      <h2>Grammar Modes</h2>
       <div class="controls">
         <select id="grammarMode" aria-label="Grammar mode">
           <option value="general">General family grammar</option>
+          <option value="universal">Universal Triton structure grammar</option>
           <option value="individual">Individual task contract</option>
         </select>
         <button id="runCheck" class="primary">Run Structural Check</button>
@@ -309,6 +310,11 @@
           <p>Reusable checks for the selected operation family.</p>
           <div id="familyRuleList" class="rule-list"></div>
         </div>
+        <div>
+          <h3>Universal Triton Rules</h3>
+          <p>Task-agnostic Triton module structure checks.</p>
+          <div id="universalRuleList" class="rule-list"></div>
+        </div>
       </div>
     </section>
   </main>
@@ -317,6 +323,7 @@
     const CONTRACTS_URL = "../grammars/tritonbench_t_contracts.json";
     const SUBSET_URL = "../data/tritonbench_t_simp_subset166.json";
     const FAMILY_GRAMMAR_URL = "../grammars/tritonbench_t/general_kernel_family.ebnf";
+    const UNIVERSAL_GRAMMAR_URL = "../grammars/tritonbench_t/universal_triton_kernel.ebnf";
 
     const familyDescriptions = {
       elementwise: "Reusable grammar for one output element per input element.",
@@ -334,6 +341,7 @@
     let filteredTasks = [];
     let selectedIndex = 0;
     let generalGrammar = "";
+    let universalGrammar = "";
     let selectedIndividualGrammar = "";
 
     function difficultyForFamily(family) {
@@ -429,14 +437,16 @@ def ${name}(*args, **kwargs):
 
     async function init() {
       try {
-        const [loadedContracts, loadedSubset, loadedFamilyGrammar] = await Promise.all([
+        const [loadedContracts, loadedSubset, loadedFamilyGrammar, loadedUniversalGrammar] = await Promise.all([
           loadJson(CONTRACTS_URL),
           loadJson(SUBSET_URL),
           loadText(FAMILY_GRAMMAR_URL),
+          loadText(UNIVERSAL_GRAMMAR_URL),
         ]);
         contracts = loadedContracts;
         subset = loadedSubset;
         generalGrammar = loadedFamilyGrammar;
+        universalGrammar = loadedUniversalGrammar;
         tasks = Object.entries(contracts)
           .sort(([a], [b]) => a.localeCompare(b))
           .map(([taskId, contract]) => makeTask(taskId, contract, subset[(contract.source_index || 1) - 1]));
@@ -505,6 +515,15 @@ def ${name}(*args, **kwargs):
       ];
     }
 
+    function universalRulesForTask(_task) {
+      return [
+        ["imports", /import\s+torch|import\s+triton/, "Imports at least one expected runtime module."],
+        ["triton kernel", /@triton\.jit/, "Defines a Triton JIT kernel candidate."],
+        ["parallel index", /tl\.program_id[\s\S]*tl\.arange|tl\.arange[\s\S]*tl\.program_id/, "Maps launched programs to block offsets."],
+        ["memory IO", /tl\.load[\s\S]*tl\.store/, "Reads from memory and writes a result."],
+      ];
+    }
+
     function individualRulesForTask(task) {
       const wrapper = new RegExp(`def\\s+${escapeRegex(task.name)}\\s*\\(`);
       const semanticTerms = termsFromContract(task.contract);
@@ -520,9 +539,10 @@ def ${name}(*args, **kwargs):
     }
 
     function activeRules(task) {
-      return document.getElementById("grammarMode").value === "individual"
-        ? individualRulesForTask(task)
-        : familyRulesForTask(task);
+      const mode = document.getElementById("grammarMode").value;
+      if (mode === "individual") return individualRulesForTask(task);
+      if (mode === "universal") return universalRulesForTask(task);
+      return familyRulesForTask(task);
     }
 
     function evaluateRules(candidate, rules) {
@@ -549,7 +569,13 @@ def ${name}(*args, **kwargs):
       if (!task) return;
 
       const mode = document.getElementById("grammarMode").value;
-      const grammarTitle = mode === "general" ? "General family grammar" : "Individual task contract";
+      const grammarTitle =
+        mode === "general"
+          ? "General family grammar"
+          : mode === "universal"
+            ? "Universal Triton structure grammar"
+            : "Individual task contract";
+      const constrainedMode = mode === "general" ? "family" : mode;
       document.getElementById("taskTitle").textContent = `${task.id}. ${task.name}`;
       document.getElementById("taskDescription").textContent = task.description;
       document.getElementById("familyPill").textContent = task.family;
@@ -564,13 +590,15 @@ def ${name}(*args, **kwargs):
           ? "Good first candidate for XGrammar because it maps cleanly to offsets, mask, loads, operation, and store."
           : "Use this structural contract to filter generated code; TritonBench still decides functional correctness.";
       document.getElementById("xgrammarStatus").textContent =
-        `Ready for generate_with_tritonbench_xgrammar("${task.taskId}", mode="${mode === "general" ? "family" : "individual"}").`;
+        `Ready for generate_with_tritonbench_xgrammar("${task.taskId}", mode="${constrainedMode}").`;
       document.getElementById("grammarTitle").textContent = grammarTitle;
       document.getElementById("pytorchText").textContent = task.promptReference;
       document.getElementById("candidateText").textContent = taskToSketch(task);
 
       if (mode === "general") {
         document.getElementById("grammarText").textContent = generalGrammar;
+      } else if (mode === "universal") {
+        document.getElementById("grammarText").textContent = universalGrammar;
       } else {
         document.getElementById("grammarText").textContent = "Loading individual EBNF...";
         try {
@@ -591,15 +619,18 @@ def ${name}(*args, **kwargs):
       const results = evaluateRules(candidate, rules);
       const individualResults = evaluateRules(candidate, individualRulesForTask(task));
       const familyResults = evaluateRules(candidate, familyRulesForTask(task));
+      const universalResults = evaluateRules(candidate, universalRulesForTask(task));
       const passed = results.filter((r) => r.pass).length;
       const total = results.length;
       const individualPassed = individualResults.filter((r) => r.pass).length;
       const familyPassed = familyResults.filter((r) => r.pass).length;
+      const universalPassed = universalResults.filter((r) => r.pass).length;
       document.getElementById("resultSummary").textContent =
-        `${passed}/${total} rules passed using ${document.getElementById("grammarMode").value} grammar mode. Individual: ${individualPassed}/${individualResults.length}. Family: ${familyPassed}/${familyResults.length}. This is structural only; call@1/exe@1/speedup require TritonBench GPU evaluation.`;
+        `${passed}/${total} rules passed using ${document.getElementById("grammarMode").value} grammar mode. Individual: ${individualPassed}/${individualResults.length}. Family: ${familyPassed}/${familyResults.length}. Universal: ${universalPassed}/${universalResults.length}. This is structural only; call@1/exe@1/speedup require TritonBench GPU evaluation.`;
       renderRuleRows("ruleList", results);
       renderRuleRows("individualRuleList", individualResults);
       renderRuleRows("familyRuleList", familyResults);
+      renderRuleRows("universalRuleList", universalResults);
     }
 
     function renderAll() {

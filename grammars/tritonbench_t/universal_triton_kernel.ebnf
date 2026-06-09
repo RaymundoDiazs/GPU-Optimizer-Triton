@@ -1,0 +1,65 @@
+# Task-agnostic Triton module grammar for XGrammar constrained decoding.
+# It preserves the required Triton shape without accepting arbitrary Python
+# statements inside @triton.jit.
+
+root ::= module
+
+module ::= imports "\n" top_level_block+
+top_level_block ::= triton_kernel_block | wrapper_function
+
+imports ::= "import torch\n" "import triton\n" "import triton.language as tl\n"
+
+triton_kernel_block ::= "@triton.jit\n" "def generated_kernel(" kernel-params "):\n" kernel_body "\n"
+kernel-params ::= "input_ptr, other_ptr, output_ptr, n_elements, BLOCK_SIZE: tl.constexpr"
+kernel_body ::= required_parallelism required_memory_io computation memory_store
+
+required_parallelism ::= indent "pid = tl.program_id(0)\n"
+                         indent "offsets = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)\n"
+required_memory_io ::= indent "mask = offsets < n_elements\n"
+                       indent "x = tl.load(input_ptr + offsets, mask=mask, other=0.0)\n"
+                       load-other
+load-other ::= indent "y = tl.load(other_ptr + offsets, mask=mask, other=0.0)\n" | ""
+
+computation ::= indent "result = " triton-expression "\n"
+memory_store ::= indent "tl.store(output_ptr + offsets, result, mask=mask)\n"
+
+triton-expression ::= elementwise_statement
+                    | reduction_statement
+                    | dot_statement
+                    | triton_library_statement
+
+elementwise_statement ::= "x"
+                        | "x + y"
+                        | "x - y"
+                        | "x * y"
+                        | "x / y"
+                        | "x * x"
+                        | "tl.abs(x)"
+                        | "tl.cos(x)"
+                        | "tl.exp(x)"
+                        | "tl.log(x)"
+                        | "tl.maximum(x, 0.0)"
+                        | "tl.minimum(x, y)"
+                        | "tl.sigmoid(x)"
+                        | "tl.sqrt(x)"
+                        | "tl.tanh(x)"
+                        | "tl.where(x > 0.0, x, 0.0)"
+reduction_statement ::= "tl.sum(x, axis=0)" | "tl.max(x, axis=0)" | "tl.min(x, axis=0)"
+dot_statement ::= "tl.dot(x, y)"
+triton_library_statement ::= elementwise_statement | reduction_statement | dot_statement
+
+wrapper_function ::= "def " wrapper-name "(*args, BLOCK_SIZE=1024, **kwargs):\n" wrapper-body
+wrapper-name ::= identifier
+wrapper-body ::= indent "input = args[0]\n"
+                 indent "other = args[1] if len(args) > 1 else input\n"
+                 indent "output = kwargs.get(\"out\")\n"
+                 indent "if output is None:\n"
+                 indent indent "output = torch.empty_like(input)\n"
+                 indent "n_elements = output.numel()\n"
+                 indent "grid = (triton.cdiv(n_elements, BLOCK_SIZE),)\n"
+                 grid_launch
+                 indent "return output\n"
+grid_launch ::= indent "generated_kernel[grid](input, other, output, n_elements, BLOCK_SIZE=BLOCK_SIZE)\n"
+
+identifier ::= [a-zA-Z_][a-zA-Z0-9_]*
+indent ::= "    "
