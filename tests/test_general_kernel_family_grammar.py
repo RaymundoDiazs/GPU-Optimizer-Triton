@@ -43,6 +43,16 @@ def test_universal_triton_kernel_grammar_exists():
     grammar = UNIVERSAL_GRAMMAR_PATH.read_text(encoding="utf-8")
     assert "required_parallelism" in grammar
     assert "required_memory_io" in grammar
+    assert "top_level_block+" in grammar
+    assert "triton_kernel_block" in grammar
+    assert "wrapper_function" in grammar
+    assert "grid_launch" in grammar
+    assert "elementwise_statement" in grammar
+    assert "reduction_statement" in grammar
+    assert "dot_statement" in grammar
+    assert "triton_library_statement" in grammar
+    assert "library_namespace" in grammar
+    assert "torch_fallback" in grammar
     assert "@triton.jit" in grammar
     assert "tl.program_id" in grammar
     assert "tl.load" in grammar

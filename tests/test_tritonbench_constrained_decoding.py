@@ -24,6 +24,10 @@ def test_selects_universal_tritonbench_grammar():
     assert "root ::= module" in grammar
     assert "required_parallelism" in grammar
     assert "required_memory_io" in grammar
+    assert "top_level_block+" in grammar
+    assert "triton_kernel_block" in grammar
+    assert "wrapper_function" in grammar
+    assert "grid_launch" in grammar
     assert "@triton.jit" in grammar
 
 

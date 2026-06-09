@@ -1,30 +1,180 @@
 root ::= module
 
-module ::= imports ws kernel_module ws wrapper_module?
+module ::= imports ws top_level_block+
+top_level_block ::= triton_kernel_block
+                  | wrapper_function
+                  | python_function
+                  | class_definition
+                  | top_level_assignment
+                  | top_level_statement
 
-imports ::= import_line+
-import_line ::= "import" ws import_text newline
+imports ::= import_statement+
+import_statement ::= import_line newline
+import_line ::= "import" ws import_text
+              | "from" ws import_text ws "import" ws import_text
 import_text ::= [^\n]+
 
-kernel_module ::= decorator ws function_def ws kernel_body
-decorator ::= "@triton.jit" newline
-function_def ::= "def" ws identifier "(" parameters ")" ":" newline
+triton_kernel_block ::= decorator_block kernel_function
+decorator_block ::= decorator_line+
+decorator_line ::= decorator newline
+decorator ::= "@triton.jit"
+            | "@triton.heuristics(" text ")"
+            | "@triton.autotune(" text ")"
+            | "@" identifier
+            | "@" identifier "(" text ")"
+kernel_function ::= "def" ws identifier "(" parameters? ")" ":" newline kernel_body
 
-kernel_body ::= statement* required_parallelism statement* required_memory_io statement*
-required_parallelism ::= program_id statement* offsets
-required_memory_io ::= load statement* store
+kernel_body ::= strict_kernel_body
+              | flexible_kernel_body
+strict_kernel_body ::= kernel_statement* required_parallelism kernel_statement* required_memory_io kernel_statement*
+flexible_kernel_body ::= kernel_statement+
+required_parallelism ::= program_id kernel_statement* index_space
+required_memory_io ::= memory_load kernel_statement* memory_store
 
-program_id ::= indent identifier ws "=" ws "tl.program_id(" text ")" newline
-offsets ::= indent identifier ws "=" ws text "tl.arange(" text ")" text newline
-load ::= indent identifier ws "=" ws "tl.load(" text ")" newline
-store ::= indent "tl.store(" text ")" newline
+kernel_statement ::= assignment
+                   | annotated_assignment
+                   | aug_assignment
+                   | tuple_assignment
+                   | program_id
+                   | index_space
+                   | grid_indexing
+                   | mask_statement
+                   | memory_load
+                   | memory_store
+                   | atomic_statement
+                   | reduction_statement
+                   | dot_statement
+                   | elementwise_statement
+                   | tensor_create_statement
+                   | triton_library_statement
+                   | pointer_arithmetic
+                   | control_statement
+                   | loop_statement
+                   | with_statement
+                   | try_statement
+                   | except_statement
+                   | finally_statement
+                   | raise_statement
+                   | assert_statement
+                   | comment_statement
+                   | return_statement
+                   | pass_statement
+                   | expression_statement
+                   | raw_statement
 
-wrapper_module ::= "def" ws identifier "(" parameters ")" ":" newline statement*
-statement ::= indent text newline
+program_id ::= indent identifier opt_ws "=" opt_ws "tl.program_id(" text ")" newline
+index_space ::= indent identifier opt_ws "=" opt_ws text "tl.arange(" text ")" text newline
+grid_indexing ::= indent identifier opt_ws "=" opt_ws "tl.program_id(" text ")" text newline
+mask_statement ::= indent identifier opt_ws "=" opt_ws text newline
 
-parameters ::= [^\n)]*
+memory_load ::= indent identifier opt_ws "=" opt_ws "tl.load(" text ")" newline
+memory_store ::= indent "tl.store(" text ")" newline
+atomic_statement ::= indent tl_atomic_call text newline
+
+elementwise_statement ::= indent identifier opt_ws "=" opt_ws elementwise_expr newline
+reduction_statement ::= indent identifier opt_ws "=" opt_ws reduction_expr newline
+dot_statement ::= indent identifier opt_ws "=" opt_ws dot_expr newline
+tensor_create_statement ::= indent identifier opt_ws "=" opt_ws tensor_create_expr newline
+triton_library_statement ::= indent text "tl." text newline
+pointer_arithmetic ::= indent identifier opt_ws "=" opt_ws text "+" text newline
+assignment ::= indent identifier opt_ws "=" opt_ws text newline
+annotated_assignment ::= indent identifier ":" opt_ws text newline
+aug_assignment ::= indent text aug_operator text newline
+tuple_assignment ::= indent text "," text "=" text newline
+aug_operator ::= "+=" | "-=" | "*=" | "/=" | "//=" | "%=" | "**="
+
+elementwise_expr ::= text tl_elementwise_call text
+tl_elementwise_call ::= "tl.exp(" | "tl.sqrt(" | "tl.rsqrt(" | "tl.log(" | "tl.tanh(" | "tl.sigmoid(" | "tl.where(" | "tl.maximum(" | "tl.minimum(" | "tl.abs(" | "tl.sin(" | "tl.cos(" | "tl.floor(" | "tl.ceil("
+reduction_expr ::= text tl_reduction_call text
+tl_reduction_call ::= "tl.sum(" | "tl.max(" | "tl.min(" | "tl.argmax("
+dot_expr ::= text "tl.dot(" text
+tensor_create_expr ::= text tl_tensor_create_call text
+tl_tensor_create_call ::= "tl.zeros(" | "tl.full(" | "tl.arange(" | "tl.load("
+tl_atomic_call ::= "tl.atomic_add(" | "tl.atomic_max(" | "tl.atomic_min(" | "tl.atomic_cas(" | "tl.atomic_xchg("
+
+control_statement ::= if_statement
+                    | elif_statement
+                    | else_statement
+if_statement ::= indent "if" ws text ":" newline
+elif_statement ::= indent "elif" ws text ":" newline
+else_statement ::= indent "else:" newline
+
+loop_statement ::= indent "for" ws text ":" newline
+with_statement ::= indent "with" ws text ":" newline
+try_statement ::= indent "try:" newline
+except_statement ::= indent "except" text ":" newline
+finally_statement ::= indent "finally:" newline
+raise_statement ::= indent "raise" ws text newline
+assert_statement ::= indent "assert" ws text newline
+return_statement ::= indent "return" ws text newline
+pass_statement ::= indent "pass" newline
+comment_statement ::= indent "#" text newline
+expression_statement ::= indent callable_expr newline
+callable_expr ::= text "(" text ")"
+raw_statement ::= indent text newline
+
+wrapper_function ::= "def" ws identifier "(" parameters? ")" ":" newline python_body
+python_function ::= "def" ws identifier "(" parameters? ")" ":" newline python_body
+class_definition ::= "class" ws identifier class_suffix ":" newline python_body
+class_suffix ::= text
+python_body ::= python_statement*
+
+python_statement ::= torch_allocation
+                    | grid_launch
+                    | shape_statement
+                    | stride_statement
+                    | cdiv_statement
+                    | assignment
+                    | annotated_assignment
+                    | aug_assignment
+                    | tuple_assignment
+                    | method_call
+                    | function_call
+                    | library_call
+                    | torch_fallback
+                    | control_statement
+                    | loop_statement
+                    | with_statement
+                    | try_statement
+                    | except_statement
+                    | finally_statement
+                    | raise_statement
+                    | assert_statement
+                    | comment_statement
+                    | return_statement
+                    | pass_statement
+                    | expression_statement
+                    | raw_statement
+
+torch_allocation ::= indent identifier opt_ws "=" opt_ws torch_allocation_expr newline
+torch_allocation_expr ::= text torch_allocation_call text
+torch_allocation_call ::= "torch.empty(" | "torch.empty_like(" | "torch.zeros(" | "torch.zeros_like(" | "torch.ones(" | "torch.ones_like(" | "torch.empty_strided(" | "torch.empty_like("
+
+grid_launch ::= indent identifier "[" text "](" text ")" newline
+shape_statement ::= indent identifier opt_ws "=" opt_ws text ".shape" text newline
+stride_statement ::= indent identifier opt_ws "=" opt_ws text ".stride(" text ")" text newline
+cdiv_statement ::= indent identifier opt_ws "=" opt_ws "triton.cdiv(" text ")" newline
+torch_fallback ::= indent text "torch." text newline
+library_call ::= indent text library_namespace text newline
+library_namespace ::= "torch." | "torch.linalg." | "torch.special." | "torch.fft." | "torch.nn.functional." | "F." | "nn." | "math." | "triton."
+method_call ::= indent text "." identifier "(" text ")" newline
+function_call ::= indent identifier "(" text ")" newline
+top_level_assignment ::= identifier opt_ws "=" opt_ws text newline
+top_level_statement ::= text newline
+
+parameters ::= parameter ("," opt_ws parameter)*
+parameter ::= identifier
+            | "*"
+            | "/"
+            | "*" identifier
+            | "**" identifier
+            | identifier ":" opt_ws text
+            | identifier opt_ws "=" opt_ws text
+            | identifier ":" opt_ws text opt_ws "=" opt_ws text
+
 identifier ::= [a-zA-Z_][a-zA-Z0-9_]*
 text ::= [^\n]*
 indent ::= [ \t]+
-ws ::= [ \t]*
+ws ::= [ \t]+
+opt_ws ::= [ \t]*
 newline ::= "\n"
