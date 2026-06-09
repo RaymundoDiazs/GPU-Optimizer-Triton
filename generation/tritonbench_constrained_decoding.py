@@ -31,6 +31,14 @@ MANDATORY RULES:
 5. OFFSETS: offsets = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE).
 6. GRID: wrapper computes grid and launches: kernel[grid](...).
 
+FORBIDDEN INSIDE @triton.jit (these cause failures — NEVER do them):
+- NO Python for/while loops over elements.
+- NO if/raise/ValueError/assert or shape checks.
+- NO len(), .shape, .dtype, range(), print() inside the kernel.
+- NO undefined variables. Every variable must be a kernel argument or computed with tl.* .
+- The kernel body must ONLY: compute offsets, mask, tl.load, do tl.* math, tl.store.
+- Put ALL Python logic (shape checks, dtype, grid) in the WRAPPER, never in the kernel.
+
 API REFERENCE (use ONLY these, do not invent):
 tl.program_id(axis), tl.arange(start,end), tl.constexpr, triton.cdiv(a,b),
 tl.load(ptr,mask,other), tl.store(ptr,value,mask), tl.sum/max/min(x,axis),
@@ -83,15 +91,10 @@ def softmax(x: torch.Tensor) -> torch.Tensor:
     return output
 ```"""
 FAMILY_GRAMMAR_PATH = ROOT / "grammars" / "tritonbench_t" / "general_kernel_family.ebnf"
-UNIVERSAL_GRAMMAR_PATH = ROOT / "grammars" / "tritonbench_t" / "universal_triton_kernel.ebnf"
 
 if not FAMILY_GRAMMAR_PATH.exists():
     raise FileNotFoundError(
         f"Expected the general Triton grammar at {FAMILY_GRAMMAR_PATH}, but it was not found."
-    )
-if not UNIVERSAL_GRAMMAR_PATH.exists():
-    raise FileNotFoundError(
-        f"Expected the universal Triton grammar at {UNIVERSAL_GRAMMAR_PATH}, but it was not found."
     )
 
 
@@ -122,8 +125,7 @@ def select_tritonbench_grammar(task_id: str, mode: str = "individual") -> str:
     """Return the grammar text selected for a TritonBench-T task.
 
     `individual` uses the task-specific EBNF contract. `family` uses the
-    broader reusable family grammar. `universal` uses the task-agnostic Triton
-    kernel grammar.
+    broader reusable family grammar.
     """
     contracts = load_tritonbench_contracts()
     if task_id not in contracts:
@@ -133,10 +135,8 @@ def select_tritonbench_grammar(task_id: str, mode: str = "individual") -> str:
         grammar_path = ROOT / contracts[task_id]["ebnf"]
     elif mode == "family":
         grammar_path = FAMILY_GRAMMAR_PATH
-    elif mode == "universal":
-        grammar_path = UNIVERSAL_GRAMMAR_PATH
     else:
-        raise ValueError("mode must be 'individual', 'family', or 'universal'")
+        raise ValueError("mode must be 'individual' or 'family'")
 
     return grammar_path.read_text(encoding="utf-8")
 
