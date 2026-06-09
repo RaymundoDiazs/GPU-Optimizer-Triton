@@ -145,11 +145,23 @@ class XGrammarLLMDecoder:
             def __call__(self, input_ids, scores, **kwargs):
                 return time.time() > self.deadline
 
+        # Ban dangerous token sequences during generation. NOT post-processing —
+        # these are generation-time constraints like XGrammar itself.
+        BAD_WORDS_IDS = [
+            [2196, 4348],  # .data_ptr: [".data", "_ptr"] — x_ptr etc safe (different prefix)
+            [2196, 5348],  # .dataPtr:  [".data", "Ptr"]  — camelCase evasion of above
+            [11544, 84058],  # tl.sigmoid: ["tl", ".sigmoid"] — tl.math.sigmoid safe (.math in between)
+            [11544, 734, 27924],  # tl.tanh: ["tl", ".t", "anh"] — tl.math.tanh safe (.math breaks seq)
+            [11544, 21617, 1665, 16, 79],  # tl.math.log1p: ["tl",".math",".log","1","p"] — tl.math.log safe (3 tokens only)
+            [11544, 38818],  # tl.square: ["tl", ".square"] — no existe en Triton, fuerza x*x
+        ]
+
         output_ids = self.model.generate(
             **inputs,
             max_new_tokens=max_new_tokens,
             logits_processor=[logits_processor],
             stopping_criteria=[TimeoutCriteria(max_seconds=120)],
+            bad_words_ids=BAD_WORDS_IDS,
             do_sample=False,
         )
         generated_ids = output_ids[0][prompt_length:]

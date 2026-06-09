@@ -191,9 +191,18 @@ def run(
                         inputs = {k: v.to(device) for k, v in inputs.items()}
                     except Exception:
                         pass
+                    BAD_WORDS_IDS = [
+                        [2196, 4348],   # .data_ptr
+                        [2196, 5348],   # .dataPtr
+                        [11544, 84058], # tl.sigmoid
+                        [11544, 734, 27924],  # tl.tanh
+                        [11544, 21617, 1665, 16, 79],  # tl.math.log1p
+                        [11544, 38818],  # tl.square
+                    ]
                     output_ids = model.generate(
                         **inputs,
                         max_new_tokens=max_new_tokens,
+                        bad_words_ids=BAD_WORDS_IDS,
                         do_sample=False,
                     )
                     generated_ids = output_ids[0][inputs["input_ids"].shape[-1]:]

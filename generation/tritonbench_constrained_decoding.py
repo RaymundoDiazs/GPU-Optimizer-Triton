@@ -84,7 +84,31 @@ def build_tritonbench_constrained_spec(
     instruction = simp_data[index]["instruction"]
     pytorch_code = _load_pytorch_func(t_data[index]["file"])
     family = contract.get("family", "complex_fallback")
+    # Override: operators classified as fusion_matmul but whose description says
+    # "element-wise" (without mentioning matrix/matmul/linear/dot) are really
+    # elementwise ops. Giving them the matmul few-shot causes M,N=x.shape on 1D
+    # tensors. The elementwise few-shot uses numel() which is shape-agnostic.
+    # "linear unit(s)" is stripped because ReLU/SELU/GELU contain "linear" in
+    # their activation name, not because they do a linear transformation.
+    # Ops with "dim" in wrapper signature are reductions, not pure elementwise.
+    if family == "fusion_matmul":
+        desc = contract.get("description", "").lower()
+        wrapper_sig = contract.get("wrapper", "").lower()
+        desc_cleaned = re.sub(r"linear unit[s]?", "", desc)
+        is_elementwise = "element" in desc
+        is_matmul = any(kw in desc_cleaned for kw in ["matrix", "matmul", "linear", "dot product", "gemm"])
+        has_dim = "dim" in wrapper_sig
+        if is_elementwise and not is_matmul and not has_dim:
+            family = "elementwise"
     example = FEW_SHOT_EXAMPLES.get(family, FEW_SHOT_EXAMPLES["complex_fallback"])
+
+    # Extract the expected wrapper function name from the instruction.
+    # It's always present as "Wrapper Entry Information: [def] name("
+    import re as _re
+    _wrapper_match = _re.search(
+        r'Wrapper Entry Information:.*?(?:def\s+)?(\w+)\s*\(', instruction
+    )
+    wrapper_name = _wrapper_match.group(1) if _wrapper_match else None
 
     prompt = (
         instruction
@@ -95,15 +119,19 @@ def build_tritonbench_constrained_spec(
         + f" ({family}):\n```python\n"
         + example
         + "\n```"
-        + "\n\nCRITICAL RULES:"
-        + "\n1. Kernel name MUST end with '_kernel'. Wrapper name MUST NOT contain '_kernel'."
-        + "\n2. Wrapper MUST call <name>_kernel[grid](...) — the name must match."
-        + "\n3. NEVER use .data_ptr() — pass tensors directly to the kernel launch."
-        + "\n4. Use input.numel() for 1D element count. Do NOT assume 2D shapes (M, N = x.shape) unless the input is guaranteed 2D."
-        + "\n5. Use tl.math.* for transcendental functions (tl.math.exp, tl.math.log, tl.math.sqrt). Do NOT use tl.tanh, tl.sigmoid — they do not exist."
-        + "\n6. tl.arange arguments must be tl.constexpr (use BLOCK_SIZE, not runtime variables)."
-        + "\n\nNow generate the Triton kernel:"
+        + "\n\nRules: kernel name ends with _kernel, wrapper calls it by name."
+        + " Pass tensors directly to kernel (not .data_ptr())."
+        + " Use input.numel() for element count."
+        + " Use tl.math.exp, tl.math.log for math ops (not tl.tanh, tl.sigmoid, tl.square)."
+        + " Use tl.math.log(1+x) instead of tl.math.log1p (not available)."
+        + " tl.arange needs tl.constexpr args (BLOCK_SIZE)."
     )
+    if wrapper_name:
+        prompt += (
+            f"\nWrapper function MUST be named: {wrapper_name}"
+            f"\nKernel function MUST be named: {wrapper_name}_kernel"
+        )
+    prompt += "\n\nNow generate the Triton kernel:"
 
     grammar_text = FAMILY_GRAMMAR_PATH.read_text(encoding="utf-8")
 

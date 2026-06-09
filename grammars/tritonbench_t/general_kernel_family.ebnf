@@ -9,14 +9,11 @@
 #   - Body with mandatory tl.program_id and tl.store
 #   - Mandatory launcher/wrapper function (distinct name from kernel)
 #
-# v6 — fixes from evaluator feedback (24 evaluated, 2/24 call_acc = 8.3%):
-#   - stmt_text increased from 130 to 200 chars — 5/24 SyntaxErrors were
-#     caused by truncation mid-paren/mid-string (unterminated literals,
-#     unclosed brackets). 200 chars gives the model room to close expressions.
-#   - launcher_body increased from {1,35} to {1,40} — complex wrappers
-#     need extra lines for shape validation, grid setup, and kernel call.
-#   - (v4/v5 fixes retained: _kernel suffix, launcher_param_char excludes ')',
-#     kernel body mid {0,45})
+# v6 + bad_words_ids — best grammar (4/30 = 13.3%) combined with token-level
+#   .data_ptr() ban via bad_words_ids=[[2196, 4348]] in generate().
+#   The grammar stays SIMPLE (lesson from v7: complex structure destroys output).
+#   The .data_ptr() problem (55% of predictions) is handled at token level,
+#   not grammar level — GBNF cannot do negative lookahead.
 
 root ::= module
 
@@ -31,9 +28,6 @@ triton_import ::= "import triton\n"
 tl_import     ::= "import triton.language as tl\n\n"
 
 # ----- kernel -----
-# Name MUST end with "_kernel" so the wrapper can have a distinct name.
-# This prevents the NameError where wrapper[grid](...) fails because
-# the wrapper shadows the kernel function.
 kernel ::= "@triton.jit\n" "def " ident "_kernel(" params "):\n" body
 
 params      ::= pre_params constexpr_p post_params
@@ -43,8 +37,6 @@ plain_p     ::= ident
 constexpr_p ::= ident ": tl.constexpr"
 
 # ----- kernel body -----
-# mid reduced from {0,60} to {0,45} — saves ~15 lines of token budget
-# for the launcher. Max real kernel body = 44 lines, so {0,45} still fits.
 body ::= lead pid_line mid store_line tail
 
 lead ::= free_line{0,6}
@@ -56,14 +48,10 @@ store_line ::= "    tl.store(" stmt_text ")\n"
 free_line  ::= "    " stmt_text "\n"
 
 # ----- launcher / wrapper -----
-# launcher_param_char EXCLUDES ')' so the grammar's literal "):\n"
-# is the only way to close the signature. Prevents inline comments
-# and duplicate code after the colon.
 launcher        ::= "\ndef " ident "(" launcher_params "):\n" launcher_body
 launcher_params ::= launcher_param_char{0,250}
 launcher_param_char ::= [a-zA-Z0-9_ \t.,:;=+\-*/<>&|\[\]'"\{\}]
 
-# Body at {1,40} — enough room for shape handling + grid setup + kernel call.
 launcher_body ::= launcher_line{1,40}
 launcher_line ::= "    " stmt_text "\n"
 
