@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from parsing.triton_grammar_rules import validate_triton_kernel
+from evaluation.code_safety import validate_generated_code_safety as _validate_safety
 
 
 DEFAULT_TRITON_EBNF = r"""
@@ -130,18 +130,28 @@ class XGrammarLLMDecoder:
         except (StopIteration, AttributeError):
             pass
 
-        logits_processor = xgr.contrib.hf.LogitsProcessor(
-            self.compiled_grammar
-        )
+        prompt_length = inputs["input_ids"].shape[-1]
+
+        logits_processor = xgr.contrib.hf.LogitsProcessor(self.compiled_grammar)
+
+        # StoppingCriteria que corta la generación si tarda más de max_time_s.
+        # Evita bucles infinitos causados por gramáticas recursivas.
+        import time
+        from transformers import StoppingCriteria
+
+        class TimeoutCriteria(StoppingCriteria):
+            def __init__(self, max_seconds: float):
+                self.deadline = time.time() + max_seconds
+            def __call__(self, input_ids, scores, **kwargs):
+                return time.time() > self.deadline
 
         output_ids = self.model.generate(
             **inputs,
             max_new_tokens=max_new_tokens,
             logits_processor=[logits_processor],
+            stopping_criteria=[TimeoutCriteria(max_seconds=120)],
+            do_sample=False,
         )
-
-        prompt_length = inputs["input_ids"].shape[-1]
-
         generated_ids = output_ids[0][prompt_length:]
 
         generated_code = self.tokenizer.decode(
@@ -149,16 +159,14 @@ class XGrammarLLMDecoder:
             skip_special_tokens=True,
         )
 
-        validation = validate_triton_kernel(
-            generated_code
-        )
+        safety = _validate_safety(generated_code)
 
         return XGrammarGenerationResult(
             prompt=prompt,
             generated_code=generated_code,
-            accepted=validation.valid,
-            errors=validation.errors,
-            warnings=validation.warnings,
+            accepted=safety.safe,
+            errors=safety.errors,
+            warnings=[],
             used_xgrammar=True,
         )
 

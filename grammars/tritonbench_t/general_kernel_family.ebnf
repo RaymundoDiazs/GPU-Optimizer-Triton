@@ -1,54 +1,74 @@
-# TritonBench-T family grammar for XGrammar constrained decoding.
-# Family labels used by selector tests: elementwise_kernel, reduction_kernel.
+# TritonBench-T general kernel grammar for XGrammar constrained decoding.
+#
+# Format: GBNF (GGML BNF) — the format XGrammar's GrammarCompiler accepts.
+#
+# Covers all 166 TritonBench-T operators. Enforces:
+#   - Mandatory imports (torch, triton, triton.language as tl)
+#   - @triton.jit decorator with kernel name ending in _kernel
+#   - At least one tl.constexpr param
+#   - Body with mandatory tl.program_id and tl.store
+#   - Mandatory launcher/wrapper function (distinct name from kernel)
+#
+# v6 — fixes from evaluator feedback (24 evaluated, 2/24 call_acc = 8.3%):
+#   - stmt_text increased from 130 to 200 chars — 5/24 SyntaxErrors were
+#     caused by truncation mid-paren/mid-string (unterminated literals,
+#     unclosed brackets). 200 chars gives the model room to close expressions.
+#   - launcher_body increased from {1,35} to {1,40} — complex wrappers
+#     need extra lines for shape validation, grid setup, and kernel call.
+#   - (v4/v5 fixes retained: _kernel suffix, launcher_param_char excludes ')',
+#     kernel body mid {0,45})
+
 root ::= module
 
-module ::= imports ws kernel
-         | imports ws kernel ws launcher
+module ::= imports kernel launcher
 
-imports ::= triton-imports
-          | torch-import triton-imports
+# ----- imports -----
+imports ::= torch_import triton_import tl_import
+          | triton_import tl_import
 
-torch-import ::= "import torch" ws
-triton-imports ::= "import triton" ws "import triton.language as tl" ws
+torch_import  ::= "import torch\n"
+triton_import ::= "import triton\n"
+tl_import     ::= "import triton.language as tl\n\n"
 
-kernel ::= decorator ws function-def ws body
-decorator ::= "@triton.jit"
-function-def ::= "def" ws identifier "(" params? ")" ":"
+# ----- kernel -----
+# Name MUST end with "_kernel" so the wrapper can have a distinct name.
+# This prevents the NameError where wrapper[grid](...) fails because
+# the wrapper shadows the kernel function.
+kernel ::= "@triton.jit\n" "def " ident "_kernel(" params "):\n" body
 
-launcher ::= "def" ws identifier "(" wrapper-params? ")" ":" ws launcher-body
-launcher-body ::= line*
+params      ::= pre_params constexpr_p post_params
+pre_params  ::= (plain_p ", "){0,12}
+post_params ::= (", " plain_p){0,12}
+plain_p     ::= ident
+constexpr_p ::= ident ": tl.constexpr"
 
-body ::= line+
-line ::= indent statement ws
-statement ::= program-id
-            | arange
-            | load
-            | store
-            | assignment
-            | generic-statement
+# ----- kernel body -----
+# mid reduced from {0,60} to {0,45} — saves ~15 lines of token budget
+# for the launcher. Max real kernel body = 44 lines, so {0,45} still fits.
+body ::= lead pid_line mid store_line tail
 
-program-id ::= identifier opt-ws "=" opt-ws "tl.program_id(" integer ")"
-arange ::= identifier opt-ws "=" opt-ws "tl.arange(" integer "," opt-ws arange-end ")"
-load ::= identifier opt-ws "=" opt-ws "tl.load(" text ")"
-store ::= "tl.store(" text ")"
-assignment ::= identifier opt-ws "=" opt-ws text
-generic-statement ::= text
+lead ::= free_line{0,6}
+mid  ::= free_line{0,45}
+tail ::= free_line{0,8}
 
-params ::= param ("," opt-ws param)*
+pid_line   ::= "    " ident " = tl.program_id(" pid_arg ")\n"
+store_line ::= "    tl.store(" stmt_text ")\n"
+free_line  ::= "    " stmt_text "\n"
 
-param ::= identifier
-        | identifier ":" opt-ws "tl.constexpr"
-        | identifier opt-ws "=" opt-ws text
-        | identifier ":" opt-ws "tl.constexpr" opt-ws "=" opt-ws text
+# ----- launcher / wrapper -----
+# launcher_param_char EXCLUDES ')' so the grammar's literal "):\n"
+# is the only way to close the signature. Prevents inline comments
+# and duplicate code after the colon.
+launcher        ::= "\ndef " ident "(" launcher_params "):\n" launcher_body
+launcher_params ::= launcher_param_char{0,250}
+launcher_param_char ::= [a-zA-Z0-9_ \t.,:;=+\-*/<>&|\[\]'"\{\}]
 
-wrapper-params ::= text
+# Body at {1,40} — enough room for shape handling + grid setup + kernel call.
+launcher_body ::= launcher_line{1,40}
+launcher_line ::= "    " stmt_text "\n"
 
-arange-end ::= integer
-             | identifier
-
-identifier ::= [a-zA-Z_][a-zA-Z0-9_]*
-integer ::= [0-9]+
-indent ::= [ \t]*
-opt-ws ::= [ \t]*
-ws ::= [ \t\n]+
-text ::= [^\n]+
+# ----- terminals -----
+ident     ::= [a-zA-Z_] [a-zA-Z0-9_]{0,60}
+pid_arg   ::= [0-9a-zA-Z_=, ]{1,20}
+stmt_text ::= stmt_char{1,200}
+stmt_char ::= [a-zA-Z0-9_ \t.,:;=+\-*/%<>()&|\[\]'"\{\}#@]

@@ -117,6 +117,7 @@ def run(
     seed: int,
     output: Path,
     grammar_file: Path | None = None,
+    no_grammar: bool = False,
 ) -> int:
     """Corrida real: carga Qwen local una vez y genera con XGrammar por task.
 
@@ -168,7 +169,47 @@ def run(
             index = _task_id_to_index(task_id)
             instruction = dataset[index]["instruction"]
             try:
-                if custom_grammar is not None:
+                if no_grammar:
+                    # Solo diferenciador: prompt con few-shot, sin XGrammar.
+                    from generation.tritonbench_constrained_decoding import build_tritonbench_constrained_spec
+                    from transformers import AutoModelForCausalLM, AutoTokenizer as HFTokenizer
+                    import torch
+                    spec = build_tritonbench_constrained_spec(task_id, mode=mode)
+                    text = spec.prompt
+                    try:
+                        if getattr(tokenizer, "chat_template", None):
+                            text = tokenizer.apply_chat_template(
+                                [{"role": "user", "content": spec.prompt}],
+                                tokenize=False,
+                                add_generation_prompt=True,
+                            )
+                    except Exception:
+                        pass
+                    inputs = tokenizer(text, return_tensors="pt")
+                    try:
+                        device = next(model.parameters()).device
+                        inputs = {k: v.to(device) for k, v in inputs.items()}
+                    except Exception:
+                        pass
+                    output_ids = model.generate(
+                        **inputs,
+                        max_new_tokens=max_new_tokens,
+                        do_sample=False,
+                    )
+                    generated_ids = output_ids[0][inputs["input_ids"].shape[-1]:]
+                    generated_code = tokenizer.decode(generated_ids, skip_special_tokens=True)
+                    from evaluation.code_safety import validate_generated_code_safety
+                    safety = validate_generated_code_safety(generated_code)
+                    from generation.xgrammar_llm_decoder import XGrammarGenerationResult
+                    result = XGrammarGenerationResult(
+                        prompt=spec.prompt,
+                        generated_code=generated_code,
+                        accepted=safety.safe,
+                        errors=safety.errors,
+                        warnings=[],
+                        used_xgrammar=False,
+                    )
+                elif custom_grammar is not None:
                     spec = build_tritonbench_constrained_spec(task_id, mode=mode)
                     decoder = XGrammarLLMDecoder(
                         model=model, tokenizer=tokenizer, grammar_text=custom_grammar
@@ -216,7 +257,7 @@ def main() -> None:
     parser.add_argument("--mode", default="individual", choices=["individual", "family"],
                         help="individual = EBNF por operador; family = gramatica de familia.")
     parser.add_argument("--model-name", default=DEFAULT_MODEL)
-    parser.add_argument("--max-new-tokens", type=int, default=768)
+    parser.add_argument("--max-new-tokens", type=int, default=1536)
     parser.add_argument("--limit", type=int, default=0,
                         help="0 = los 166; >0 = primeros N (smoke test).")
     parser.add_argument("--resume", action="store_true")
@@ -225,9 +266,10 @@ def main() -> None:
     parser.add_argument("--dry-run", action="store_true",
                         help="Valida prompts+gramaticas de los 166 sin cargar el modelo.")
     parser.add_argument("--grammar-file", type=Path, default=None,
-                        help="Ruta a UNA gramatica GBNF valida para usar en los 166 "
-                             "(p.ej. grammars/triton_module.gbnf). Recomendado: las EBNF "
-                             "individuales estan en formato ISO y XGrammar no las compila.")
+                        help="Ruta a UNA gramatica GBNF valida para usar en los 166.")
+    parser.add_argument("--no-grammar", action="store_true",
+                        help="Genera sin XGrammar: solo prompt con diferenciador few-shot. "
+                             "Mas rapido, sin riesgo de bucles de gramatica.")
     args = parser.parse_args()
 
     if args.dry_run:
@@ -243,6 +285,7 @@ def main() -> None:
         seed=args.seed,
         output=args.output,
         grammar_file=args.grammar_file,
+        no_grammar=args.no_grammar,
     )
     sys.exit(1 if errors else 0)
 

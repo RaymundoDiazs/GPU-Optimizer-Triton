@@ -1,0 +1,1 @@
+cd "C:/Users/Polou/OneDrive/Desktop/Projects/GPU-Optimizer-Triton/extras/TritonBench4Modal-main"; modal run modal_app.py::evaluate_only --predictions "../../evaluation/predictions_qwen_constrained.jsonl" --output-subdir results_constrained_partial

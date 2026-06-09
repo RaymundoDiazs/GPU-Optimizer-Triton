@@ -27,13 +27,18 @@ def load_hf_model(model_name: str = DEFAULT_HF_MODEL):
     verify_xgrammar_environment()
     _ensure_local_qwen_model(model_name)
 
+    import torch
     from transformers import AutoModelForCausalLM, AutoTokenizer
 
     tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True)
 
+    # Cargar directamente en GPU con float16 para que todo el modelo
+    # quepa en los 6GB de VRAM sin offload a CPU (que cuelga xgrammar).
+    device = "cuda" if torch.cuda.is_available() else "cpu"
     model = AutoModelForCausalLM.from_pretrained(
         model_name,
-        device_map="auto",
+        torch_dtype=torch.float16,
+        device_map=device,
     )
 
     return model, tokenizer
